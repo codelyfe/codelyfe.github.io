@@ -1,1 +1,0 @@
-[logo]: http://codelyfe.ddns.net/wp-content/uploads/2018/01/logo-244-44.png "#1 Tech Consultant"
