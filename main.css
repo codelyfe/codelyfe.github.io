@@ -1,0 +1,103 @@
+
+.offcanvas-body {
+    background-color: black;
+    color: white;
+    border: 1px solid #00b1ca;
+}
+
+.offcanvas-header {
+    background-color: black;
+    color: white;
+    border: 1px solid #00b1ca;
+}
+
+.navbar {
+    border: 2px solid #ea00ff00 !important;
+    border-bottom-left-radius: 25px;
+    background-color: #00b1ca47;
+}
+
+.btn-dark {
+    border: 3px solid #ad1a1a00 !important;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #003138;
+}
+
+.card {
+    border: none;
+}
+
+.nav-pills .nav-link {
+    color: white;
+}
+
+.bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: #bd1dcc00 !important;
+    color: black;
+}
+
+.h2, h2 {
+    font-size: 2rem;
+    color: #00b1ca;
+}
+
+.offcanvas-top {
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 89vh;
+    max-height: 100%;
+    border-bottom: 1px solid rgba(0,0,0,.2);
+    transform: translateY(-100%);
+}
+
+@media only screen and (max-width:500px) {
+    /* For mobile phones:  border: 3px solid #ad1a1a !important; */
+    iframe {
+        display: none;
+    }
+}
+
+@media only screen and (max-width:600px) {
+    /* For mobile phones: */
+    iframe {
+        display: none;
+    }
+}
+
+@media only screen and (max-width:700px) {
+    /* For mobile phones: */
+    iframe {
+        display: none;
+    }
+}
+
+@media only screen and (max-width:800px) {
+    /* For mobile phones: */
+    iframe {
+        display: none;
+    }
+}
+
+@media only screen and (max-width:900px) {
+    /* For mobile phones: */
+    iframe {
+        display: none;
+    }
+}
+
+@media only screen and (max-width:1000px) {
+    /* For mobile phones: */
+    iframe {
+        display: none;
+    }
+}
+
+.dropdown-menu.show {
+    display: block;
+    border: 2px solid #9c27b0;
+}
