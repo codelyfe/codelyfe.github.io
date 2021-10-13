@@ -24,7 +24,7 @@
 
         .bg {
             animation: slide 3s ease-out infinite alternate;
-            background-image: linear-gradient( 7deg, #ffeb3b 50%, #009688 50%);
+            background-image: linear-gradient( 176deg, #ffeb3b 50%, #009688 50%);
             bottom: 0;
             left: -50%;
             opacity: .5;
@@ -33,14 +33,14 @@
             top: 0;
             z-index: -1;
         }
-         .bg2 {
+        .bg2 {
                 animation-direction: alternate;
                 animation-duration: 4s;
-            }
+           }
 
-            .bg3 {
+          .bg3 {
                 animation-duration: 5s;
-            }
+           }
 
             .content {
                 background-color: rgb(255 255 255 / 0%);
@@ -122,29 +122,70 @@
                 bottom: 8px;
                 right: 16px;
                 font-size: 18px;
-                display:none;
+               
+             }
+        .bottomright0 {
+            position: absolute;
+            bottom: 52px;
+            right: 16px;
+            font-size: 18px;
+        }
+
+        .topright {
+            position: absolute;
+            top: 8px;
+            right: 16px;
+            font-size: 18px;
+        }
+
+
+             .topleft {
+                position: absolute;
+                top: 8px;
+                left: 16px;
+                font-size: 18px;
+                font-weight: bold;
+                color: white;
+             }
+
+            .offcanvas-start {
+                top: 0;
+                left: 0;
+                width: 100%;
+                border-right: 1px solid rgba(0,0,0,.2);
+                transform: translateX(-100%);
             }
 
-        .bottomleft {
-            position: absolute;
-            bottom: 8px;
-            left: 16px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
+            .darkbug {
+                background-image: linear-gradient( 49deg, #03a9f4 50%, #2196f3 50%);         
+            }
+        .darkbug00 {
+            background-image: linear-gradient( 255deg, #ffffff 50%, #f7f5f5 50%);
         }
-
-        .offcanvas-start {
-            top: 0;
-            left: 0;
-            width: 100%;
-            border-right: 1px solid rgba(0,0,0,.2);
-            transform: translateX(-100%);
+        .darkbug01 {
+            background-image: linear-gradient( 49deg, #ffeb3b 50%, #e91e63 50%);
         }
+            .darkbug02 {
+                background-image: linear-gradient( 49deg, #03a9f4 50%, #2196f3 50%);
+            }
 
-        .darkbug {
-            background-color: #DFDBE5;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80' width='80' height='80'%3E%3Cpath fill='%239C92AC' fill-opacity='0.4' d='M14 16H9v-2h5V9.87a4 4 0 1 1 2 0V14h5v2h-5v15.95A10 10 0 0 0 23.66 27l-3.46-2 8.2-2.2-2.9 5a12 12 0 0 1-21 0l-2.89-5 8.2 2.2-3.47 2A10 10 0 0 0 14 31.95V16zm40 40h-5v-2h5v-4.13a4 4 0 1 1 2 0V54h5v2h-5v15.95A10 10 0 0 0 63.66 67l-3.47-2 8.2-2.2-2.88 5a12 12 0 0 1-21.02 0l-2.88-5 8.2 2.2-3.47 2A10 10 0 0 0 54 71.95V56zm-39 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm40-40a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM15 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm40 40a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'%3E%3C/path%3E%3C/svg%3E");
+            .nav-tabs .nav-link {
+                margin-bottom: -1px;
+                background: white;
+                border: 1px solid transparent;
+                border-top-left-radius: .25rem;
+                border-top-right-radius: .25rem;
+                /* padding-left: 47px; */
+                margin: 5px;
+            }
+
+            .offcanvas-bottom {
+                height: 100% !important;
+            }
+
+        .w-100 {
+            width: 100% !important;
+            margin: 8px;
         }
 
         @media only screen and (max-width: 1650px) {
@@ -164,7 +205,7 @@
         @media only screen and (max-width: 600px) {
             .bg {
                 animation: slide 3s ease-out infinite alternate;
-                background-image: linear-gradient( 199deg, #03a9f4 50%, #ffeb3b 50%);
+                background-image: linear-gradient( 350deg, #03a9f4 50%, #ffeb3b 50%);
                 bottom: 0;
                 left: -50%;
                 opacity: .5;
@@ -179,71 +220,7 @@
 
 </head>
 <body style="background-color:black; /* BACKGROUND COLOR */">
-    <!--Main Nav-->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="example1">
-        <div class="container-fluid">
-            <a class="navbar-brand bored" href="#">c<div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden">Loading...</span></div>delyfe</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav">
 
-                    <!--navsec01-->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            My Top Work
-                        </a>
-                        <ul class="dropdown-menu " aria-labelledby="navbarDropdownMenuLink">
-                            <li>
-                                <div class="card" style="width: 100rem;">
-                                    <div class="card-body">
-
-
-                                        <div class="row">
-                                            <div class="col-sm"><a href=" https://wordpress.org/plugins/1337-rss-feed-made-for-sharing/" target="_blank"><img src="1337.png" class="d-block w-100" alt="..."></a></div>
-                                            <div class="col-sm"><img src="github0.png" class="d-block w-100" alt="..."></div>
-                                            <div class="col-sm"><a href="https://github.com/codelyfe/SWROTS-MUD-RESTORED-2020" target="_blank"><img src="swrots3.png" class="d-block w-100" alt="..."></a></div>
-                                        </div>
-
-                                        <hr />
-
-                                        <div class="row">
-                                            <div class="col-sm"><a href="https://github.com/codelyfe/Random-Binary-Generator-Binary-Converter-PHP" target="_blank"><img src="bin.png" class="d-block w-100" alt="..."></a></div>
-                                            <div class="col-sm"><a href="https://github.com/codelyfe/txt-file-cms" target="_blank"><img src="txt0.png" class="d-block w-100" alt="..."></a></div>
-                                            <div class="col-sm"><a href="https://github.com/codelyfe/aspcore-webapp-bootstrap-v4" target="_blank"><img src="asp.png" class="d-block w-100" alt="..."></a></div>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                    <!--navsec01/-->
-                    <!--navsec00-->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Would you consider a donation?
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <li>
-                                <div class="card" style="width: 18rem;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">I work hard to keep these Gits and Plugins up to date. Would you please consider donating to support great software?</h5>
-                                        <p class="card-text">All donations are welcome. Even recycleable Items! <br />Email: codelyfe@gmail.com for more info.</p>
-                                        <a href="https://www.paypal.com/paypalme/codelyfe/" class="btn btn-dark">Make a Donation!</a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                    <!--navsec00/-->
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <!--Main Nav /-->
     <!--Leggoo <br/>-->
     <!--
     Leggoo-->
@@ -254,45 +231,102 @@
     <div class="bg bg2"></div>
     <div class="bg bg3"></div>
     <div class="content">
+
+        <h1>Overcoming the impossible, Starts with imagination.</h1>
+
         <div class="btn-group" style="float:right;" role="group" aria-label="Basic example">
-            <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample"><i data-feather="arrow-left"></i></button>
-            <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop"><i data-feather="arrow-up"></i></button>
-            <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i data-feather="arrow-right"></i></button>
-            <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom"><i data-feather="arrow-down"></i></button>
+            <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample"><i data-feather="key"></i></button>
+            <!--<button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop"><i data-feather="arrow-up"></i></button>
+        <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i data-feather="arrow-right"></i></button>
+        <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom"><i data-feather="download"></i></button>
+    -->
         </div>
-    </div>
-
-    <div class="bottomleft">
-
-        <img src="moko.png" />
 
     </div>
 
-    <div class="bottomright"><img src="199.png" /></div>
+    <div class="topleft">
+
+        <img src="img/fig.png" />
+
+    </div>
+
+    <div class="topright"></div>
+
+    <div class="bottomright0"></div>
+    <div class="bottomright"><img src="img/progw.png" /></div>
 
 
 
-    <!-- -->
-   
     <!--left-->
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
-            <button type="button" class="btn btn-dark" data-bs-dismiss="offcanvas" aria-label="Close">close</button>
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel"></h5>
+            <button type="button" class="btn btn-dark" data-bs-dismiss="offcanvas" aria-label="Close">X</button>
         </div>
         <div class="offcanvas-body darkbug">
 
-            <h1>Hello, World!</h1>
-            <hr />
-            <p>Would you like to join me on an adventure of a life time?</p>
-            <a class="btn btn-primary" aria-current="page" href="https://discord.gg/UJhr9cd4pq">BEST TECH REFERENCE + CLASS ON DISCORD</a>
+            <a href="https://github.com/codelyfe/SWROTS-MUD-RESTORED-2020" target="_blank"><img src="img/stw.png" /></a>
+            <a href="https://wordpress.org/plugins/1337-rss-feed-made-for-sharing/" target="_blank"><img src="img/rssplug.png" /></a>
+
 
         </div>
     </div>
     <!--left-->
+    <!--right-->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel">About Me ... </h5>
+            <button type="button" class="btn btn-dark" data-bs-dismiss="offcanvas" aria-label="Close">x</button>
+        </div>
+        <div class="offcanvas-body darkbug00">
+
+            <div style="color: #56ff00; background: black; border-radius: 3px;">
+                <p>codelyfe@codelyfe-github-io:~$</p><br />
+            </div>
+            <img src="img/php-icon.png" />
 
 
+        </div>
+    </div>
+    <!--right-->
+    <!--bottom-->
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasBottomLabel"></h5>
+            <button type="button" class="btn btn-dark" data-bs-dismiss="offcanvas" aria-label="Close">x</button>
+        </div>
+        <div class="offcanvas-body darkbug01">
 
+            <div class="row">
+                <div class="col-sm"><a href=" https://wordpress.org/plugins/1337-rss-feed-made-for-sharing/" target="_blank"><img src="img/1337.png" class="d-block w-100" alt="..."></a></div>
+                <div class="col-sm"><img src="img/github0.png" class="d-block w-100" alt="..."></div>
+                <div class="col-sm"><a href="https://github.com/codelyfe/SWROTS-MUD-RESTORED-2020" target="_blank"><img src="img/swrots3.png" class="d-block w-100" alt="..."></a></div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-sm"><a href="https://github.com/codelyfe/Random-Binary-Generator-Binary-Converter-PHP" target="_blank"><img src="img/bin.png" class="d-block w-100" alt="..."></a></div>
+                <div class="col-sm"><a href="https://github.com/codelyfe/txt-file-cms" target="_blank"><img src="img/txt0.png" class="d-block w-100" alt="..."></a></div>
+                <div class="col-sm"><a href="https://github.com/codelyfe/aspcore-webapp-bootstrap-v4" target="_blank"><img src="img/asp.png" class="d-block w-100" alt="..."></a></div>
+            </div>
+
+        </div>
+    </div>
+    <!--bottom-->
+    <!--top-->
+    <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasTopLabel">Offcanvas top</h5>
+            <button type="button" class="btn btn-dark" data-bs-dismiss="offcanvas" aria-label="Close">close</button>
+        </div>
+        <div class="offcanvas-body darkbug02">
+
+            <iframe src="http://localhost/meow/" width="100%" height="700px"></iframe>
+
+        </div>
+    </div>
+    <!--top-->
     <!-- Optional JavaScript; choose one of the two! -->
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
@@ -306,6 +340,8 @@
     <script>
         feather.replace()
     </script>
+
+    <!---->
 
 </body>
 </html>
