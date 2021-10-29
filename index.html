@@ -3,11 +3,13 @@
 <title>Mr. Codelyfe</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="vendors/fontawesome-free-5.15.4-web/css/all.css" rel="stylesheet">
+<link rel="stylesheet" href="vendors/fontawesome-free-5.15.4-web/css/all.css">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css" integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
+
 
 <style>
     html, body, h1, h2, h3, h4 {
@@ -55,6 +57,15 @@
     .card {
         border: none;
     }
+
+    .responsive-embed iframe, .responsive-embed object, .responsive-embed embed, .responsive-embed video, .flex-video iframe, .flex-video object, .flex-video embed, .flex-video video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+    }
+
     @media screen and (max-width: 800px) {
         .imga {
             width: 430px; 
@@ -93,11 +104,11 @@
                         <a class="nav-link" href="#plans">My Hourly Rates</a>
                     </li>
                     <!--<li class="nav-item">
-        <a class="nav-link" href="#about">Everything Else I Offer</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#skillss">My Skills</a>
-    </li>-->
+                        <a class="nav-link" href="#about">Everything Else I Offer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#skillss">My Skills</a>
+                    </li>-->
                     <li class="nav-item">
                         <a class="nav-link" href="#contact"><i class="fas fa-mobile-alt"></i> Contact Me</a>
                     </li>
@@ -112,16 +123,15 @@
     </nav>
 
     <!-- ALERT -->
-    <div class="alert alert-success container" role="alert" style="margin-top:15px" hidden>
-        <i class="fas fa-bullhorn"></i>
-    </div>
+    
+   
 
     <!-- Content -->
     <div class="w3-content" style="max-width:1100px;margin-top:40px;margin-bottom:80px">
 
         <!--<div class="w3-panel">
-            <img src="logo1.png" style="width: 593px;" />
-        </div>-->
+        <img src="logo1.png" style="width: 593px;" />
+    </div>-->
         <!-- Slideshow -->
         <div class="w3-container">
             <div class="w3-display-container mySlides">
@@ -219,10 +229,9 @@
         </div>
 
 
-
         <!-- Contact -->
         <div class="w3-center w3-padding-64" id="contact">
-            <img src="codelyfe.png"  class="imga"/>
+            <img src="codelyfe.png" class="imga" />
 
 
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -257,20 +266,20 @@
                                             </p>
                                             <p class="card-text"><b><i class="fas fa-envelope-open"></i> <span class="alert-danger">codelyfe@gmail.com</span></b></p>
                                             <!--
-                                                <p class="card-text">
-                                                    As a young <i class="fas fa-child"></i> boy
-                                                <br />my foundest <i class="far fa-hdd"></i>  memory
-                                                was working on a small <i class="fab fa-superpowers"></i> engine
-                                                <br /> that my father had brought home for me.
-                                                <br /> He'd given me a set of used tools <i class="fas fa-tools"></i> he dug out from his work shed ,
-                                                <br /> suggested Id use my <i class="fas fa-brain"></i> imagination and  asked me to get it running for him again.
-                                                 <br /> as I tore into that briggs and stratton 4hp engine.
-                                                <br /> Each part set aside as I studied where they went.
-                                                <br /> I mustve spent hours sitting there.
-                                                <br /> Parts laid out on an rustic wore out 4ft x 5ft table tucked in the corner of out entry way of our farm house.
-                                                <br /> At first I felt overwhelmed. I wanted to ask my father. But he was a stubborn man so bothering him was not an option
-                                                So I sucked in my doubt and studied each part even more. Hoping to understand what it does. I began fitting each piece of the motor back togther as I had remembered taking it apart. As I was doing so I cleaned each nut with a wire brush to remove the rust like an OCD habbit. intrigued by the wonders of how it all came apart and how I was going to put it all back together and make it work
-                                            </p>-->
+                                            <p class="card-text">
+                                                As a young <i class="fas fa-child"></i> boy
+                                            <br />my foundest <i class="far fa-hdd"></i>  memory
+                                            was working on a small <i class="fab fa-superpowers"></i> engine
+                                            <br /> that my father had brought home for me.
+                                            <br /> He'd given me a set of used tools <i class="fas fa-tools"></i> he dug out from his work shed ,
+                                            <br /> suggested Id use my <i class="fas fa-brain"></i> imagination and  asked me to get it running for him again.
+                                             <br /> as I tore into that briggs and stratton 4hp engine.
+                                            <br /> Each part set aside as I studied where they went.
+                                            <br /> I mustve spent hours sitting there.
+                                            <br /> Parts laid out on an rustic wore out 4ft x 5ft table tucked in the corner of out entry way of our farm house.
+                                            <br /> At first I felt overwhelmed. I wanted to ask my father. But he was a stubborn man so bothering him was not an option
+                                            So I sucked in my doubt and studied each part even more. Hoping to understand what it does. I began fitting each piece of the motor back togther as I had remembered taking it apart. As I was doing so I cleaned each nut with a wire brush to remove the rust like an OCD habbit. intrigued by the wonders of how it all came apart and how I was going to put it all back together and make it work
+                                        </p>-->
                                         </div>
                                     </div>
                                 </div>
@@ -317,7 +326,7 @@
             <!---->
             <div class="w3-row w3-container" id="skillss">
                 <div class="w3-center w3-padding-64">
-                    <img src="myskillz.png"  class="imga" />
+                    <img src="myskillz.png" class="imga" />
                 </div>
                 <div class="w3-third w3-margin-bottom">
 
@@ -545,15 +554,26 @@
     <!-- Footer -->
 
     <footer class="w3-container w3-padding-32 w3-light-grey w3-center">
-        <h4>Footer</h4>
-        <a href="#" class="w3-button w3-black w3-margin"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+        <h4>Even more stuff to look at down here!</h4>
+        <a href="#" class="w3-button w3-black w3-margin"><i class="fa fa-arrow-up w3-margin-right"></i>or go back up?</a>
         <div class="w3-xlarge w3-section">
-            <i class="fa fa-facebook-official w3-hover-opacity"></i>
-            <i class="fa fa-instagram w3-hover-opacity"></i>
-            <i class="fa fa-snapchat w3-hover-opacity"></i>
-            <i class="fa fa-pinterest-p w3-hover-opacity"></i>
-            <i class="fa fa-twitter w3-hover-opacity"></i>
-            <i class="fa fa-linkedin w3-hover-opacity"></i>
+
+
+            <div class="pure-menu pure-menu-horizontal">
+                <ul class="pure-menu-list">
+                    <li class="pure-menu-item">
+                        <a href="https://www.linkedin.com/in/randy-burger-73b8401a2/" class="pure-menu-link"><i class="fab fa-linkedin"></i> Profile</a>
+                    </li>
+                    <li class="pure-menu-item">
+                        <a href="https://linktr.ee/codelyfe" class="pure-menu-link"> My <i class="fas fa-link"></i> Tree</a>
+                    </li>
+                    <li class="pure-menu-item">
+                        <a href="https://gitter.im/codelyfe/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link" class="pure-menu-link"><i class="far fa-comments"></i> Gitter</a>
+                    </li>
+                </ul>
+            </div>
+
+
         </div>
     </footer>
 
@@ -588,8 +608,10 @@
         }
     </script>
 
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+ 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
 
