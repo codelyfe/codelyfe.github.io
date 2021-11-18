@@ -84,14 +84,18 @@
     }
     .spinner-border {
         display: inline-block;
-        width: 1rem;
-        height: 1rem;
-        vertical-align: -.125em;
+        width: 0rem;
+        height: 0rem;
+        vertical-align: -0.125px;
         border: .25em solid currentColor;
         border-right-color: #2196f3;
         border-radius: 50%;
         -webkit-animation: .75s linear infinite spinner-border;
         animation: .75s ease-in-out infinite spinner-border;
+    }
+    .w3-dark-grey {
+        color: #fff !important;
+        background-color: #61616100 !important;
     }
     @media screen and (max-width: 800px) {
         .imga {
@@ -105,7 +109,7 @@
     <!-- Links (sit on top) -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="fab fa-black-tie"></i> Mr. C<div class="spinner-border"></div>delyfe</a>
+            <a class="navbar-brand" href="#">Mr. C<div class="spinner-border"></div>delyfe</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -124,9 +128,11 @@
                             My Apps
                         </a>
                     </li>
+                    <!--
                     <li class="nav-item">
                         <a class="nav-link" href="#plans">My Hourly Rates</a>
                     </li>
+                    -->
                     <li class="nav-item">
                         <a class="nav-link" href="https://www.deviantart.com/codelyfe" target="_blank">My ART <span class="badge bg-danger">New</span></a>
                     </li>
@@ -179,80 +185,10 @@
             </div>
         </div>
        <!-- Grid -->
-        <div class="container-fluid">
-            <div class="mt-4 p-5 bg-dark text-white rounded">
-                <h1>Check Out Some of My Work!</h1>
-                <p>
-                    <!-- Place this tag where you want the button to render. -->
-                    <a class="github-button" href="https://github.com/codelyfe" aria-label="Follow @codelyfe on GitHub">Follow @codelyfe</a>
-                    <!-- Place this tag where you want the button to render. -->
-                    <a class="github-button" href="https://github.com/codelyfe/SWROTS-MUD-RESTORED-2020/archive/HEAD.zip" data-icon="octicon-download" aria-label="Download codelyfe/SWROTS-MUD-RESTORED-2020 on GitHub"> Download codelyfe/SWROTS-MUD-RESTORED-2020 </a>
-                    <!-- Place this tag where you want the button to render. -->
-                    <a class="github-button" href="https://github.com/codelyfe/txt-file-cms/fork" data-icon="octicon-repo-forked" aria-label="Fork codelyfe/txt-file-cms on GitHub">Fork codelyfe/txt-file-cms</a>
-                </p>
-            </div>
-        </div>
-        <!---->
+
         <!-- Grid -->
         <div class="w3-row-padding" id="plans">
-            <div class="w3-center w3-padding-64">
-                <img src="myrates.png" class="imga" />
-            </div>
 
-            <div class="w3-third w3-margin-bottom">
-                <ul class="w3-ul w3-border w3-center w3-hover-shadow deal">
-                    <li class="w3-black w3-xlarge w3-padding-32"><i class="fas fa-star"></i> Basic</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> PHP + SQL</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> CSS3</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> HTML5</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> COFFESCRIPT</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> JS + AJAX</li>
-                    <li class="w3-padding-16">
-                        <h2 class="w3-wide">$ 25</h2>
-                        <span class="w3-opacity">per hour</span>
-                    </li>
-                    <li class="w3-light-grey w3-padding-24">
-                        <a href="https://forms.gle/8DxkLsnuwTju2YtU7" class="w3-button w3-green w3-padding-large">Be More Now!</a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="w3-third w3-margin-bottom">
-                <ul class="w3-ul w3-border w3-center w3-hover-shadow deal">
-                    <li class="w3-dark-grey w3-xlarge w3-padding-32"><i class="fas fa-star-half-alt"></i> Pro</li>
-                    <li class="w3-padding-16"> BASIC FEATURES +</li>
-                    <li class="w3-padding-16"><i class="fas fa-mobile-alt"></i> RESPONSIVE WEBDESIGN</li>
-                    <li class="w3-padding-16"><i class="fab fa-searchengin"></i> SEO + <i class="fas fa-dollar-sign"></i> ROI PLANNING</li>
-                    <li class="w3-padding-16"><i class="far fa-keyboard"></i> DATA ENTRY</li>
-                    <li class="w3-padding-16">
-                        <h2 class="w3-wide">$ 45 - 50</h2>
-                        <span class="w3-opacity">per hour</span>
-                    </li>
-                    <li class="w3-light-grey w3-padding-24">
-
-                        <a href="https://forms.gle/8DxkLsnuwTju2YtU7" class="w3-button w3-green w3-padding-large">Get Great Results!</a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="w3-third w3-margin-bottom">
-                <ul class="w3-ul w3-border w3-center w3-hover-shadow deal">
-                    <li class="w3-black w3-xlarge w3-padding-32"><i class="far fa-star"></i>  Premium</li>
-                    <li class="w3-padding-16">BASIC &amp; PRO FEATURES +</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> C , C# , C++</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> Python , ASP.net , Ruby , Swift</li>
-                    <li class="w3-padding-16"><i class="fas fa-edit"></i> Java , Pearl , F , node.js</li>
-                    <li class="w3-padding-16"><i class="fas fa-cloud"></i> Cloud Computing</li>
-                    <li class="w3-padding-16">
-                        <h2 class="w3-wide">$80 - 200</h2>
-                        <span class="w3-opacity">per hour</span>
-                    </li>
-                    <li class="w3-light-grey w3-padding-24">
-                        <a href="https://forms.gle/8DxkLsnuwTju2YtU7" class="w3-button w3-green w3-padding-large">Let's Build Paradise</a>
-
-                    </li>
-                </ul>
-            </div>
         </div>
 
 
@@ -285,7 +221,7 @@
                                             <p class="card-text">Software , Electrical , and Mechanical Engineer. <br /> From "Mankato, MN". <br /> Went to "Mankato East High School" </p>
                                             <p class="card-text ">Studied at "South Central College" <br /> for Marketing , Software engineering, Networking , Electrical repair.</p>
                                             <p class="card-text">Worked for Multiple Tech companies across the globe <br /> as well as local businesses in and around "Mankato MN".</p>
-                                            <p class="card-text">Currently working on <br /> <a href="https://mankatobazaar.com">https://mankatobazaar.com</a><br /> & <a href="https://stonerpipeline.com">https://stonerpipeline.com</a></p>
+                                            <p class="card-text">Currently working on <br /> <a href="https://mankatobazaar.com">https://mankatobazaar.com</a></p>
                                             <p class="card-text">
                                                 My hobbies. Spending time with my wife ,
                                                 <br /> friends , and family.
@@ -534,6 +470,7 @@
 
     <div class="container-fluid">
         <h1 style="text-align:center;"><span class="badge bg-danger">New</span> Tech + Yarn Protyping With Wife</h1>
+        <h2 style="text-align:center;">Arduino NANO + Crocheting + LED Lights</h2>
         <br />
         <center>
             <video width="320" height="240" controls>
@@ -558,7 +495,7 @@
             </video>
         </center>
         <br />
-        <h2 style="text-align:center;">Arduino NANO + Crocheting + LED Lights</h2>
+
     </div>
 
     <hr />
