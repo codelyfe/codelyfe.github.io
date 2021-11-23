@@ -116,6 +116,106 @@
          border: none; 
          border-radius: 0; 
     }
+    /*
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    */
+    * {
+        box-sizing: border-box;
+    }
+
+    .imgl {
+        vertical-align: middle;
+    }
+
+    /* Position the image container (needed to position the left and right arrows) */
+    .container {
+        position: relative;
+    }
+
+    /* Hide the images by default */
+    .mySlides {
+        display: none;
+    }
+
+    /* Add a pointer when hovering over the thumbnail images */
+    .cursor {
+        cursor: pointer;
+    }
+
+    /* Next & previous buttons */
+    .prev,
+    .next {
+        cursor: pointer;
+        position: absolute;
+        top: 40%;
+        width: auto;
+        padding: 16px;
+        margin-top: -50px;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        border-radius: 0 3px 3px 0;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* Position the "next button" to the right */
+    .next {
+        right: 0;
+        border-radius: 3px 0 0 3px;
+    }
+
+        /* On hover, add a black background color with a little bit see-through */
+        .prev:hover,
+        .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+    /* Number text (1/3 etc) */
+    .numbertext {
+        color: #f2f2f2;
+        font-size: 12px;
+        padding: 8px 12px;
+        position: absolute;
+        top: 0;
+    }
+
+    /* Container for image text */
+    .caption-container {
+        text-align: center;
+        background-color: #222;
+        padding: 2px 16px;
+        color: white;
+    }
+
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    /* Six columns side by side */
+    .column {
+        float: left;
+        width: 16.66%;
+    }
+
+    /* Add a transparency effect for thumnbail images */
+    .demo {
+        opacity: 0.6;
+    }
+
+        .active,
+        .demo:hover {
+            opacity: 1;
+        }
+    /*
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    */
+
+
+
+
 
     @media screen and (max-width: 800px) {
         .imga {
@@ -193,43 +293,112 @@
         <b><i class="fas fa-trophy" style="color:yellow;background:black;padding:5px;border-radius:10px;"></i>   #1 RSS Feed Designer out on the web!</b> <a href="https://wordpress.org/plugins/1337-rss-feed-made-for-sharing/" class="btn btn-light"><i class="fab fa-wordpress"></i> Check it out</a>
     </div> -->
     <!---->
+
+
+
+
+
+
+
+
+
+
+
+    <div class="container">
+        <div class="mySlides">
+            <div class="numbertext" hidden>My Content</div>
+            <img class="imgl" src="img/feed.png" style="width:100%">
+        </div>
+
+        <div class="mySlides">
+            <div class="numbertext" hidden>My Content</div>
+            <img class="imgl" src="img/mem3.png" style="width:100%">
+        </div>
+
+        <div class="mySlides">
+            <div class="numbertext" hidden>My Content</div>
+            <img class="imgl" src="img/mem.png" style="width:100%">
+        </div>
+        <!--
+        <div class="mySlides">
+            <div class="numbertext" hidden>My Content</div>
+            <img class="imgl" src="img/mem.png" style="width:100%">
+        </div>
+
+        <div class="mySlides">
+            <div class="numbertext" hidden>My Content</div>
+            <img class="imgl" src="img/mem.png" style="width:100%">
+        </div>
+
+        <div class="mySlides">
+            <div class="numbertext" hidden>My Content</div>
+            <img class="imgl" src="img/mem.png" style="width:100%">
+        </div>-->
+
+        <a class="prev" onclick="plusSlides(-1)">❮</a>
+        <a class="next" onclick="plusSlides(1)">❯</a>
+
+        <div class="caption-container">
+            <p id="caption"></p>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <img class="demo cursor imgl" src="img/feed.png" style="width:100%" onclick="currentSlide(1)" alt="1">
+            </div>
+
+            <div class="column">
+                <img class="demo cursor imgl" src="img/mem3.png" style="width:100%" onclick="currentSlide(2)" alt="2">
+            </div>
+
+            <div class="column">
+                <img class="demo cursor imgl" src="img/mem.png" style="width:100%" onclick="currentSlide(3)" alt="Mountains and fjords">
+            </div>
+            <!--
+    <div class="column">
+        <img class="demo cursor imgl" src="img/mem.png" style="width:100%" onclick="currentSlide(4)" alt="Northern Lights">
+    </div>
+    <div class="column">
+        <img class="demo cursor imgl" src="img/mem.png" style="width:100%" onclick="currentSlide(5)" alt="Nature and sunrise">
+    </div>
+    <div class="column">
+        <img class="demo cursor imgl" src="img/mem.png" style="width:100%" onclick="currentSlide(6)" alt="Snowy Mountains">
+    </div>-->
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!-- Content -->
     <div class="w3-content" style="max-width:1100px;margin-top:40px;margin-bottom:80px">
         <!--<div class="w3-panel">
             <img src="logo1.png" style="width: 593px;" />
         </div>-->
-        <!-- Slideshow -->
-        <div class="w3-container">
-            <div class="w3-display-container mySlides">
-                <img src="img/mem.png" style="width:100%">
-                <div class="w3-display-topleft w3-container w3-padding-32">
-                    <!--<span class="w3-white w3-padding-large w3-animate-bottom">Lorem ipsum</span>-->
-                </div>
-            </div>
-            <div class="w3-display-container mySlides">
-                <img src="img/mem3.png" style="width:100%">
-                <div class="w3-display-middle w3-container w3-padding-32">
-                    <!--<span class="w3-white w3-padding-large w3-animate-bottom">Klorim tipsum</span>-->
-                </div>
-            </div>
-            <div class="w3-display-container mySlides">
-                <img src="img/mem.png" style="width:100%">
-                <div class="w3-display-topright w3-container w3-padding-32">
-                    <!--<span class="w3-white w3-padding-large w3-animate-bottom">Blorum pipsum</span>-->
-                </div>
-            </div>
-            <!-- Slideshow next/previous buttons -->
-            <div class="w3-container w3-dark-grey w3-padding w3-xlarge">
-                <div class="w3-left" onclick="plusDivs(-1)"><i class="fa fa-arrow-circle-left w3-hover-text-teal"></i></div>
-                <div class="w3-right" onclick="plusDivs(1)"><i class="fa fa-arrow-circle-right w3-hover-text-teal"></i></div>
-                <div class="w3-center">
-                    <span class="w3-tag demodots w3-border w3-transparent w3-hover-white" onclick="currentDiv(1)"></span>
-                    <span class="w3-tag demodots w3-border w3-transparent w3-hover-white" onclick="currentDiv(2)"></span>
-                    <span class="w3-tag demodots w3-border w3-transparent w3-hover-white" onclick="currentDiv(3)"></span>
-                </div>
-            </div>
-        </div>
-        <!-- Grid -->
         <!-- Grid -->
         <div class="w3-row-padding" id="plans">
 
@@ -729,6 +898,40 @@
             dots[slideIndex - 1].className += " w3-white";
         }
     </script>
+
+
+    <script>
+        var slideIndex = 1;
+        showSlides(slideIndex);
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            var i;
+            var slides = document.getElementsByClassName("mySlides");
+            var dots = document.getElementsByClassName("demo");
+            var captionText = document.getElementById("caption");
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            slides[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " active";
+            captionText.innerHTML = dots[slideIndex - 1].alt;
+        }
+    </script>
+
+
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
