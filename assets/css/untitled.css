@@ -33,3 +33,7 @@
   padding-bottom: 4px;
 }
 
+.link-secondary {
+  text-decoration: none !important;
+}
+
