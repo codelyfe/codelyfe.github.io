@@ -24,3 +24,12 @@
   background: black !important;
 }
 
+.shop-link {
+  font-weight: bold !important;
+  color: #fdd302 !important;
+}
+
+.cart-icon {
+  padding-bottom: 4px;
+}
+
