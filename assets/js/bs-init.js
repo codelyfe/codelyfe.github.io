@@ -94,4 +94,5 @@ document.addEventListener('DOMContentLoaded', function() {
 		var param = product.dataset.bssDynamicProductParam;
 		product.dataset.reflowProduct = new URL(location.href).searchParams.get(param)
 	}
+
 }, false);

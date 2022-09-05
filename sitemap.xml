@@ -7,10 +7,28 @@
         <loc>/adsmarketing.html</loc>
     </url>
     <url>
+        <loc>/app-design.html</loc>
+    </url>
+    <url>
+        <loc>/blog.html</loc>
+    </url>
+    <url>
         <loc>/check-out.html</loc>
     </url>
     <url>
+        <loc>/content-writing.html</loc>
+    </url>
+    <url>
+        <loc>/custom-code.html</loc>
+    </url>
+    <url>
+        <loc>/graphic-art.html</loc>
+    </url>
+    <url>
         <loc>/</loc>
+    </url>
+    <url>
+        <loc>/logo-design.html</loc>
     </url>
     <url>
         <loc>/quote.html</loc>
@@ -20,6 +38,12 @@
     </url>
     <url>
         <loc>/shop.html</loc>
+    </url>
+    <url>
+        <loc>/toa.html</loc>
+    </url>
+    <url>
+        <loc>/ui-design.html</loc>
     </url>
     <url>
         <loc>/webdev.html</loc>
