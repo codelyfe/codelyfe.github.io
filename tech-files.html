@@ -85,7 +85,77 @@ Let us come together to create a world full of information and security.">
                             <p class="fw-bold mb-0">John Smith</p>
                             <p class="text-muted mb-0">Erat netus</p>
                         </div>
-                    </div>
+                    </div><style>
+.gallery {
+  display: grid;
+  width: 160px;
+  transform-style: preserve-3d;
+  --_t: perspective(280px) rotateX(-90deg);
+  animation: r 12s cubic-bezier(0.5, -0.2, 0.5, 1.2) infinite;
+}
+
+@keyframes r {
+  0%, 3% {
+    transform: var(--_t) rotate(0deg);
+  }
+  14.6666666667%, 19.6666666667% {
+    transform: var(--_t) rotate(-60deg);
+  }
+  31.3333333333%, 36.3333333333% {
+    transform: var(--_t) rotate(-120deg);
+  }
+  48%, 53% {
+    transform: var(--_t) rotate(-180deg);
+  }
+  64.6666666667%, 69.6666666667% {
+    transform: var(--_t) rotate(-240deg);
+  }
+  81.3333333333%, 86.3333333333% {
+    transform: var(--_t) rotate(-300deg);
+  }
+  98%, 100% {
+    transform: var(--_t) rotate(-360deg);
+  }
+}
+.gallery > img {
+  grid-area: 1/1;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.gallery > img:nth-child(1) {
+  transform: rotate(0deg) translateY(86.6025403784%) rotateX(90deg);
+}
+
+.gallery > img:nth-child(2) {
+  transform: rotate(60deg) translateY(86.6025403784%) rotateX(90deg);
+}
+
+.gallery > img:nth-child(3) {
+  transform: rotate(120deg) translateY(86.6025403784%) rotateX(90deg);
+}
+
+.gallery > img:nth-child(4) {
+  transform: rotate(180deg) translateY(86.6025403784%) rotateX(90deg);
+}
+
+.gallery > img:nth-child(5) {
+  transform: rotate(240deg) translateY(86.6025403784%) rotateX(90deg);
+}
+
+.gallery > img:nth-child(6) {
+  transform: rotate(300deg) translateY(86.6025403784%) rotateX(90deg);
+}    
+</style>
+<div class="gallery">
+  <img src="https://picsum.photos/id/1059/300/300" alt="many clothes and pictures">
+  <img src="https://picsum.photos/id/1060/300/300" alt="someone preparing artisanal coffee">
+  <img src="https://picsum.photos/id/225/300/300" alt="some tee">
+  <img src="https://picsum.photos/id/163/300/300" alt="an empty table in a restaurant">
+  <img src="https://picsum.photos/id/180/300/300" alt="a laptop with a notebook">
+  <img src="https://picsum.photos/id/20/300/300" alt="a laptop and many books around it">
+</div>
                 </div>
             </div>
             <div class="col">
