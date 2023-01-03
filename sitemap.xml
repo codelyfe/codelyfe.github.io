@@ -43,10 +43,16 @@
         <loc>/shop.html</loc>
     </url>
     <url>
+        <loc>/tech-files.html</loc>
+    </url>
+    <url>
         <loc>/toa.html</loc>
     </url>
     <url>
         <loc>/ui-design.html</loc>
+    </url>
+    <url>
+        <loc>/web-hosting.html</loc>
     </url>
     <url>
         <loc>/webdev.html</loc>
