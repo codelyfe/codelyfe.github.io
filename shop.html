@@ -14,6 +14,7 @@ Let us come together to create a world full of information and security.">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700&amp;display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kaushan+Script&amp;display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/animate.min.css">
     <link rel="stylesheet" href="assets/css/article-nice.css">
     <link rel="stylesheet" href="assets/css/Articles-Cards.css">
@@ -63,44 +64,275 @@ Let us come together to create a world full of information and security.">
             </div>
         </div>
     </footer>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="carousel slide" data-bs-ride="carousel" id="carousel-1" style="height: 600px;padding-top: 59px;">
-                    <div class="carousel-inner h-100">
-                        <div class="carousel-item active h-100">
-                            <div data-reflow-type="product" data-reflow-product="2145836912"></div>
-                        </div>
-                        <div class="carousel-item h-100">
-                            <div data-reflow-type="product" data-reflow-product="453308717"></div>
-                        </div>
-                        <div class="carousel-item h-100">
-                            <div data-reflow-type="product" data-reflow-product="2042074014"></div>
-                        </div>
-                    </div>
-                    <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-bs-slide="prev" style="color: black !important;"><span class="carousel-control-prev-icon"></span><span class="visually-hidden">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button" data-bs-slide="next"><span class="carousel-control-next-icon"></span><span class="visually-hidden">Next</span></a></div>
-                    <ol class="carousel-indicators">
-                        <li data-bs-target="#carousel-1" data-bs-slide-to="0" class="active"></li>
-                        <li data-bs-target="#carousel-1" data-bs-slide-to="1"></li>
-                        <li data-bs-target="#carousel-1" data-bs-slide-to="2"></li>
-                    </ol>
-                </div>
-            </div>
-            <div class="col-md-6"><img class="img-fluid bounce animated" width="762" height="557" src="assets/img/sellus.png"></div>
-        </div>
-    </div>
     <section>
         <div class="container">
-            <div data-reflow-type="product" data-reflow-product="361660820"></div>
-            <div data-reflow-type="product" data-reflow-product="2145836912"></div>
-            <div data-reflow-type="product" data-reflow-product="453308717"></div>
-            <div data-reflow-type="product" data-reflow-product="739807443"></div>
-            <div data-reflow-type="product" data-reflow-product="2042074014"></div>
-            <div data-reflow-type="product" data-reflow-product="2056157667"></div>
+            <div class="fs-3" data-reflow-type="product" data-reflow-product="292049499" data-reflow-show="name,price,description,add-to-cart"></div>
         </div>
-    </section>
+    </section><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">     
+ <style>
+    .img-hide{
+        display:none;
+    }
+    .dark-mode {
+        background-color: black;
+        color: white;
+    }
+    .large-text {
+        font-size:40px;
+    }
+    .read-font-text {
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .outline-title{
+        outline-style: solid !important;
+        outline-color: rgb(249, 99, 99) !important;
+        outline-width: 2px !important;
+        outline-offset: 2px !important;
+        width: fit-content;
+    }
+    .outline-links{
+        outline-style: solid !important;
+        outline-color: rgb(99, 249, 119) !important;
+        outline-width: 2px !important;
+        outline-offset: 2px !important;
+        width: fit-content;
+    }
+    button{
+        background-color: black;
+        color:white;
+        padding:5px;
+    }
+    /**/
+    .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+/**/
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #000;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+  </style>
+    <span style="z-index: 1;font-size: 30px;cursor: pointer;border: 3px solid #2196f3;position: fixed;bottom: 25px;right: 20px;padding: 4px;border-radius: 10px;" onclick="openNav()"><i class="fa fa-universal-access" aria-hidden="true" style="color: #2196f3;"></i></span>
+
+<div id="mySidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <!--||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
+    <div >
+    <!--<span style="font-weight: bold;color: #ff9800;float: right !important;font-size: 25px;">Enjoy ADA compliant Features</span>-->
+    <br/><br/><br/><br/><br/><br/>
+    <a href="javascript:void(0)"  onclick="closeNav()">&times;</a>
+    <button onclick="myFunction()"><i class="fa fa-star-half-o" aria-hidden="true" style="font-size: 30px;"></i></button>
+    <br/>
+    <button onclick="myFunction3()"><i class="fa fa-text-height" aria-hidden="true" style="font-size: 30px;"></i></button>
+    <br/>
+    <button onclick="myFunction2()"><i class="fa fa-eye" aria-hidden="true" style="font-size: 30px;"></i></button>
+    <br/>
+    <button onclick="myFunction8()"><i class="fa fa-window-maximize" aria-hidden="true" style="font-size: 30px;"></i></button>
+    <br/>
+    <button onclick="myFunction88()"><i class="fa fa-file-image-o" aria-hidden="true" style="font-size: 30px;"></i></button>
+    <br/>
+    <button onclick="myFunction889()"><i class="fa fa-link" aria-hidden="true" style="font-size: 30px;"></i></button>
+    <br/><br/>
+
+    
+<!--<hr/>
+    <label class="switch">
+        <input type="checkbox" onclick="myFunction()">
+        <span class="slider round"></span>
+    </label> <span style="font-size: 25px;color: white;">Toggle Dark Mode</span> 
+    <br/><br/>
+    <label class="switch">
+        <input type="checkbox" onclick="myFunction3()">
+        <span class="slider round"></span>
+    </label> <span style="font-size: 25px;color: white;">Toggle Large Text</span>
+    <br/><br/> 
+    <label class="switch">
+        <input type="checkbox" onclick="myFunction2()">
+        <span class="slider round"></span>
+    </label> <span style="font-size: 25px;color: white;">Toggle Readable Text</span>
+    <br/><br/>
+    <label class="switch">
+        <input type="checkbox" onclick="myFunction8()">
+        <span class="slider round"></span>
+    </label> <span style="font-size: 25px;color: white;">Outline Titles</span>
+    <br/><br/>
+    <label class="switch">
+        <input type="checkbox" onclick="myFunction88()">
+        <span class="slider round"></span>
+    </label> <span style="font-size: 25px;color: white;">Hide Images</span>
+    <br/><br/>
+    <label class="switch">
+        <input type="checkbox" onclick="myFunction889()">
+        <span class="slider round"></span>
+    </label> <span style="font-size: 25px;color: white;">Outline Links</span>
+  <hr/>
+    
+    
+    <span style="font-size: 25px;">Increase Font Size</span>
+    
+    <br/>
+    <label class="switch">
+      <input type="checkbox" onclick="myFunction1337()">
+      <span class="slider round"></span>
+    </label> 
+
+    <label class="switch">
+      <input type="checkbox" onclick="myFunction1338()">
+      <span class="slider round"></span>
+    </label> 
+
+    <label class="switch">
+      <input type="checkbox" onclick="myFunction1339()">
+      <span class="slider round"></span>
+    </label> 
+
+    <hr/>
+-->
+    <br/>
+    </div>
+    <!--||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
+    </div>
+
+
+
+
+    <script>
+        // Toggle Dark Mode
+        function myFunction() {
+        var element = document.body;
+        element.classList.toggle("dark-mode");
+        }
+        // Toggle Large Text
+        function myFunction3() {
+        var l = document.body;
+        l.classList.toggle("large-text");
+        }
+        // Toggle Readable font Text
+        function myFunction2() {
+        var x = document.body;
+        x.classList.toggle("read-font-text");
+        }
+        // Toggle Titles
+        function myFunction8() {
+            const list = document.getElementsByTagName("h2")[0];
+            list.classList.toggle("outline-title");
+            const list1 = document.getElementsByTagName("h1")[0];
+            list1.classList.toggle("outline-title");
+        }
+        // Toggle Hide Images
+        function myFunction88() {
+            const list = document.getElementsByTagName("img")[0];
+            list.classList.toggle("img-hide");
+        }
+        // Toggle Hide Links
+        function myFunction889() {
+            const list2 = document.getElementsByTagName("a")[0];
+            list2.classList.toggle("outline-links");
+        }
+    </script>
+
+
+    <script>
+      function openNav() {
+        document.getElementById("mySidenav").style.width = "90px";
+      }
+      
+      function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+      }
+    </script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="https://cdn.reflowhq.com/v1/toolkit.min.js" data-reflow-store="428986441"></script>
+    <script src="https://cdn.reflowhq.com/v1/toolkit.min.js" data-reflow-store="1655094326"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/agency.js"></script>
 </body>

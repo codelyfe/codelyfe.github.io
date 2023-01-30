@@ -277,7 +277,6 @@ svg:not(:root) {
   -webkit-text-decoration-skip: objects;
   font-style: initial;
   white-space: nowrap;
-  -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
   vertical-align: middle;
