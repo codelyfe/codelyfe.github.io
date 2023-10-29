@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+    <plugin>
+        <name>File Manager | By Bit Form Team</name>
+        <url>https://downloads.wordpress.org/plugin/file-manager.6.2.1.zip</url>
+    </plugin>
+    <plugin>
+        <name>Backup Migration | By Migrate</name>
+        <url>https://downloads.wordpress.org/plugin/backup-backup.1.3.3.zip</url>
+    </plugin>
+    <plugin>
+        <name>Query Monitor</name>
+        <url>https://downloads.wordpress.org/plugin/query-monitor.3.14.1.zip</url>
+    </plugin>
+    <plugin>
+        <name>Redirection</name>
+        <url>https://downloads.wordpress.org/plugin/redirection.5.3.10.zip</url>
+    </plugin>
+    <plugin>
+        <name>Google Site Kit</name>
+        <url>https://downloads.wordpress.org/plugin/google-site-kit.1.111.1.zip</url>
+    </plugin>
+    <plugin>
+        <name>Classic Editor</name>
+        <url>https://downloads.wordpress.org/plugin/classic-editor.1.6.3.zip</url>
+    </plugin>
+    <plugin>
+        <name>Classic Widgets</name>
+        <url>https://downloads.wordpress.org/plugin/classic-widgets.0.3.zip</url>
+    </plugin>
+    <plugin>
+        <name>WPCode | Insert Headers and Footers + Custom Code Snippets | WordPress Code Manager | By WPCode</name>
+        <url>https://downloads.wordpress.org/plugin/insert-headers-and-footers.2.1.4.1.zip</url>
+    </plugin>
+    <plugin>
+        <name>Forminator | Contact Form, Payment Form & Custom Form Builder | By WPMU DEV</name>
+        <url>https://downloads.wordpress.org/plugin/forminator.1.27.0.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337-RSS-Feed | By codelyfe@gmail.com</name>
+        <url>https://downloads.wordpress.org/plugin/1337-rss-feed-made-for-sharing.zip</url>
+    </plugin>
+    <plugin>
+        <name>Rollback Auto Update | By WP Core Contributors</name>
+        <url>https://downloads.wordpress.org/plugin/rollback-update-failure.7.0.3.zip</url>
+    </plugin>
+    <plugin>
+        <name>WP Mail SMTP by WPForms | The Most Popular SMTP and Email Log Plugin | By WP Mail SMTP</name>
+        <url>https://downloads.wordpress.org/plugin/wp-mail-smtp.3.9.0.zip</url>
+    </plugin>
+    <plugin>
+        <name>Download Plugin | By metagauss</name>
+        <url>https://downloads.wordpress.org/plugin/download-plugin.2.0.6.zip</url>
+    </plugin>
+    <!-- 3rd Party Plugins -->
+    <plugin>
+        <name>1337 WP Login Customizer [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-WP-Login-Customizer.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Add CDNs [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Add-CDNS.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 BG Image [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-BG-Image.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Block SQL Injector [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Block-SQL-Injector.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 CDN Enabler [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-CDN-Enabler.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Cron Job CleanUp [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Cron-Job-CleanUp.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Custom Code Header [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Custom-Code-Header.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Custom CSS [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Custom-CSS.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Custom Background Color [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Custon-Background-Color.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Dev Notes [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Dev-Notes.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Disable Plugin Installer [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Disable-Plugin-Installer.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Edit Woo Products [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Edit-Woo-Products.zip</url>
+    </plugin>
+    <plugin>
+        <name>1337 Hide Dashboard [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <url>https://codelyfe.github.io/downloads/1337-Hide-Dashboard.zip</url>
+    </plugin>
+</plugins>
