@@ -54,51 +54,51 @@
     </plugin>
     <!-- 3rd Party Plugins -->
     <plugin>
-        <name>1337 WP Login Customizer</name>
+        <name>1337 WP Login Customizer ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-WP-Login-Customizer.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Add CDNs</name>
+        <name>1337 Add CDNs ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Add-CDNS.zip</url>
     </plugin>
     <plugin>
-        <name>1337 BG Image</name>
+        <name>1337 BG Image ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-BG-Image.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Block SQL Injector </name>
+        <name>1337 Block SQL Injector ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Block-SQL-Injector.zip</url>
     </plugin>
     <plugin>
-        <name>1337 CDN Enabler</name>
+        <name>1337 CDN Enabler ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-CDN-Enabler.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Cron Job CleanUp</name>
+        <name>1337 Cron Job CleanUp ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Cron-Job-CleanUp.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Custom Code Header</name>
+        <name>1337 Custom Code Header ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Custom-Code-Header.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Custom CSS</name>
+        <name>1337 Custom CSS ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Custom-CSS.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Dev Notes</name>
+        <name>1337 Dev Notes ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Dev-Notes.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Disable Plugin Installer</name>
+        <name>1337 Disable Plugin Installer ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Disable-Plugin-Installer.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Edit Woo Products</name>
+        <name>1337 Edit Woo Products ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Edit-Woo-Products.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Hide Dashboard</name>
+        <name>1337 Hide Dashboard ***3rd Party***</name>
         <url>https://codelyfe.github.io/downloads/1337-Hide-Dashboard.zip</url>
     </plugin>
 </plugins>
