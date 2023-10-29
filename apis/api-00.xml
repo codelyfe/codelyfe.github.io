@@ -54,55 +54,55 @@
     </plugin>
     <!-- 3rd Party Plugins -->
     <plugin>
-        <name>1337 WP Login Customizer [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 WP Login Customizer</name>
         <url>https://codelyfe.github.io/downloads/1337-WP-Login-Customizer.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Add CDNs [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Add CDNs</name>
         <url>https://codelyfe.github.io/downloads/1337-Add-CDNS.zip</url>
     </plugin>
     <plugin>
-        <name>1337 BG Image [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 BG Image</name>
         <url>https://codelyfe.github.io/downloads/1337-BG-Image.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Block SQL Injector [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Block SQL Injector </name>
         <url>https://codelyfe.github.io/downloads/1337-Block-SQL-Injector.zip</url>
     </plugin>
     <plugin>
-        <name>1337 CDN Enabler [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 CDN Enabler</name>
         <url>https://codelyfe.github.io/downloads/1337-CDN-Enabler.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Cron Job CleanUp [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Cron Job CleanUp</name>
         <url>https://codelyfe.github.io/downloads/1337-Cron-Job-CleanUp.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Custom Code Header [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Custom Code Header</name>
         <url>https://codelyfe.github.io/downloads/1337-Custom-Code-Header.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Custom CSS [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Custom CSS</name>
         <url>https://codelyfe.github.io/downloads/1337-Custom-CSS.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Custom Background Color [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Custom Background Color</name>
         <url>https://codelyfe.github.io/downloads/1337-Custon-Background-Color.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Dev Notes [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Dev Notes</name>
         <url>https://codelyfe.github.io/downloads/1337-Dev-Notes.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Disable Plugin Installer [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Disable Plugin Installer</name>
         <url>https://codelyfe.github.io/downloads/1337-Disable-Plugin-Installer.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Edit Woo Products [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Edit Woo Products</name>
         <url>https://codelyfe.github.io/downloads/1337-Edit-Woo-Products.zip</url>
     </plugin>
     <plugin>
-        <name>1337 Hide Dashboard [ <b style="color:#fafafa;">3rd Party</b> ]</name>
+        <name>1337 Hide Dashboard</name>
         <url>https://codelyfe.github.io/downloads/1337-Hide-Dashboard.zip</url>
     </plugin>
 </plugins>
