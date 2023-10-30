@@ -52,6 +52,10 @@
         <name>Download Plugin | By metagauss</name>
         <url>https://downloads.wordpress.org/plugin/download-plugin.2.0.6.zip</url>
     </plugin>
+    <plugin>
+        <name>Wordfence Security | Firewall, Malware Scan, and Login Security | By Wordfence</name>
+        <url>https://downloads.wordpress.org/plugin/wordfence.7.10.5.zip</url>
+    </plugin>
     <!-- 3rd Party Plugins -->
     <plugin>
         <name>1337 WP Login Customizer ***3rd Party***</name>
