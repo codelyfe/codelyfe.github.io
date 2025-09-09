@@ -1,308 +1,290 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Codelyfe — GitHub Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#0ea5e9" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
-  <style>
-    :root{
-      --panel:#0f172a; --text:#e5f0ff; --muted:#9db3d1;
-      --brand:#0ea5e9; --brand-2:#14b8a6; --accent:#a78bfa;
-      --ring:0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
-      --shadow: 0 10px 30px rgba(2,8,23,.35), 0 2px 8px rgba(2,8,23,.25);
-      --glass: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      --speed-1:300ms; --speed-2:600ms;
-    }
-    @media (prefers-color-scheme: light){
-      :root{ --bg:#f7fbff; --panel:#ffffff; --text:#0b1220; --muted:#44566c;
-        --shadow:0 10px 30px rgba(2,8,23,.15),0 2px 8px rgba(2,8,23,.08);
-        --glass:linear-gradient(180deg,#fff,#fff7);
-      }
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font:16px/1.55 Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.22),transparent 60%),
-        radial-gradient(1000px 600px at -10% -10%,rgba(167,139,250,.22),transparent 55%),
-        var(--bg);
-      overflow-x:hidden;
-    }
-    a{color:var(--brand);text-decoration:none}
-    a:focus-visible,button:focus-visible,input:focus-visible{outline:none;box-shadow:var(--ring)}
-    .app{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
-    header{
-      position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);
-      background:linear-gradient(180deg, rgba(2,8,23,.55), rgba(2,8,23,.15));
-      border-bottom:1px solid rgba(148,163,184,.15);
-    }
-    .bar{max-width:1200px;margin:0 auto;padding:14px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.6px;font-size:18px}
-    .logo{width:36px;height:36px;border-radius:12px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand));box-shadow: inset 0 0 0 2px #ffffff66, 0 8px 20px rgba(14,165,233,.45)}
-    .btn{border:1px solid #94a3b83f;background:var(--glass);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform var(--speed-1)}
-    .btn:hover{transform:translateY(-2px)}
-    .github-corner{position:fixed;right:0;top:0;z-index:9;width:80px;height:80px;clip-path:polygon(0 0,100% 0,100% 100%);background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;opacity:.95}
-    .github-corner svg{width:36px;height:36px;fill:#fff;opacity:.9}
-
-    main{max-width:1200px;margin:22px auto;padding:0 18px;display:grid;gap:24px}
-    .hero{display:grid;gap:18px;align-items:center;grid-template-columns:1.2fr .8fr}
-    @media (max-width:900px){.hero{grid-template-columns:1fr}}
-    .title{font-weight:800;font-size:clamp(32px,6vw,64px);line-height:1.05;letter-spacing:.6px;background:linear-gradient(90deg,var(--text),color-mix(in srgb, var(--text) 60%, transparent));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .pulse{animation:rise .9s both cubic-bezier(.2,.9,.2,1)}
-    .subtitle{color:var(--muted);font-size:clamp(16px,2.2vw,20px)}
-    .cta{display:flex;gap:10px;flex-wrap:wrap}
-    .card-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
-    .card{grid-column:span 4;background:var(--panel);border-radius:16px;padding:18px;border:1px solid #94a3b82f;transition:transform var(--speed-1)}
-    .card:hover{transform:translateY(-4px)}
-    @media (max-width:1000px){.card{grid-column:span 6}}
-    @media (max-width:640px){.card{grid-column:span 12}}
-    .kpi{font-weight:800;font-size:28px}
-    .kpi small{display:block;color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.4px;margin-top:2px}
-    .section-title{font-weight:800;font-size:clamp(22px,3vw,28px)}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
-    input[type="search"]{width:min(520px,100%);padding:12px 14px;border-radius:12px;border:1px solid #94a3b83f;background:var(--panel);color:var(--text);box-shadow:inset 0 1px 0 #ffffff0f}
-
-    /* repo items with a "window" title bar */
-    .repo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-    .repo-item{display:grid;grid-template-rows:auto 1fr}
-    .winbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:6px 10px;height:34px;
-      background:linear-gradient(180deg,#ffffff18,#00000014);
-      border:1px solid #94a3b83f;border-bottom:none;
-      border-radius:12px 12px 0 0;
-      font-size:12px;color:var(--muted);
-    }
-    .winbar .title-left{display:flex;align-items:center;gap:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .winbar .title-left b{color:var(--text);font-weight:700}
-    .winbtns{display:inline-flex;gap:6px}
-    .winbtn{
-      width:28px;height:20px;border-radius:8px;
-      display:grid;place-items:center;cursor:default;
-      border:1px solid #94a3b83f;background:linear-gradient(180deg,#ffffff18,#ffffff08);
-      color:var(--muted);
-      font-weight:800; line-height:1;
-      user-select:none;
-    }
-    .winbtn[aria-label="Close"]{color:#fca5a5}
-    .repo{
-      position:relative;
-      border:1px solid #94a3b82e;border-top:none;
-      border-radius:0 0 16px 16px;
-      background:linear-gradient(180deg,#ffffff0d,#ffffff05);
-      padding:16px 16px 56px 16px; /* extra bottom space for language chip */
-      display:grid;
-      grid-template-rows:auto 1fr auto; /* title | desc grows | meta row */
-      gap:10px;
-    }
-    .lang{position:absolute;bottom:10px;right:10px}
-    .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .tag{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;
-      border:1px solid #94a3b848;
-      background:linear-gradient(180deg,#ffffff0d,#ffffff05);
-      font-size:12px;color:var(--muted);
-      line-height:1; white-space:nowrap; height:auto; width:auto;
-    }
-    .chip svg{width:14px;height:14px;flex:0 0 auto}
-    footer{padding:32px 18px;color:var(--muted);text-align:center;border-top:1px solid #94a3b826;background:linear-gradient(0deg,#02081733,transparent)}
-    .sig{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid #94a3b83f;background:linear-gradient(180deg,#ffffff0d,#ffffff05)}
-    .sig b{color:var(--text)}
-    #bg{position:fixed;inset:0;z-index:-1}
-    @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-    .reveal{opacity:0;transform:translateY(12px);transition:opacity var(--speed-2) ease,transform var(--speed-2) ease}
-    .reveal.in{opacity:1;transform:translateY(0)}
-    @media (prefers-reduced-motion: reduce){.reveal{transition:none}.pulse{animation:none}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A11y Widget Demo — ShipWr3ck | Codelyfe</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root{--bg:#0b0f17;--fg:#e9eef5;--muted:#93a2bf;--card:#121926;--border:#22304a;--acc:#0b5cff}
+  html,body{background:var(--bg);color:var(--fg)}
+  .hero{
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(11,92,255,.15), transparent 60%),
+                radial-gradient(900px 600px at 90% 0%, rgba(139,92,246,.12), transparent 60%),
+                linear-gradient(180deg, #0b0f17, #0a0e16);
+    border-bottom:1px solid var(--border);
+  }
+  .brand-grad{background:linear-gradient(90deg,#22d3ee,#38bdf8,#60a5fa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand-grad-2{background:linear-gradient(90deg,#c084fc,#a78bfa,#f472b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .card-demo{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35)
+  }
+  .toc{
+    position:sticky; top:84px; background:rgba(18,25,38,.65); border:1px solid var(--border);
+    border-radius:14px; padding:14px; backdrop-filter:saturate(140%) blur(6px)
+  }
+  .toc a{color:var(--muted); text-decoration:none}
+  .toc a:hover{color:#cfe0ff}
+  pre{background:#0d1320; border:1px solid var(--border); color:#cfe0ff; border-radius:12px; padding:14px; overflow:auto}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  .copy-btn{border:1px solid var(--border); background:#0f1524; color:#cfe0ff; border-radius:10px; padding:6px 10px; cursor:pointer}
+  .demo-img{width:100%; height:auto; border-radius:12px; border:1px solid var(--border)}
+  .spin{width:80px;height:80px;border-radius:12px;background:conic-gradient(from 0deg,#60a5fa,#22d3ee,#a78bfa,#f472b6,#60a5fa); animation:spin 2s linear infinite}
+  @keyframes spin{to{transform:rotate(1turn)}}
+  .color-bars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+  .bar{height:16px;border-radius:6px}
+  .bar:nth-child(1){background:#ef4444}
+  .bar:nth-child(2){background:#f59e0b}
+  .bar:nth-child(3){background:#22c55e}
+  .bar:nth-child(4){background:#06b6d4}
+  .bar:nth-child(5){background:#3b82f6}
+  .bar:nth-child(6){background:#a78bfa}
+  .kbd{border:1px solid var(--border);padding:2px 6px;border-radius:6px;background:#0f1524}
+  .demo-link{color:#8fb9ff}
+  .footer{border-top:1px solid var(--border)}
+  .badge-soft{background:rgba(11,92,255,.15); color:#b7cdff; border:1px solid rgba(11,92,255,.35)}
+  @media (max-width: 991px){ .toc{position:static; margin-top:16px} }
+</style>
 </head>
 <body>
-  <canvas id="bg" aria-hidden="true"></canvas>
-
-
-  <div class="app" id="app">
-    <header>
-      <div class="bar">
-        <div class="brand">
-          <span class="logo" aria-hidden="true"></span>
-          <span>CODELYFE</span>
+<header class="hero py-5">
+  <div class="container">
+    <nav class="d-flex align-items-center justify-content-between mb-4">
+      <div class="h5 m-0 fw-bold">
+        <span class="brand-grad">ShipWr3ck</span>
+        <span class="text-secondary">×</span>
+        <span class="brand-grad-2">Codelyfe</span>
+      </div>
+      <div class="d-flex gap-2">
+        <button id="btnOpenWidget" class="btn btn-primary">Open A11y Widget</button>
+        <a href="#install" class="btn btn-outline-light">Install</a>
+        <a href="#examples" class="btn btn-outline-light">Examples</a>
+      </div>
+    </nav>
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <h1 class="display-5 fw-bold">A11y Widget Demo</h1>
+        <p class="lead text-secondary">Try text size, dark mode, high-contrast, link underline, focus rings, image hiding, grayscale, pause animations, reading mask, and smarter TTS — all live on this page.</p>
+        <div class="d-flex gap-2">
+          <button id="btnFocusTour" class="btn btn-success">Focus Ring Tour</button>
+          <button id="btnResetWidget" class="btn btn-outline-info">Reset Widget</button>
         </div>
-        <div class="actions">
-          <a class="btn" href="a11y-demo.html">A11y Demo</a>
-          <a class="btn" href="#projects">Projects</a>
-          <a class="btn" href="https://github.com/codelyfe" target="_blank" rel="noopener">GitHub</a>
+        <div class="mt-3">
+          <span class="badge rounded-pill badge-soft me-1">WCAG 2.1+</span>
+          <span class="badge rounded-pill bg-dark border">No dependencies</span>
         </div>
       </div>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div>
-          <div class="title pulse">Invent. Build. <span style="background:linear-gradient(90deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent">Ship</span>.</div>
-          <p class="subtitle">Robotics, web apps, and open-source tools.</p>
-          <div class="cta">
-            <a class="btn" href="#projects">Explore Projects</a>
-            <a class="btn" href="https://github.com/codelyfe?tab=repositories" target="_blank" rel="noopener">GitHub Repos</a>
+      <div class="col-lg-5">
+        <div class="card-demo p-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Quick test</div>
+            <small class="text-secondary">Select text → <span class="kbd">Play</span></small>
           </div>
-          <div class="card-grid" style="margin-top:18px">
-            <div class="card reveal"><div class="kpi">10+<small>Active Repos</small></div></div>
-            <div class="card reveal"><div class="kpi">∞<small>Ideas Shipped</small></div></div>
-            <div class="card reveal"><div class="kpi">82,091<small>Issues Solved</small></div></div>
+          <p class="mt-2" id="quickText">Accessibility is about making the web usable for everyone. Toggle “Hover to Read” and hover this card, or select this sentence and hit <em>Play</em> in the widget.</p>
+          <div class="color-bars my-2" aria-hidden="true">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-light" href="#examples">Jump to examples</a>
+            <a class="btn btn-outline-light" href="#install">Jump to install</a>
           </div>
         </div>
-        <div class="reveal">
-          <svg viewBox="0 0 400 300" width="100%" height="100%" role="img" aria-label="Codelyfe visual">
-            <defs>
-              <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            </defs>
-            <rect x="10" y="10" width="380" height="280" rx="22" fill="url(#g1)" opacity=".1" stroke="#60a5fa" />
-            <g filter="url(#glow)" stroke="url(#g1)" stroke-width="2" fill="none">
-              <path d="M40 220 Q160 80 360 160" />
-              <path d="M40 240 Q200 120 360 200" opacity=".6" />
-              <circle cx="220" cy="140" r="46" />
-            </g>
-            <g fill="#67e8f9"><circle cx="80" cy="210" r="5"/><circle cx="140" cy="160" r="4"/><circle cx="300" cy="190" r="4"/></g>
-          </svg>
-        </div>
-      </section>
-
-      <section id="projects" aria-labelledby="projects-title">
-        <h2 class="section-title" id="projects-title">Projects</h2>
-        <div class="toolbar">
-          <input id="search" type="search" placeholder="Search repositories…" aria-label="Search repositories" />
-          <button id="reload" class="btn">Reload</button>
-          <span class="tag" id="count">loading…</span>
-        </div>
-        <div class="repo-grid" id="repoGrid" aria-live="polite"></div>
-      </section>
-    </main>
-
-    <footer>
-      <span class="sig">Powered by <b>ShipWr3ck</b> • <a href="https://shipwr3ck.com" target="_blank" rel="noopener">shipwr3ck.com</a> • <a href="https://github.com/codelyfe/A11y-Widget-Place-Anywhere" target="_blank" rel="noopener">Codelyfe</a></span>
-    </footer>
+      </div>
+    </div>
   </div>
+</header>
 
-  <script>
+<main id="content" class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <aside class="col-lg-3">
+        <div class="toc">
+          <div class="fw-semibold mb-2">On this page</div>
+          <ol class="m-0 ps-3">
+            <li><a href="#install">Install</a></li>
+            <li><a href="#examples">Examples</a></li>
+            <li><a href="#tts">Reader / TTS</a></li>
+            <li><a href="#forms">Form Focus</a></li>
+            <li><a href="#images">Images</a></li>
+            <li><a href="#animation">Pause Animations</a></li>
+          </ol>
+        </div>
+      </aside>
 
-
-    (() => {
-      const grid = document.getElementById('repoGrid');
-      const count = document.getElementById('count');
-      const search = document.getElementById('search');
-      const reload = document.getElementById('reload');
-      let all = [];
-
-      async function load(){
-        try{
-          count.textContent = 'loading…';
-          grid.innerHTML = '';
-          const resp = await fetch('https://api.github.com/users/codelyfe/repos?per_page=100&sort=updated');
-          const data = await resp.json();
-          all = Array.isArray(data) ? data : [];
-          render(all);
-        }catch(e){
-          grid.innerHTML = `<div class="repo">Failed to load repositories.</div>`;
-          count.textContent = 'error';
-        }
-      }
-      function iconStar(){ return `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.48 3.5a.56.56 0 011.04 0l2.01 5.15c.07.18.24.31.44.33l5.52.4c.5.03.7.66.32.99l-4.21 3.52c-.16.14-.23.35-.18.56l1.26 5.38a.56.56 0 01-.84.61l-4.73-2.77a.56.56 0 00-.58 0l-4.73 2.77a.56.56 0 01-.84-.61l1.26-5.38c.05-.21-.02-.42-.18-.56L2.65 10.4a.56.56 0 01.32-.99l5.52-.4c.2-.02.37-.15.44-.33l2.01-5.15z"/></svg>`}
-      function iconFork(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M6 7v3a6 6 0 006 6M18 7v3a6 6 0 01-6 6"/></svg>`}
-      function langDot(){ return `<svg viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>`}
-      function winButtons(){
-        return `
-          <span class="winbtns" aria-hidden="true">
-            <span class="winbtn" aria-label="Minimize">_</span>
-            <span class="winbtn" aria-label="Maximize">□</span>
-            <span class="winbtn" aria-label="Close">×</span>
-          </span>
-        `;
-      }
-
-      function render(list){
-        const q = (search.value || '').toLowerCase().trim();
-        const view = list.filter(r => !q || (r.name + ' ' + (r.description || '')).toLowerCase().includes(q));
-
-        grid.innerHTML = view.map(r => {
-          const star = `<span class="tag chip">${iconStar()}${r.stargazers_count}</span>`;
-          const fork = `<span class="tag chip">${iconFork()}${r.forks_count}</span>`;
-          const upd = new Date(r.updated_at).toLocaleDateString();
-          const langBadge = r.language ? `<span class="tag chip lang">${langDot()}${r.language}</span>` : '';
-
-          return `
-            <div class="repo-item reveal">
-              <div class="winbar" role="group" aria-label="Repo title bar">
-                <span class="title-left">Updated:&nbsp;<b>${upd}</b></span>
-                ${winButtons()}
-              </div>
-              <article class="repo">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-                  <a href="${r.html_url}" target="_blank" rel="noopener" style="font-weight:800">${r.name}</a>
-                </div>
-                <div style="color:var(--muted);min-height:42px">${r.description || ''}</div>
-                <div class="meta">${star}${fork}</div>
-                ${langBadge}
-              </article>
+      <section class="col-lg-9">
+        <!-- Install -->
+        <section id="install" class="mb-5">
+          <h2 class="h3 fw-bold mb-3">Install</h2>
+          <div class="card-demo p-3">
+            <p class="text-secondary mb-2">Paste this near the end of your page, before <code>&lt;/body&gt;</code>:</p>
+            <div class="d-flex justify-content-end">
+              <button class="copy-btn" data-copy="#snippetInline">Copy</button>
             </div>
-          `;
-        }).join('');
+            <pre id="snippetInline"><code>&lt;!-- A11y Widget — drop-in script (inline, no deps) --&gt;
+&lt;script&gt;
+/* Copy the entire widget script block from the demo page (below) and paste it here.
+   You can keep it inline, or move it into a self-hosted a11y-widget.js and use:
+   &lt;script src=&quot;/path/to/a11y-widget.js&quot; defer&gt;&lt;/script&gt;
+*/
+&lt;/script&gt;</code></pre>
 
-        count.textContent = `${view.length}/${all.length}`;
-        observeReveal();
-      }
+            <p class="text-secondary mt-3 mb-2">Optional self-hosted file:</p>
+            <div class="d-flex justify-content-end">
+              <button class="copy-btn" data-copy="#snippetFile">Copy</button>
+            </div>
+            <pre id="snippetFile"><code>&lt;!-- Self-hosted file example --&gt;
+&lt;script src=&quot;/assets/js/a11y-widget.js&quot; defer&gt;&lt;/script&gt;</code></pre>
+          </div>
+        </section>
 
-      function observeReveal(){
-        const io = new IntersectionObserver((entries, obs)=>{
-          for(const e of entries){
-            if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
-          }
-        }, {rootMargin:'0px 0px -10% 0px', threshold:.1});
-        document.querySelectorAll('#repoGrid .reveal').forEach(el => io.observe(el));
-      }
-      search.addEventListener('input', () => render(all));
-      reload.addEventListener('click', load);
-      load();
-    })();
+        <!-- Examples -->
+        <section id="examples" class="mb-5">
+          <h2 class="h3 fw-bold mb-3">Examples</h2>
+          <div class="card-demo p-3 mb-3">
+            <h3 class="h5">Text size, spacing &amp; dyslexia-friendly</h3>
+            <p>Use the widget to change <strong>Text size</strong>. Try <em>Text spacing</em> and <em>Dyslexia-friendly</em> and see how this paragraph updates live across the page.</p>
+            <article>
+              <h4 class="h6">Sample article</h4>
+              <p>Inclusive design ensures people with diverse abilities can perceive, understand, navigate, and interact with the web. Clear hierarchy, adequate contrast, and keyboard operability are foundational.</p>
+              <p>Use the <a href="#" class="demo-link">Underline links</a> toggle to ensure links are clearly identifiable, not just by color. Focus indicators also help keyboard and switch device users track their location.</p>
+            </article>
+          </div>
 
-    (() => {
-      const c = document.getElementById('bg');
-      const ctx = c.getContext('2d',{alpha:true});
-      let stars=[], t=0;
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      function resize(){
-        const dpr = Math.min(devicePixelRatio||1,2);
-        c.width = innerWidth*dpr; c.height = innerHeight*dpr;
-        c.style.width = innerWidth+'px'; c.style.height = innerHeight+'px';
-        ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
-      }
-      function make(){
-        const n = Math.floor((innerWidth*innerHeight)/14000);
-        stars = Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,z:Math.random()*1+.3,v:Math.random()*.25+.05}));
-      }
-      function frame(){
-        t++; ctx.clearRect(0,0,innerWidth,innerHeight); ctx.globalAlpha=.9; ctx.fillStyle='#74c7ec';
-        for(const s of stars){
-          s.x += s.v*s.z; if(s.x>innerWidth+20) s.x=-20, s.y=Math.random()*innerHeight;
-          ctx.fillRect(s.x,s.y,1,1); if((t%2)===0) ctx.fillRect(s.x-1,s.y,1,1);
-        }
-        requestAnimationFrame(frame);
-      }
-      if(!reduce){ resize(); make(); addEventListener('resize',()=>{resize(); make();}); frame(); }
-    })();
+          <div class="card-demo p-3 mb-3" id="tts">
+            <h3 class="h5">Reader / TTS</h3>
+            <p>Select any text and click <em>Play</em> in the widget. Or enable <strong>Hover to Read</strong> and hover over content. Adjust <em>Rate</em> and <em>Pitch</em> as needed.</p>
+            <blockquote class="blockquote">
+              <p>“Accessibility is not a feature, it’s a social trend.”</p>
+            </blockquote>
+          </div>
 
-    (() => {
-      const io = new IntersectionObserver((entries)=>{
-        for(const e of entries){ if(e.isIntersecting){ e.target.classList.add('in'); } }
-      }, {rootMargin:'-5% 0px -5% 0px'});
-      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-    })();
-  </script>
-  <!-- A11y Widget By Randal Burger Jr -->
+          <div class="card-demo p-3 mb-3" id="forms">
+            <h3 class="h5">Form Focus (always show focus)</h3>
+            <p>Tab through these controls. Then toggle <strong>Always show focus</strong> in the widget.</p>
+            <form class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="name">Name</label>
+                <input class="form-control" id="name" placeholder="Ada Lovelace">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="email">Email</label>
+                <input class="form-control" id="email" type="email" placeholder="ada@example.com">
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="topic">Topic</label>
+                <select class="form-select" id="topic">
+                  <option>General</option>
+                  <option>Accessibility</option>
+                  <option>Design Systems</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="msg">Message</label>
+                <textarea class="form-control" id="msg" rows="3">This message will be read if you select it and press Play.</textarea>
+              </div>
+              <div class="col-12 d-flex gap-2">
+                <button type="button" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn btn-outline-light">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card-demo p-3 mb-3" id="images">
+            <h3 class="h5">Images (hide images)</h3>
+            <p>Toggle <strong>Hide images</strong> to simulate low-bandwidth or reduce visual noise. Alt text remains available to assistive tech.</p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <img class="demo-img" alt="Gradient blue demo image"
+                     src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%230b5cff'/><stop offset='1' stop-color='%2360a5fa'/></linearGradient></defs><rect width='100%%' height='100%%' fill='url(%23g)'/><text x='50%%' y='52%%' fill='white' font-size='56' text-anchor='middle' font-family='Arial'>Demo Image A</text></svg>">
+              </div>
+              <div class="col-md-6">
+                <img class="demo-img" alt="Pink and purple demo image"
+                     src="data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'><defs><linearGradient id='h' x1='0' x2='1'><stop offset='0' stop-color='%23a78bfa'/><stop offset='1' stop-color='%23f472b6'/></linearGradient></defs><rect width='100%%' height='100%%' fill='url(%23h)'/><text x='50%%' y='52%%' fill='white' font-size='56' text-anchor='middle' font-family='Arial'>Demo Image B</text></svg>">
+              </div>
+            </div>
+          </div>
+
+          <div class="card-demo p-3 mb-3" id="animation">
+            <h3 class="h5">Pause Animations &amp; Grayscale</h3>
+            <p>Use <strong>Pause animations</strong> and <strong>Grayscale</strong> to calm motion and colors.</p>
+            <div class="d-flex align-items-center gap-4">
+              <div class="spin" aria-label="Spinning color square"></div>
+              <div>
+                <p class="mb-1">This animated square will stop when you pause animations.</p>
+                <p class="mb-0">Enable grayscale to desaturate the entire page.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-demo p-3">
+            <h3 class="h5">Reading Mask</h3>
+            <p>Toggle <strong>Reading mask</strong> and move your mouse to focus a horizontal band while reading:</p>
+            <p>Design with intention. Label form controls, provide sufficient color contrast, ensure keyboard operability, and support user preferences like reduced motion and larger text.</p>
+            <p>Assistive technologies help many users, but accessible design benefits everyone.</p>
+          </div>
+        </section>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="footer py-4">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between">
+    <div class="small text-secondary">© <span id="yr"></span> ShipWr3ck · Codelyfe</div>
+    <div class="small">
+      <a class="text-decoration-none demo-link" href="#install">Install</a>
+      <span class="text-secondary mx-2">•</span>
+      <a class="text-decoration-none demo-link" href="#examples">Examples</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const sel = document.querySelector(btn.dataset.copy);
+      if(!sel) return;
+      const txt = sel.innerText;
+      navigator.clipboard.writeText(txt).then(()=>{
+        const old = btn.textContent; btn.textContent = 'Copied!';
+        setTimeout(()=>btn.textContent = old, 1200);
+      });
+    });
+  });
+  // Open widget programmatically (clicks the FAB in shadow DOM)
+  document.getElementById('btnOpenWidget').addEventListener('click', ()=>{
+    const root = document.getElementById('a11y-widget-root');
+    if(root && root.shadowRoot){
+      const fab = root.shadowRoot.querySelector('#a11y-open');
+      if(fab) fab.click();
+    }
+  });
+  // Reset widget programmatically
+  document.getElementById('btnResetWidget').addEventListener('click', ()=>{
+    const root = document.getElementById('a11y-widget-root');
+    if(root && root.shadowRoot){
+      const reset = root.shadowRoot.querySelector('#a11y-reset');
+      if(reset) reset.click();
+    }
+    try{ localStorage.removeItem('a11y_widget_prefs_v4'); }catch(e){}
+  });
+  // Focus ring tour: focus a few items sequentially
+  document.getElementById('btnFocusTour').addEventListener('click', async ()=>{
+    const ids = ['name','email','topic','msg'];
+    for(const id of ids){
+      const el = document.getElementById(id);
+      if(!el) continue;
+      el.focus(); await new Promise(r=>setTimeout(r, 700));
+    }
+  });
+</script>
+
+<!-- ====================== A11y Widget (inline) ====================== -->
+<!-- A11y Widget By Randal Burger Jr -->
 <script>
 (() => {
   if (window.__A11Y_WIDGET__) return; window.__A11Y_WIDGET__ = true;
@@ -1104,5 +1086,7 @@ html[data-a11y-pause-anim] *::after{
   }, { passive: true });
 })();
 </script>
+<!-- ==================== /A11y Widget ==================== -->
+
 </body>
 </html>
