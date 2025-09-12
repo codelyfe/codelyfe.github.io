@@ -170,6 +170,224 @@
             <g fill="#67e8f9"><circle cx="80" cy="210" r="5"/><circle cx="140" cy="160" r="4"/><circle cx="300" cy="190" r="4"/></g>
           </svg>
         </div>
+
+        <!-- Buy Me a Drink — Light Overlay (scrollable) + Icon CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<button id="bmad-open" type="button" style="width:20% !important;all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:.6rem;background:#121213;color:#fff;padding:.8rem 1.1rem;border-radius:999px;font:600 16px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial,sans-serif;box-shadow:0 6px 16px rgba(0, 0, 0, 0.35);">
+  <i class="fa-solid fa-beer-mug-empty" aria-hidden="true" style="color:#ffc107 !important;"></i>
+  <span>Buy me a drink</span>
+</button>
+
+<div id="bmad-overlay" role="dialog" aria-modal="true" aria-labelledby="bmad-title" hidden>
+  <div class="bmad-sheet">
+    <div class="bmad-header">
+      <h2 id="bmad-title"><i class="fa-solid fa-martini-glass-citrus" aria-hidden="true"></i> Buy me a drink</h2>
+      <button class="bmad-close" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="bmad-body">
+      <p class="bmad-sub">Choose an amount or enter your own.</p>
+
+      <div class="bmad-amounts">
+        <button type="button" data-amt="3">$3</button>
+        <button type="button" data-amt="5">$5</button>
+        <button type="button" data-amt="8">$8</button>
+        <button type="button" data-amt="12">$12</button>
+      </div>
+
+      <label class="bmad-input">
+        <span>$</span>
+        <input id="bmad-amount" type="number" inputmode="decimal" min="1" step="0.01" value="5.00" placeholder="Amount" />
+      </label>
+
+      <div id="bmad-error" class="bmad-error" role="alert" aria-live="polite"></div>
+
+      <!-- (Optional) Add more fields here; this area is scrollable when content grows -->
+      <div style="height:0.5px"></div> <!-- keeps spacing consistent -->
+    </div>
+
+    <div class="bmad-footer">
+      <div id="bmad-paypal" class="bmad-pp"></div>
+      <p class="bmad-foot"><i class="fa-brands fa-paypal" aria-hidden="true"></i> Powered by PayPal • Thank you for the support!</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Overlay container (scrollable) */
+  #bmad-overlay{
+    position:fixed; inset:0; z-index:999999;
+    background:rgba(15,23,42,.25);
+    backdrop-filter:saturate(1.05) blur(4px);
+    overflow-y:auto; overscroll-behavior:contain;
+  }
+  #bmad-overlay[hidden]{display:none}
+
+  /* Sheet */
+  .bmad-sheet{
+    width:min(92vw,720px);
+    margin:48px auto;
+    background:#fff; color:#0f172a;
+    border:1px solid #e2e8f0; border-radius:18px;
+    box-shadow:0 18px 50px rgba(2,6,23,.15), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+
+  /* Sticky header & footer inside scroll container */
+  .bmad-header{
+    position:sticky; top:0; z-index:1;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:14px 18px;
+    background:#fffffffa; backdrop-filter:saturate(1.05);
+    border-bottom:1px solid #e2e8f0;
+  }
+  .bmad-header h2{margin:0; font:800 20px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif}
+
+  .bmad-close{
+    all:unset; cursor:pointer; color:#475569; border-radius:10px; padding:6px;
+  }
+  .bmad-close:hover{background:#f1f5f9; color:#0f172a}
+
+  .bmad-body{padding:16px 18px 8px}
+  .bmad-sub{margin:0 0 .8rem; color:#64748b; font-size:14px}
+
+  .bmad-amounts{display:flex; gap:.5rem; flex-wrap:wrap; margin:0 0 .8rem}
+  .bmad-amounts button{
+    all:unset; cursor:pointer; background:#020202; color:#fff;
+    padding:.5rem .85rem; border-radius:999px; font:600 14px/1 system-ui;
+    box-shadow:0 6px 14px rgba(0, 0, 0, 0.25)
+  }
+  .bmad-amounts button:hover{transform:translateY(-1px)}
+
+  .bmad-input{
+    display:flex; align-items:center; gap:.5rem;
+    background:#ffffff; border:1px solid #cbd5e1;
+    padding:.62rem .8rem; border-radius:12px; margin:0 0 .6rem;
+    font:600 16px/1.1 system-ui
+  }
+  .bmad-input span{color:#475569}
+  .bmad-input input{all:unset; flex:1; text-align:left; color:#0f172a}
+
+  .bmad-error{min-height:1.1em; color:#b91c1c; font:600 13px/1.2 system-ui; margin:0 0 .45rem}
+
+  .bmad-footer{
+    position:sticky; bottom:0; z-index:1;
+    background:linear-gradient(#fffffffa, #ffffff);
+    border-top:1px solid #e2e8f0;
+    padding:12px 18px 16px;
+  }
+  .bmad-pp{margin:0 0 .4rem}
+  .bmad-foot{margin:0; color:#475569; font:500 12px/1.2 system-ui; text-align:center}
+
+  @media (max-width:520px){
+    .bmad-sheet{margin:24px 4vw}
+    .bmad-header{padding:12px 14px}
+    .bmad-body{padding:14px 14px 6px}
+    .bmad-footer{padding:10px 14px 14px}
+  }
+</style>
+
+<script>
+(function(){
+  const CLIENT_ID = "AaQKN-v4A0PUGdbu-ccTVFYldszHNYBcTMyrlA6fT2AWK0o_tncH_7MBj7DKec9flWE0E7FHVwn0z4Qe"; // replace if needed
+  const openBtn  = document.getElementById("bmad-open");
+  const overlay  = document.getElementById("bmad-overlay");
+  const closeBtn = overlay.querySelector(".bmad-close");
+  const amountI  = document.getElementById("bmad-amount");
+  const errorEl  = document.getElementById("bmad-error");
+  const ppWrap   = document.getElementById("bmad-paypal");
+  const amounts  = overlay.querySelectorAll(".bmad-amounts button");
+  let paypalRendered = false;
+
+  function trapFocus(e){
+    if (overlay.hasAttribute("hidden")) return;
+    const f = overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if (e.key === "Tab"){
+      if (e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+      else if (!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+    }
+    if (e.key === "Escape") hide();
+  }
+
+  function show(){
+    overlay.removeAttribute("hidden");
+    document.documentElement.style.overflow = "hidden";
+    amountI.focus();
+    loadPaypal().then(renderButtons).catch(err => { errorEl.textContent = "PayPal failed to load."; console.error(err); });
+    document.addEventListener("keydown", trapFocus, true);
+  }
+  function hide(){
+    overlay.setAttribute("hidden", "");
+    document.documentElement.style.overflow = "";
+    document.removeEventListener("keydown", trapFocus, true);
+  }
+
+  function setAmount(v){
+    amountI.value = Number(v).toFixed(2);
+    errorEl.textContent = "";
+  }
+
+  amounts.forEach(b => b.addEventListener("click", () => setAmount(b.dataset.amt)));
+  openBtn.addEventListener("click", show);
+  closeBtn.addEventListener("click", hide);
+
+  // Click outside the sheet closes overlay
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) hide();
+  });
+
+  function loadPaypal(){
+    if (window.paypal) return Promise.resolve();
+    if (document.querySelector('script[data-bmad-paypal="1"]')) {
+      return new Promise((resolve) => {
+        const check = setInterval(() => { if (window.paypal){ clearInterval(check); resolve(); } }, 50);
+      });
+    }
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://www.paypal.com/sdk/js?client-id=" + encodeURIComponent(CLIENT_ID) + "&components=buttons&currency=USD";
+      s.async = true; s.defer = true; s.dataset.bmadPaypal = "1";
+      s.onload = () => resolve();
+      s.onerror = (e) => reject(e);
+      document.head.appendChild(s);
+    });
+  }
+
+  function renderButtons(){
+    if (paypalRendered) return;
+    paypalRendered = true;
+    if (!window.paypal || !paypal.Buttons){ errorEl.textContent = "PayPal unavailable."; return; }
+    paypal.Buttons({
+      style: { layout: "vertical", color: "gold", shape: "pill", label: "paypal" },
+      createOrder: function(_data, actions){
+        const amt = parseFloat(String(amountI.value).replace(/[^0-9.]/g,""));
+        if (!amt || amt <= 0){
+          errorEl.textContent = "Please enter a valid amount (minimum $1).";
+          return;
+        }
+        errorEl.textContent = "";
+        return actions.order.create({
+          purchase_units: [{ amount: { value: amt.toFixed(2) }, description: "Buy me a drink 🍹" }]
+        });
+      },
+      onApprove: function(_data, actions){
+        return actions.order.capture().then(function(details){
+          alert("Thank you, " + (details?.payer?.name?.given_name || "friend") + "!");
+          hide();
+        });
+      },
+      onError: function(err){
+        errorEl.textContent = "Payment error. Please try again.";
+        console.error(err);
+      }
+    }).render(ppWrap);
+  }
+})();
+</script>
+
+
       </section>
 
       <section id="projects" aria-labelledby="projects-title">
