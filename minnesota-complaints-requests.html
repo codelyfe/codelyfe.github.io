@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Formal Complaint Builder</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#1a1d24; --muted:#5c6370; --line:#dde1e6; --btn:#1f6feb; --btn2:#2ea043; --danger:#c92a2a; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--text); }
+    header { padding:16px 18px; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(255,255,255,.92); backdrop-filter: blur(8px); z-index:10; }
+    header h1 { margin:0; font-size:16px; letter-spacing:.2px; }
+    header p { margin:6px 0 0; color:var(--muted); font-size:12px; }
+    .wrap { max-width:1100px; margin:0 auto; padding:18px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+    .card h2 { margin:0 0 10px; font-size:14px; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width: 540px){ .row { grid-template-columns: 1fr; } }
+    label { display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
+    input, textarea, select {
+      width:100%; padding:10px 10px; border-radius:10px; border:1px solid var(--line);
+      background:#fff; color:var(--text); outline:none;
+    }
+    textarea { min-height:96px; resize:vertical; }
+    .btnbar { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    button {
+      border:0; border-radius:10px; padding:10px 12px; cursor:pointer; color:white;
+      background:var(--btn); font-weight:600;
+    }
+    button.secondary { background:#2b3345; }
+    button.success { background:var(--btn2); }
+    button.danger { background:var(--danger); color:#fff; }
+    .small { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.35; }
+    .pill { display:inline-block; padding:4px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:11px; }
+    .preview {
+      white-space:pre-wrap; word-break:break-word; background:#f0f2f5; border:1px solid var(--line);
+      border-radius:14px; padding:12px; min-height:340px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12.5px; line-height:1.45;
+    }
+    .toprow { display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .toprow .right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .hint { color:var(--muted); font-size:12px; }
+    .toast {
+      position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+      background:#fff; border:1px solid var(--line); border-radius:999px;
+      padding:10px 14px; color:var(--text); font-size:12px; display:none; z-index:100;
+      box-shadow:0 12px 40px rgba(0,0,0,.12);
+    }
+    .head-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .head-row .title-block { flex:1; min-width:0; }
+    .nav-menu { position:relative; }
+    .nav-menu-btn {
+      display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:10px;
+      border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer;
+      font-size:13px; font-weight:500;
+    }
+    .nav-menu-btn:hover { background:#f0f2f5; }
+    .nav-menu-btn::after { content:""; border:5px solid transparent; border-top-color:currentColor; margin-left:2px; }
+    .nav-dropdown {
+      position:absolute; top:100%; right:0; margin-top:6px; min-width:220px;
+      background:var(--card); border:1px solid var(--line); border-radius:12px;
+      box-shadow:0 12px 28px rgba(0,0,0,.12); padding:8px 0; display:none; z-index:20;
+    }
+    .nav-dropdown.open { display:block; }
+    .nav-dropdown a {
+      display:block; padding:10px 14px; color:var(--text); text-decoration:none; font-size:13px;
+      border:0; background:0; width:100%; text-align:left; cursor:pointer;
+    }
+    .nav-dropdown a:hover { background:#f0f2f5; }
+    .nav-dropdown .group-label { padding:8px 14px 4px; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+    .label-row { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+    .label-row .wc { font-size:11px; color:var(--muted); }
+    details.tip { margin:4px 0 0; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    details.tip summary { padding:8px 10px; cursor:pointer; font-size:12px; color:var(--muted); list-style:none; }
+    details.tip summary::-webkit-details-marker { display:none; }
+    details.tip summary::before { content:"+ "; }
+    details.tip[open] summary::before { content:"− "; }
+    details.tip .tip-inner { padding:0 10px 10px; font-size:12px; color:var(--muted); line-height:1.45; }
+    .progress-wrap { margin-bottom:10px; }
+    .progress-bar { height:6px; background:var(--line); border-radius:999px; overflow:hidden; }
+    .progress-fill { height:100%; background:var(--btn2); border-radius:999px; transition:width .2s ease; }
+    .progress-text { font-size:11px; color:var(--muted); margin-top:4px; }
+    .checklist { font-size:12px; color:var(--muted); padding:0; margin:0; list-style:none; }
+    .checklist li { padding:4px 0; padding-left:18px; position:relative; }
+    .checklist li::before { content:""; position:absolute; left:0; top:6px; width:14px; height:14px; border:1px solid var(--line); border-radius:4px; background:var(--card); }
+    .checklist li.done::before { background:var(--btn2); border-color:var(--btn2); }
+    .checklist li.done::after { content:""; position:absolute; left:4px; top:9px; width:5px; height:9px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
+    @media print {
+      header .nav-menu, .btnbar, .tip, .progress-wrap, .pill, .card h2 + .right, .head-row .nav-menu { display:none !important; }
+      .wrap { max-width:100%; }
+      .grid { grid-template-columns:1fr; }
+      .preview { min-height:auto; background:#fff; border:1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="head-row">
+      <div class="title-block">
+        <h1>Formal Complaint Builder</h1>
+        <p>Fill fields → live preview → download .txt. Auto-saves drafts locally.</p>
+      </div>
+      <nav class="nav-menu">
+        <button type="button" class="nav-menu-btn" id="navMenuBtn" aria-haspopup="true" aria-expanded="false">Laws & resources</button>
+        <div class="nav-dropdown" id="navDropdown" role="menu">
+          <div class="group-label">Minnesota</div>
+          <a href="https://www.revisor.mn.gov/statutes/cite/13d" target="_blank" rel="noopener" role="menuitem">Open Meeting Law (Ch. 13D)</a>
+          <a href="https://mn.gov/admin/data-practices/" target="_blank" rel="noopener" role="menuitem">Data Practices &amp; Public Records</a>
+          <a href="https://mn.gov/admin/data-practices/meetings/" target="_blank" rel="noopener" role="menuitem">Open Meeting Law (Data Practices)</a>
+          <div class="group-label">Federal &amp; accessibility</div>
+          <a href="https://www.ada.gov/" target="_blank" rel="noopener" role="menuitem">ADA — Americans with Disabilities Act</a>
+          <a href="https://www.ada.gov/resources/web-guidance/" target="_blank" rel="noopener" role="menuitem">ADA web &amp; accessibility guidance</a>
+          <a href="https://www.ada.gov/resources/title-ii-primer/" target="_blank" rel="noopener" role="menuitem">ADA primer for state &amp; local government</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <section class="card">
+        <div class="toprow">
+          <h2>Inputs</h2>
+          <div class="right">
+            <span class="pill" id="draftStatus">Draft: ready</span>
+            <label class="hint" style="margin:0; display:flex; gap:8px; align-items:center;">
+              <input type="checkbox" id="autosave" checked style="width:auto; margin:0;" />
+              Auto-save
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="fromName">Your name</label>
+            <input id="fromName" placeholder="John Smith" />
+          </div>
+          <div>
+            <label for="fromPhone">Phone</label>
+            <input id="fromPhone" placeholder="507-000-0000" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="fromEmail">Email</label>
+            <input id="fromEmail" placeholder="you@email.com" />
+          </div>
+          <div>
+            <label for="fromAddress">Address</label>
+            <input id="fromAddress" placeholder="Street, City, State ZIP" />
+          </div>
+        </div>
+
+        <hr style="border:0;border-top:1px solid var(--line); margin:14px 0;" />
+
+        <div class="row">
+          <div>
+            <label for="toOrg">Agency / Organization</label>
+            <input id="toOrg" placeholder="City of ______" />
+          </div>
+          <div>
+            <label for="toPerson">Recipient (optional)</label>
+            <input id="toPerson" placeholder="Name / Title" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="toAddress">Recipient address (optional)</label>
+            <input id="toAddress" placeholder="Address line(s)" />
+          </div>
+          <div>
+            <label for="category">Complaint type</label>
+            <select id="category">
+              <option value="General Complaint">General Complaint</option>
+              <option value="Public Records / Data Request">Public Records / Data Request</option>
+              <option value="Service / Conduct Complaint">Service / Conduct Complaint</option>
+              <option value="ADA / Accessibility Complaint">ADA / Accessibility Complaint</option>
+              <option value="ADA / Accessibility Complaint (Advanced)">ADA / Accessibility Complaint (Advanced)</option>
+              <option value="Policy / Procedure Complaint">Policy / Procedure Complaint</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="subject">Subject line</label>
+        <input id="subject" placeholder="Subject — [short description]" />
+
+        <div class="row">
+          <div>
+            <label for="incidentDate">Incident start date (optional)</label>
+            <input type="date" id="incidentDate" />
+          </div>
+          <div>
+            <label for="incidentEndDate">Incident end date (optional)</label>
+            <input type="date" id="incidentEndDate" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="location">Location (optional)</label>
+            <input id="location" placeholder="City Hall / Office / Online / etc." />
+          </div>
+          <div>
+            <label for="refNumber">Reference / case # (optional)</label>
+            <input id="refNumber" placeholder="Re: case # or previous ref" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="responseDeadline">Request response by (optional)</label>
+            <input type="date" id="responseDeadline" />
+          </div>
+        </div>
+
+        <div class="label-row"><label for="facts" id="factsLabel">Facts (what happened)</label><span class="wc" id="factsWc">0 words</span></div>
+        <textarea id="facts" placeholder="Write a clear, chronological summary." data-placeholder-complaint="Write a clear, chronological summary." data-placeholder-data="List the specific records, data, or documents you are requesting. Include time frames, names, or identifiers if known."></textarea>
+        <details class="tip" id="factsTip"><summary>What to include</summary><div class="tip-inner">Dates, who was involved, what was said or done, in order. Stick to what you observed or can document; keep opinions for later.</div></details>
+
+        <div class="label-row"><label for="harm" id="harmLabel">Impact (how it affected you / others)</label><span class="wc" id="harmWc">0 words</span></div>
+        <textarea id="harm" placeholder="Explain harms, burdens, costs, delays, barriers, etc." data-placeholder-complaint="Explain harms, burdens, costs, delays, barriers, etc." data-placeholder-data="Optional: why you need the records or how you will use them."></textarea>
+        <details class="tip" id="harmTip"><summary>What to include</summary><div class="tip-inner">Concrete effects: time lost, money spent, stress, barriers to access, missed deadlines. Helps the agency understand why this matters.</div></details>
+
+        <label for="law" id="lawLabel">Policy / rule references (optional)</label>
+        <textarea id="law" placeholder="List any statutes, policies, ordinances, contract terms, etc."></textarea>
+
+        <div class="label-row"><label for="relief" id="reliefLabel">Requested resolution (what you want them to do)</label><span class="wc" id="reliefWc">0 words</span></div>
+        <textarea id="relief" placeholder="Be specific: provide records, correct process, schedule accommodation, training, written response by date, etc." data-placeholder-complaint="Be specific: provide records, correct process, schedule accommodation, training, written response by date, etc." data-placeholder-data="e.g. Provide the requested records within 10 business days. Confirm receipt and cite any denials with legal basis."></textarea>
+        <details class="tip" id="reliefTip"><summary>What to include</summary><div class="tip-inner">Specific asks and, if possible, a date: e.g. “Provide the requested records within 10 business days” or “Confirm receipt and respond in writing by March 15.”</div></details>
+
+        <label for="attachments">Attachments list (optional)</label>
+        <textarea id="attachments" placeholder="Example: 1) Email thread PDF  2) Screenshots  3) Meeting notice  4) Log"></textarea>
+
+        <div class="btnbar">
+          <button class="success" id="downloadBtn">Download .txt</button>
+          <button class="secondary" id="copyBtn">Copy</button>
+          <button class="secondary" id="emailBtn">Open in email</button>
+          <button class="secondary" id="printBtn">Print</button>
+          <button class="secondary" id="resetBtn">Reset</button>
+          <button class="danger" id="clearDraftBtn">Clear Saved Draft</button>
+        </div>
+
+        <details class="tip" style="margin-top:14px;">
+          <summary>Before you send</summary>
+          <div class="tip-inner">
+            <ul class="checklist" id="checklist">
+              <li id="chk1">Proofread for names, dates, and clarity</li>
+              <li id="chk2">Confirm agency/recipient and address</li>
+              <li id="chk3">Note any attachments you will include</li>
+              <li id="chk4">Keep a copy (download or print) for your records</li>
+            </ul>
+          </div>
+        </details>
+
+        <div class="small">
+          Tip: Keep facts separate from opinions. Use dates, names, and quotes where possible. If you want a specific response deadline, add it in “Requested resolution.”
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="toprow">
+          <h2>Live Preview</h2>
+          <div class="right">
+            <span class="pill" id="charCount">0 chars</span>
+            <span class="pill" id="wordCount">0 words</span>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          <div class="progress-text" id="progressText">0 of 6 sections filled</div>
+        </div>
+        <div class="preview" id="preview"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  const els = {
+    fromName: $("fromName"),
+    fromPhone: $("fromPhone"),
+    fromEmail: $("fromEmail"),
+    fromAddress: $("fromAddress"),
+    toOrg: $("toOrg"),
+    toPerson: $("toPerson"),
+    toAddress: $("toAddress"),
+    category: $("category"),
+    subject: $("subject"),
+    incidentDate: $("incidentDate"),
+    incidentEndDate: $("incidentEndDate"),
+    location: $("location"),
+    refNumber: $("refNumber"),
+    responseDeadline: $("responseDeadline"),
+    facts: $("facts"),
+    harm: $("harm"),
+    law: $("law"),
+    relief: $("relief"),
+    attachments: $("attachments"),
+    preview: $("preview"),
+    charCount: $("charCount"),
+    wordCount: $("wordCount"),
+    draftStatus: $("draftStatus"),
+    autosave: $("autosave"),
+    downloadBtn: $("downloadBtn"),
+    copyBtn: $("copyBtn"),
+    emailBtn: $("emailBtn"),
+    printBtn: $("printBtn"),
+    resetBtn: $("resetBtn"),
+    clearDraftBtn: $("clearDraftBtn"),
+    toast: $("toast"),
+    progressFill: $("progressFill"),
+    progressText: $("progressText"),
+    factsWc: $("factsWc"),
+    harmWc: $("harmWc"),
+    reliefWc: $("reliefWc"),
+  };
+
+  const STORAGE_KEY = "complaint_builder_v1";
+
+  const nowPretty = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const safe = (v) => (v ?? "").toString().trim();
+
+  const formatDate = (iso) => {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || "";
+    const [y, m, d] = iso.split("-").map(Number);
+    const months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
+    return `${months[m - 1]} ${d}, ${y}`;
+  };
+
+  const CATEGORIES = [
+    "General Complaint",
+    "Public Records / Data Request",
+    "Service / Conduct Complaint",
+    "ADA / Accessibility Complaint",
+    "ADA / Accessibility Complaint (Advanced)",
+    "Policy / Procedure Complaint",
+  ];
+
+  const getDefaultSubject = (cat) => {
+    if (cat === "Public Records / Data Request") return "Public Records Request";
+    if (cat === "ADA / Accessibility Complaint (Advanced)") return "Formal ADA Title II Complaint";
+    return `Formal Complaint — ${cat || "General Complaint"}`;
+  };
+
+  const TYPE_CONFIG = {
+    "General Complaint": {
+      defaultSubject: "Formal Complaint — General Complaint",
+      intro: "I am submitting this formal complaint regarding the matter described below.",
+      section1: "Facts",
+      section1Placeholder: "[Describe what happened in clear chronological order.]",
+      section2: "Impact",
+      section2Placeholder: "[Explain how this affected you or others.]",
+      section2WhenEmpty: false,
+      section4: "Requested Resolution",
+      section4Placeholder: "[State what you want done and by when.]",
+      closing: "Please confirm receipt of this complaint and provide a written response.",
+      section3Title: "Policy / Rule References (optional)",
+    },
+    "Public Records / Data Request": {
+      defaultSubject: "Public Records Request",
+      intro: "Pursuant to Minn. Stat. §13.03, I respectfully request copies of all of the following:",
+      section1: "Records / Data Requested",
+      section1Placeholder: "[List the specific records, data, or documents you are requesting. Include time frames, names, or identifiers if known.]",
+      section2: "Reason / Context (optional)",
+      section2Placeholder: "[Optional: why you need the records or how you will use them.]",
+      section2WhenEmpty: false,
+      section4: "Requested Response",
+      section4Placeholder: "[e.g. Provide the requested records within 10 business days. Confirm receipt and cite any denials with legal basis.]",
+      closing: "Please confirm receipt of this request and provide a written response.",
+      section3Title: "Policy / Rule References (optional)",
+    },
+    "Service / Conduct Complaint": {
+      defaultSubject: "Formal Complaint — Service / Conduct Complaint",
+      intro: "I am submitting this formal complaint regarding the service or conduct described below.",
+      section1: "Facts",
+      section1Placeholder: "[Describe what happened: who was involved, what was said or done, in order.]",
+      section2: "Impact",
+      section2Placeholder: "[How this affected you or others—harms, delays, barriers.]",
+      section2WhenEmpty: false,
+      section4: "Requested Resolution",
+      section4Placeholder: "[What you want done: apology, correction, training, written response by date, etc.]",
+      closing: "Please confirm receipt of this complaint and provide a written response.",
+      section3Title: "Policy / Rule References (optional)",
+    },
+    "ADA / Accessibility Complaint": {
+      defaultSubject: "Formal Complaint — ADA / Accessibility Complaint",
+      intro: "I am submitting this formal complaint regarding an accessibility barrier or ADA-related matter as described below.",
+      section1: "Facts",
+      section1Placeholder: "[Describe the barrier or incident: location, date, what was inaccessible or what occurred.]",
+      section2: "Impact",
+      section2Placeholder: "[How the barrier or conduct affected you: access denied, delay, burden, discrimination.]",
+      section2WhenEmpty: false,
+      section4: "Requested Resolution",
+      section4Placeholder: "[Specific remedy: accommodation, modification, policy change, effective communication, response by date.]",
+      closing: "Please confirm receipt of this complaint and provide a written response.",
+      section3Title: "Policy / Rule References (optional)",
+    },
+    "Policy / Procedure Complaint": {
+      defaultSubject: "Formal Complaint — Policy / Procedure Complaint",
+      intro: "I am submitting this formal complaint regarding the policy or procedure described below.",
+      section1: "Facts",
+      section1Placeholder: "[Describe what policy or procedure is at issue and what happened.]",
+      section2: "Impact",
+      section2Placeholder: "[How the policy or procedure affected you or others.]",
+      section2WhenEmpty: false,
+      section4: "Requested Resolution",
+      section4Placeholder: "[What you want: policy change, exception, written explanation, response by date.]",
+      closing: "Please confirm receipt of this complaint and provide a written response.",
+      section3Title: "Policy / Rule References (optional)",
+    },
+    "ADA / Accessibility Complaint (Advanced)": {
+      defaultSubject: "Formal ADA Title II Complaint",
+      advancedAda: true,
+    },
+  };
+
+  const ADA_ADVANCED_LEGAL_BASIS = "This letter serves as a formal complaint under Title II of the Americans with Disabilities Act (42 U.S.C. § 12132) and its implementing regulations (28 C.F.R. Part 35).\nTitle II requires public entities to provide individuals with disabilities equal access to public services, programs, and activities. Public meetings are government services within the meaning of the statute.";
+
+  const ADA_ADVANCED_REQUEST_RESPONSE = "Please provide a written response within fourteen (14) calendar days of receipt of this letter addressing:\n1. Whether remote access accommodations will be implemented.\n2. The identity and contact information of the City's designated ADA Coordinator pursuant to 28 C.F.R. § 35.107.\n3. A copy of the City's ADA grievance procedure.";
+
+  const ADA_ADVANCED_PRESERVATION = "Please preserve all records, communications, and policy documents relating to ADA compliance and accessibility of public meetings.";
+
+  const ADA_ADVANCED_CLOSING = "Thank you for your attention to this matter. I look forward to a good-faith resolution ensuring equal access for all residents.";
+
+  const buildText = () => {
+    const fromName = safe(els.fromName.value);
+    const fromPhone = safe(els.fromPhone.value);
+    const fromEmail = safe(els.fromEmail.value);
+    const fromAddress = safe(els.fromAddress.value);
+
+    const toOrg = safe(els.toOrg.value);
+    const toPerson = safe(els.toPerson.value);
+    const toAddress = safe(els.toAddress.value);
+
+    const category = safe(els.category.value) || "General Complaint";
+    const config = TYPE_CONFIG[category] || TYPE_CONFIG["General Complaint"];
+    const defaultSubject = getDefaultSubject(category);
+    let subject = safe(els.subject.value) || defaultSubject;
+    if (!subject || CATEGORIES.some((c) => getDefaultSubject(c) === subject)) subject = defaultSubject;
+
+    const incidentDate = safe(els.incidentDate.value);
+    const incidentEndDate = safe(els.incidentEndDate.value);
+    const location = safe(els.location.value);
+    const refNumber = safe(els.refNumber.value);
+    const responseDeadline = safe(els.responseDeadline.value);
+
+    const facts = safe(els.facts.value);
+    const harm = safe(els.harm.value);
+    const law = safe(els.law.value);
+    const relief = safe(els.relief.value);
+    const attachments = safe(els.attachments.value);
+
+    const lines = [];
+
+    // Header (from)
+    if (fromName) lines.push(fromName);
+    if (fromAddress) lines.push(fromAddress);
+    const contactLine = [fromPhone, fromEmail].filter(Boolean).join(" | ");
+    if (contactLine) lines.push(contactLine);
+    if (lines.length) lines.push("");
+
+    // To
+    if (toOrg || toPerson || toAddress) {
+      if (toPerson) lines.push(toPerson);
+      if (toOrg) lines.push(toOrg);
+      if (toAddress) lines.push(toAddress);
+      lines.push("");
+    }
+
+    // Meta
+    lines.push(`Date: ${nowPretty()}`);
+    if (refNumber) lines.push(`Re: ${refNumber}`);
+    lines.push(`Subject: ${subject}`);
+    lines.push(`Type: ${category}`);
+    if (incidentDate) {
+      const dateStr = incidentEndDate && incidentEndDate !== incidentDate
+        ? `${formatDate(incidentDate)} – ${formatDate(incidentEndDate)}`
+        : formatDate(incidentDate);
+      lines.push(`Date(s) at issue: ${dateStr}`);
+    }
+    if (location) lines.push(`Location: ${location}`);
+    if (responseDeadline) lines.push(`Please respond by: ${formatDate(responseDeadline)}`);
+    lines.push("");
+
+    // Body
+    lines.push("To Whom It May Concern,");
+    lines.push("");
+
+    if (config.advancedAda) {
+      // I. Legal Basis
+      lines.push("I. Legal Basis");
+      lines.push(law || ADA_ADVANCED_LEGAL_BASIS);
+      lines.push("");
+      // II. Nature of the Accessibility Concern
+      lines.push("II. Nature of the Accessibility Concern");
+      lines.push(facts || "[Describe how the entity currently conducts public meetings (e.g. exclusively in person), who is excluded (e.g. elderly, individuals with medical limitations, those requiring oxygen or mobility aids), and why this concerns program accessibility and meaningful participation under Title II.]");
+      lines.push("");
+      // III. Requested Reasonable Modifications
+      lines.push("III. Requested Reasonable Modifications");
+      lines.push(relief || "[List requested modifications, e.g.: 1. Live video streaming of public meetings.  2. Telephone-based remote access.  3. Remote comment submission.  4. Prompt publication of recorded meetings online.]");
+      lines.push("");
+      // IV. Request for Response
+      lines.push("IV. Request for Response");
+      lines.push(ADA_ADVANCED_REQUEST_RESPONSE);
+      lines.push("");
+      // V. Preservation Notice
+      lines.push("V. Preservation Notice");
+      lines.push(ADA_ADVANCED_PRESERVATION);
+      lines.push("");
+      lines.push(ADA_ADVANCED_CLOSING);
+      if (attachments) {
+        lines.push("");
+        lines.push("Other helpful resources on the matter:");
+        lines.push(attachments);
+      }
+      lines.push("");
+      lines.push("Sincerely,");
+      lines.push(fromName || "[Your Name]");
+      return lines.join("\n");
+    }
+
+    lines.push(config.intro);
+    lines.push("");
+
+    const ROMAN = ["I", "II", "III", "IV"];
+    const sections = [];
+    sections.push({ title: config.section1, content: facts || config.section1Placeholder });
+    if (harm || config.section2WhenEmpty) sections.push({ title: config.section2, content: harm || config.section2Placeholder });
+    if (law) sections.push({ title: config.section3Title || "Policy / Rule References", content: law });
+    sections.push({ title: config.section4, content: relief || config.section4Placeholder });
+
+    sections.forEach((sec, i) => {
+      lines.push(`${ROMAN[i]}. ${sec.title}`);
+      lines.push(sec.content);
+      lines.push("");
+    });
+
+    if (attachments) {
+      lines.push("Attachments");
+      lines.push(attachments);
+      lines.push("");
+    }
+
+    let closing = config.closing;
+    if (responseDeadline) closing += ` I request a response by ${formatDate(responseDeadline)}.`;
+    lines.push(closing);
+    lines.push("");
+    lines.push("Sincerely,");
+    lines.push(fromName || "[Your Name]");
+
+    return lines.join("\n");
+  };
+
+  const showToast = (msg) => {
+    els.toast.textContent = msg;
+    els.toast.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => (els.toast.style.display = "none"), 1800);
+  };
+
+  const wordCount = (s) => (s && s.trim() ? s.trim().split(/\s+/).length : 0);
+
+  const updateCounts = (text) => {
+    els.charCount.textContent = `${text.length} chars`;
+    els.wordCount.textContent = `${wordCount(text)} words`;
+  };
+
+  const updateSectionCounts = () => {
+    if (els.factsWc) els.factsWc.textContent = `${wordCount(els.facts.value)} words`;
+    if (els.harmWc) els.harmWc.textContent = `${wordCount(els.harm.value)} words`;
+    if (els.reliefWc) els.reliefWc.textContent = `${wordCount(els.relief.value)} words`;
+  };
+
+  const FORM_COPY = {
+    "General Complaint": {
+      factsLabel: "Facts (what happened)",
+      harmLabel: "Impact (how it affected you / others)",
+      reliefLabel: "Requested resolution (what you want them to do)",
+      factsPlaceholder: "Write a clear, chronological summary.",
+      harmPlaceholder: "Explain harms, burdens, costs, delays, barriers, etc.",
+      reliefPlaceholder: "Be specific: provide records, correct process, schedule accommodation, training, written response by date, etc.",
+      factsTip: "Dates, who was involved, what was said or done, in order. Stick to what you observed or can document; keep opinions for later.",
+      harmTip: "Concrete effects: time lost, money spent, stress, barriers to access, missed deadlines. Helps the agency understand why this matters.",
+      reliefTip: "Specific asks and, if possible, a date: e.g. \"Provide the requested records within 10 business days\" or \"Confirm receipt and respond in writing by March 15.\"",
+    },
+    "Public Records / Data Request": {
+      factsLabel: "Records / data requested",
+      harmLabel: "Reason / context (optional)",
+      reliefLabel: "Requested response",
+      factsPlaceholder: "Pursuant to Minn. Stat. §13.03, I respectfully request copies of all [describe the records or data—e.g. meeting minutes, emails, reports. Include time frames, names, or identifiers if known.]",
+      harmPlaceholder: "Optional: why you need the records or how you will use them.",
+      reliefPlaceholder: "e.g. Provide the requested records within 10 business days. Confirm receipt and cite any denials with legal basis.",
+      factsTip: "Describe the records or data you are requesting. Be as specific as possible: dates, names, document types, or identifiers.",
+      harmTip: "Optional: why you need the records or how you will use them. Can help the agency locate the right data.",
+      reliefTip: "e.g. \"Provide the requested records within 10 business days per Minnesota law.\" Ask for written confirmation and cite any denials.",
+    },
+    "Service / Conduct Complaint": {
+      factsLabel: "Facts (what happened)",
+      harmLabel: "Impact (how it affected you / others)",
+      reliefLabel: "Requested resolution (what you want them to do)",
+      factsPlaceholder: "Describe what happened: who was involved, what was said or done, in order.",
+      harmPlaceholder: "How this affected you or others—harms, delays, barriers.",
+      reliefPlaceholder: "What you want done: apology, correction, training, written response by date, etc.",
+      factsTip: "Stick to what you observed or can document. Names, dates, and what was said or done help the agency investigate.",
+      harmTip: "Concrete effects: time lost, stress, barriers. Helps the agency understand impact.",
+      reliefTip: "Be specific: apology, policy change, training, written response by a certain date.",
+    },
+    "ADA / Accessibility Complaint": {
+      factsLabel: "Facts (barrier or incident)",
+      harmLabel: "Impact (how the barrier or conduct affected you)",
+      reliefLabel: "Requested resolution (accommodation or remedy)",
+      factsPlaceholder: "Describe the barrier or incident: location, date, what was inaccessible or what occurred.",
+      harmPlaceholder: "How the barrier or conduct affected you: access denied, delay, burden, discrimination.",
+      reliefPlaceholder: "Specific remedy: accommodation, modification, policy change, effective communication, response by date.",
+      factsTip: "Include location, date, and what was inaccessible (e.g. no ramp, no captioning, denied accommodation).",
+      harmTip: "How you were affected: access denied, extra burden, discrimination. Supports your request for a remedy.",
+      reliefTip: "Ask for a specific accommodation, modification, or policy change. Include a response deadline if desired.",
+    },
+    "Policy / Procedure Complaint": {
+      factsLabel: "Facts (policy or procedure at issue)",
+      harmLabel: "Impact (how it affected you / others)",
+      reliefLabel: "Requested resolution (what you want changed)",
+      factsPlaceholder: "Describe what policy or procedure is at issue and what happened.",
+      harmPlaceholder: "How the policy or procedure affected you or others.",
+      reliefPlaceholder: "What you want: policy change, exception, written explanation, response by date.",
+      factsTip: "Identify the policy or procedure and what occurred. Refer to written policies if you have them.",
+      harmTip: "Concrete effects of the policy or procedure. Helps the agency weigh your request.",
+      reliefTip: "Specific ask: change policy, grant exception, provide written explanation, respond by date.",
+    },
+    "ADA / Accessibility Complaint (Advanced)": {
+      factsLabel: "II. Nature of the Accessibility Concern",
+      harmLabel: "Additional context (optional)",
+      reliefLabel: "III. Requested Reasonable Modifications",
+      factsPlaceholder: "Describe how the entity currently conducts public meetings (e.g. exclusively in person without remote option), who is excluded (e.g. elderly, individuals with medical limitations, those requiring oxygen or mobility aids), and why this concerns program accessibility and meaningful participation under Title II.",
+      harmPlaceholder: "Optional: any additional context.",
+      reliefPlaceholder: "Number the modifications you request, e.g.: 1. Live video streaming of public meetings.  2. Telephone-based remote access for listening and/or public comment.  3. Remote comment submission during meetings.  4. Prompt publication of recorded meetings online.",
+      factsTip: "Explain current practice (e.g. in-person only), who cannot participate safely or meaningfully, and that this is about program accessibility under Title II, not only physical access.",
+      harmTip: "Optional. Use if you have additional impact or context to add.",
+      reliefTip: "List specific reasonable modifications. Note that these are widely adopted and generally do not constitute undue burden.",
+      lawLabel: "I. Legal Basis (edit if needed)",
+      lawPlaceholder: "Title II ADA and regulations cite; public meetings as government services.",
+      attachmentsPlaceholder: "e.g. https://mn.gov/mdhr/yourrights/government-services/  https://civilrights.justice.gov/#your-rights",
+    },
+  };
+
+  const updateFormForCategory = () => {
+    const category = els.category.value || "General Complaint";
+    const copy = FORM_COPY[category] || FORM_COPY["General Complaint"];
+    const factsL = $("factsLabel");
+    const harmL = $("harmLabel");
+    const reliefL = $("reliefLabel");
+    const lawL = $("lawLabel");
+    if (factsL) factsL.textContent = copy.factsLabel;
+    if (harmL) harmL.textContent = copy.harmLabel;
+    if (reliefL) reliefL.textContent = copy.reliefLabel;
+    if (lawL) lawL.textContent = copy.lawLabel || "Policy / rule references (optional)";
+    els.facts.placeholder = copy.factsPlaceholder;
+    els.harm.placeholder = copy.harmPlaceholder;
+    els.relief.placeholder = copy.reliefPlaceholder;
+    els.law.placeholder = copy.lawPlaceholder || "List any statutes, policies, ordinances, contract terms, etc.";
+    if (category === "ADA / Accessibility Complaint (Advanced)" && !safe(els.law.value)) els.law.value = ADA_ADVANCED_LEGAL_BASIS;
+    if (copy.attachmentsPlaceholder) els.attachments.placeholder = copy.attachmentsPlaceholder; else els.attachments.placeholder = "Example: 1) Email thread PDF  2) Screenshots  3) Meeting notice  4) Log";
+    const factsTipInner = $("factsTip")?.querySelector(".tip-inner");
+    const harmTipInner = $("harmTip")?.querySelector(".tip-inner");
+    const reliefTipInner = $("reliefTip")?.querySelector(".tip-inner");
+    if (factsTipInner) factsTipInner.textContent = copy.factsTip;
+    if (harmTipInner) harmTipInner.textContent = copy.harmTip;
+    if (reliefTipInner) reliefTipInner.textContent = copy.reliefTip;
+  };
+
+  const updateProgress = () => {
+    const sections = [
+      safe(els.fromName.value) || safe(els.fromEmail.value),
+      safe(els.toOrg.value),
+      safe(els.subject.value),
+      safe(els.facts.value),
+      safe(els.harm.value),
+      safe(els.relief.value),
+    ];
+    const filled = sections.filter(Boolean).length;
+    const pct = Math.round((filled / 6) * 100);
+    if (els.progressFill) els.progressFill.style.width = pct + "%";
+    if (els.progressText) els.progressText.textContent = `${filled} of 6 sections filled`;
+  };
+
+  const render = () => {
+    const text = buildText();
+    els.preview.textContent = text;
+    updateCounts(text);
+    updateSectionCounts();
+    updateProgress();
+  };
+
+  const gatherState = () => ({
+    fromName: els.fromName.value,
+    fromPhone: els.fromPhone.value,
+    fromEmail: els.fromEmail.value,
+    fromAddress: els.fromAddress.value,
+    toOrg: els.toOrg.value,
+    toPerson: els.toPerson.value,
+    toAddress: els.toAddress.value,
+    category: els.category.value,
+    subject: els.subject.value,
+    incidentDate: els.incidentDate.value,
+    incidentEndDate: els.incidentEndDate.value,
+    location: els.location.value,
+    refNumber: els.refNumber.value,
+    responseDeadline: els.responseDeadline.value,
+    facts: els.facts.value,
+    harm: els.harm.value,
+    law: els.law.value,
+    relief: els.relief.value,
+    attachments: els.attachments.value,
+    autosave: !!els.autosave.checked,
+    savedAt: nowPretty(),
+  });
+
+  const applyState = (s) => {
+    if (!s) return;
+    els.fromName.value = s.fromName || "";
+    els.fromPhone.value = s.fromPhone || "";
+    els.fromEmail.value = s.fromEmail || "";
+    els.fromAddress.value = s.fromAddress || "";
+    els.toOrg.value = s.toOrg || "";
+    els.toPerson.value = s.toPerson || "";
+    els.toAddress.value = s.toAddress || "";
+    if (s.category) els.category.value = (s.category === "Public Records / Data Request Complaint" ? "Public Records / Data Request" : s.category);
+    els.subject.value = s.subject || "";
+    els.incidentDate.value = s.incidentDate || "";
+    els.incidentEndDate.value = s.incidentEndDate || "";
+    els.location.value = s.location || "";
+    els.refNumber.value = s.refNumber || "";
+    els.responseDeadline.value = s.responseDeadline || "";
+    els.facts.value = s.facts || "";
+    els.harm.value = s.harm || "";
+    els.law.value = s.law || "";
+    els.relief.value = s.relief || "";
+    els.attachments.value = s.attachments || "";
+    els.autosave.checked = s.autosave !== false;
+  };
+
+  const setDraftStatus = (msg) => {
+    els.draftStatus.textContent = msg;
+  };
+
+  const saveDraft = () => {
+    if (!els.autosave.checked) return;
+    const state = gatherState();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    setDraftStatus(`Draft: saved ${state.savedAt}`);
+  };
+
+  const loadDraft = () => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    try {
+      const state = JSON.parse(raw);
+      applyState(state);
+      setDraftStatus(`Draft: loaded ${state.savedAt || "previous"}`);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const downloadText = (filename, text) => {
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const fileSafeName = (s) =>
+    (s || "complaint")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 60) || "complaint";
+
+  const wire = () => {
+    const inputs = document.querySelectorAll("input, textarea, select");
+    inputs.forEach((el) => {
+      el.addEventListener("input", () => {
+        render();
+        saveDraft();
+      });
+      el.addEventListener("change", () => {
+        render();
+        saveDraft();
+      });
+    });
+
+    els.downloadBtn.addEventListener("click", () => {
+      const text = buildText();
+      const subj = safe(els.subject.value);
+      const stamp = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const y = stamp.getFullYear();
+      const m = pad(stamp.getMonth() + 1);
+      const d = pad(stamp.getDate());
+      const filename = `${y}-${m}-${d}_${fileSafeName(subj)}.txt`;
+      downloadText(filename, text);
+      showToast("Downloaded .txt");
+    });
+
+    els.copyBtn.addEventListener("click", async () => {
+      const text = buildText();
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Copied");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast("Copied");
+      }
+    });
+
+    els.emailBtn.addEventListener("click", () => {
+      const text = buildText();
+      const subj = safe(els.subject.value) || getDefaultSubject(safe(els.category.value));
+      const mailto = "mailto:?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(text);
+      window.location.href = mailto;
+      showToast("Opening email client");
+    });
+
+    els.printBtn.addEventListener("click", () => {
+      window.print();
+    });
+
+    els.resetBtn.addEventListener("click", () => {
+      const keepAutosave = els.autosave.checked;
+      document.querySelectorAll("input, textarea").forEach((el) => (el.value = ""));
+      els.category.value = "General Complaint";
+      els.autosave.checked = keepAutosave;
+      document.querySelectorAll("#checklist li").forEach((li) => li.classList.remove("done"));
+      render();
+      saveDraft();
+      showToast("Reset");
+    });
+
+    els.clearDraftBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      setDraftStatus("Draft: cleared");
+      showToast("Saved draft cleared");
+    });
+
+    els.autosave.addEventListener("change", () => {
+      saveDraft();
+      showToast(els.autosave.checked ? "Auto-save on" : "Auto-save off");
+    });
+
+    els.category.addEventListener("change", () => {
+      const subj = safe(els.subject.value);
+      if (!subj || CATEGORIES.some((c) => getDefaultSubject(c) === subj)) els.subject.value = getDefaultSubject(els.category.value);
+      updateFormForCategory();
+      render();
+      saveDraft();
+    });
+
+    document.querySelectorAll("#checklist li").forEach((li) => {
+      li.addEventListener("click", () => li.classList.toggle("done"));
+    });
+  };
+
+  // nav dropdown
+  const navBtn = $("navMenuBtn");
+  const navDrop = $("navDropdown");
+  if (navBtn && navDrop) {
+    navBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      navDrop.classList.toggle("open");
+      navBtn.setAttribute("aria-expanded", navDrop.classList.contains("open"));
+    });
+    document.addEventListener("click", () => {
+      navDrop.classList.remove("open");
+      navBtn.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  // init
+  const loaded = loadDraft();
+  if (!loaded) setDraftStatus("Draft: new");
+  updateFormForCategory();
+  render();
+  wire();
+})();
+</script>
+</body>
+</html>
