@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CSV Email Collector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f3f4f6;
+      --bg-alt: #ffffff;
+      --accent: #10b981;
+      --accent-soft: rgba(16, 185, 129, 0.08);
+      --accent-border: rgba(16, 185, 129, 0.35);
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #d1d5db;
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.06);
+      --shadow-soft: 0 18px 60px rgba(15, 23, 42, 0.12);
+      --radius-lg: 18px;
+      --radius-full: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #e5e7eb 0, #f9fafb 40%, #ffffff 100%);
+      color: var(--text);
+    }
+
+    .shell {
+      width: min(980px, 100%);
+      background: radial-gradient(circle at top left, #ffffff 0, #f9fafb 40%, #ffffff 100%);
+      border-radius: 26px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .shell-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(191, 219, 254, 0.9);
+      background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 40%, #ffffff 100%);
+    }
+
+    .traffic-lights {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .traffic-lights span {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .traffic-lights span:nth-child(1) { background: #ef4444; }
+    .traffic-lights span:nth-child(2) { background: #f59e0b; }
+    .traffic-lights span:nth-child(3) { background: #22c55e; }
+
+    .shell-title {
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(239, 246, 255, 0.9);
+      border: 1px solid rgba(191, 219, 254, 0.9);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 20px;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.08), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.08), transparent 60%),
+        radial-gradient(circle at 0 100%, rgba(129, 140, 248, 0.08), transparent 60%),
+        #f9fafb;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 12px;
+      }
+
+      .content {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      background: radial-gradient(circle at top left, #ffffff, #f3f4f6);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      padding: 18px 18px 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(34, 197, 94, 0.1), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .panel-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      background: #f9fafb;
+    }
+
+    .subtitle {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 36rem;
+    }
+
+    .hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .hint-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      background: radial-gradient(circle at top left, #eff6ff, #ffffff);
+    }
+
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .file-label {
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+      background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.18));
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.25);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease, border-color 0.12s ease;
+    }
+
+    .file-label:hover {
+      transform: translateY(-0.5px);
+      box-shadow: 0 12px 32px rgba(16, 185, 129, 0.3);
+    }
+
+    .file-label:active {
+      transform: translateY(0.5px) scale(0.99);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+    }
+
+    .file-label span.icon {
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: #ecfdf5;
+      border: 1px solid rgba(16, 185, 129, 0.9);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+      font-size: 11px;
+    }
+
+    input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .file-name {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .file-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .file-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #f9fafb;
+    }
+
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      background: #f9fafb;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 18px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      padding: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .toggle-handle {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #9ca3af;
+      box-shadow: 0 0 0 1px rgba(229, 231, 235, 1), 0 4px 10px rgba(148, 163, 184, 0.7);
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .toggle[data-on="true"] {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.9);
+    }
+
+    .toggle[data-on="true"] .toggle-handle {
+      transform: translateX(16px);
+      background: #10b981;
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.9), 0 0 14px rgba(16, 185, 129, 0.7);
+    }
+
+    select {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      min-width: 135px;
+    }
+
+    select:focus-visible {
+      border-color: rgba(59, 130, 246, 0.9);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.8);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #22c55e, #22c55e, #0ea5e9);
+      color: #020617;
+      box-shadow: 0 14px 40px rgba(34, 197, 94, 0.65);
+      position: relative;
+      overflow: hidden;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    .btn-primary span.glow {
+      position: absolute;
+      inset: -60%;
+      background: conic-gradient(from 220deg, transparent 0deg, rgba(248, 250, 252, 0.7) 120deg, transparent 240deg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      mix-blend-mode: screen;
+    }
+
+    .btn-primary:hover span.glow {
+      opacity: 1;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 20px 55px rgba(34, 197, 94, 0.85);
+      transform: translateY(-0.5px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0.5px) scale(0.99);
+      box-shadow: 0 10px 28px rgba(34, 197, 94, 0.6);
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: linear-gradient(135deg, #4b5563, #4b5563);
+      color: #e5e7eb;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .summary-card {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(229, 231, 235, 1);
+      background: radial-gradient(circle at top left, #ffffff, #f9fafb);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .summary-label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .summary-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .summary-pill {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 640px) {
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .output-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+    }
+
+    .copy-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .copy-target-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #f9fafb;
+    }
+
+    .separator-chip {
+      border-color: rgba(16, 185, 129, 0.8);
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: vertical;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(209, 213, 219, 1);
+      background: radial-gradient(circle at top left, #ffffff, #f9fafb);
+      color: var(--text);
+      font-size: 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      outline: none;
+      line-height: 1.5;
+      box-shadow: inset 0 0 0 1px rgba(243, 244, 246, 1), 0 6px 18px rgba(148, 163, 184, 0.25);
+    }
+
+    textarea:focus-visible {
+      border-color: rgba(37, 99, 235, 0.9);
+      box-shadow:
+        inset 0 0 0 1px rgba(219, 234, 254, 1),
+        0 0 0 1px rgba(37, 99, 235, 0.8),
+        0 12px 32px rgba(59, 130, 246, 0.18);
+    }
+
+    textarea[readonly] {
+      cursor: text;
+    }
+
+    .copy-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(156, 163, 175, 0.9);
+    }
+
+    .btn-ghost:active {
+      transform: translateY(0.5px);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 18px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(156, 163, 175, 0.8);
+      box-shadow: none;
+    }
+
+    .status-dot.ok {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    }
+
+    .status-dot.warn {
+      background: #facc15;
+      box-shadow: 0 0 8px rgba(250, 204, 21, 0.7);
+    }
+
+    .status-dot.err {
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .warning {
+      margin-top: 10px;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(248, 113, 113, 0.4);
+      background: radial-gradient(circle at top left, var(--danger-soft), transparent 75%);
+      font-size: 11px;
+      color: #b91c1c;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .warning-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 113, 113, 0.8);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      flex-shrink: 0;
+    }
+
+    .tooltip {
+      border-bottom: 1px dotted rgba(148, 163, 184, 0.7);
+      cursor: help;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" aria-label="CSV email collector">
+    <header class="shell-header">
+      <div class="traffic-lights" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="shell-title">csv-email-collector.cc</div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        CSV → Copy‑Paste CC line
+      </div>
+    </header>
+
+    <section class="content">
+      <section class="panel" aria-label="Upload CSV and configure output">
+        <div class="panel-inner">
+          <div class="title-row">
+            <h1>
+              CSV → Email List
+              <span class="pill">No backend · Local only</span>
+            </h1>
+          </div>
+          <p class="subtitle">
+            Drop in any CSV that contains email addresses. This tool extracts unique emails and
+            formats them for quick copy‑paste into your email client's <span class="tooltip" title="CC and BCC both work; this just controls the label.">CC/BCC</span> field.
+          </p>
+
+          <div class="hint">
+            <span class="hint-icon">?</span>
+            <span>Works with exported lists, reports, spreadsheets — any CSV with an email column.</span>
+          </div>
+
+          <div class="field-row">
+            <label class="file-label">
+              <span class="icon">↑</span>
+              <span>Select CSV file</span>
+              <input id="fileInput" type="file" accept=".csv,text/csv" />
+            </label>
+            <div class="file-meta" id="fileMeta">
+              <span>No file selected</span>
+              <span>
+                <span class="file-pill">.csv</span>
+                <span class="file-pill">Max ~5MB</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="options-row">
+            <div class="toggle-group" id="dedupeToggle" role="button" tabindex="0" aria-pressed="true">
+              <div class="toggle" data-on="true" aria-hidden="true">
+                <div class="toggle-handle"></div>
+              </div>
+              <span>Remove duplicates</span>
+            </div>
+
+            <div class="toggle-group" id="headerToggle" role="button" tabindex="0" aria-pressed="true">
+              <div class="toggle" data-on="true" aria-hidden="true">
+                <div class="toggle-handle"></div>
+              </div>
+              <span>CSV has header row</span>
+            </div>
+
+            <label class="toggle-group" for="separatorSelect">
+              <span>Separator</span>
+              <select id="separatorSelect">
+                <option value=",">Comma (,)</option>
+                <option value=";">Semicolon (;)</option>
+                <option value=" ">&nbsp;Space</option>
+                <option value="newline">New line</option>
+              </select>
+            </label>
+
+            <label class="toggle-group" for="targetSelect">
+              <span>Target field</span>
+              <select id="targetSelect">
+                <option value="cc">CC</option>
+                <option value="bcc">BCC</option>
+                <option value="to">To</option>
+                <option value="custom">Custom label…</option>
+              </select>
+            </label>
+          </div>
+
+          <button id="processBtn" class="btn-primary" type="button" disabled>
+            <span class="glow" aria-hidden="true"></span>
+            <span>Extract emails</span>
+          </button>
+
+          <div class="summary" aria-live="polite">
+            <article class="summary-card">
+              <div class="summary-label">Detected emails</div>
+              <div class="summary-value" id="emailCount">0</div>
+              <div class="summary-pill">After filters</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-label">Raw rows scanned</div>
+              <div class="summary-value" id="rowCount">0</div>
+              <div class="summary-pill">From CSV file</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-label">Duplicates removed</div>
+              <div class="summary-value" id="dupeCount">0</div>
+              <div class="summary-pill">If enabled</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="Copy‑paste email output">
+        <div class="panel-inner">
+          <div class="output-header">
+            <div>
+              <div class="output-title" id="outputTitle">Copy‑paste CC line</div>
+              <div class="chip-row">
+                <span class="chip">Local parsing only</span>
+                <span class="chip">Emails never leave this page</span>
+                <span class="chip separator-chip" id="separatorLabel">Comma separated</span>
+              </div>
+            </div>
+          </div>
+
+          <textarea
+            id="outputArea"
+            readonly
+            placeholder="Your formatted email list will appear here, ready to paste into the CC field."
+          ></textarea>
+
+          <div class="copy-actions">
+            <button class="btn-ghost" id="copyBtn" type="button" disabled>
+              <span>Copy emails</span>
+            </button>
+            <div class="status" id="status">
+              <span class="status-dot"></span>
+              <span class="status-text">Waiting for CSV file…</span>
+            </div>
+          </div>
+
+          <div class="warning" aria-live="polite">
+            <span class="warning-icon">!</span>
+            <span>
+              Use responsibly. Always confirm you have permission to email these contacts and follow
+              your organization's compliance rules.
+            </span>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const fileInput = document.getElementById("fileInput");
+      const fileMeta = document.getElementById("fileMeta");
+      const processBtn = document.getElementById("processBtn");
+      const outputArea = document.getElementById("outputArea");
+      const copyBtn = document.getElementById("copyBtn");
+      const statusEl = document.getElementById("status");
+      const emailCountEl = document.getElementById("emailCount");
+      const rowCountEl = document.getElementById("rowCount");
+      const dupeCountEl = document.getElementById("dupeCount");
+      const separatorSelect = document.getElementById("separatorSelect");
+      const separatorLabel = document.getElementById("separatorLabel");
+      const targetSelect = document.getElementById("targetSelect");
+      const outputTitle = document.getElementById("outputTitle");
+      const dedupeToggle = document.getElementById("dedupeToggle");
+      const headerToggle = document.getElementById("headerToggle");
+
+      let currentFile = null;
+      let lastEmails = [];
+      let lastRawCount = 0;
+      let lastDupeCount = 0;
+
+      function setStatus(state, message) {
+        const dot = statusEl.querySelector(".status-dot");
+        const text = statusEl.querySelector(".status-text");
+        dot.classList.remove("ok", "warn", "err");
+        if (state === "ok") dot.classList.add("ok");
+        if (state === "warn") dot.classList.add("warn");
+        if (state === "err") dot.classList.add("err");
+        text.textContent = message;
+      }
+
+      function getToggleState(groupEl) {
+        const toggle = groupEl.querySelector(".toggle");
+        return toggle.getAttribute("data-on") === "true";
+      }
+
+      function flipToggle(groupEl) {
+        const toggle = groupEl.querySelector(".toggle");
+        const isOn = toggle.getAttribute("data-on") === "true";
+        const next = !isOn;
+        toggle.setAttribute("data-on", next ? "true" : "false");
+        groupEl.setAttribute("aria-pressed", next ? "true" : "false");
+        return next;
+      }
+
+      function handleToggleKeyboard(e, groupEl) {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          flipToggle(groupEl);
+        }
+      }
+
+      dedupeToggle.addEventListener("click", () => {
+        flipToggle(dedupeToggle);
+        if (lastEmails.length) {
+          rebuildOutput();
+        }
+      });
+      dedupeToggle.addEventListener("keydown", (e) =>
+        handleToggleKeyboard(e, dedupeToggle)
+      );
+
+      headerToggle.addEventListener("click", () => {
+        flipToggle(headerToggle);
+      });
+      headerToggle.addEventListener("keydown", (e) =>
+        handleToggleKeyboard(e, headerToggle)
+      );
+
+      targetSelect.addEventListener("change", () => {
+        const value = targetSelect.value;
+        if (value === "custom") {
+          const custom = window.prompt("Label to show (e.g. REPLY‑ALL, SALES‑LIST):", "CC");
+          if (!custom) {
+            targetSelect.value = "cc";
+          } else {
+            const safe = custom.trim().slice(0, 24) || "CC";
+            const normalized = safe.toUpperCase();
+            outputTitle.textContent = "Copy‑paste " + normalized + " line";
+          }
+        } else {
+          const label = value.toUpperCase();
+          outputTitle.textContent = "Copy‑paste " + label + " line";
+        }
+      });
+
+      separatorSelect.addEventListener("change", () => {
+        const val = separatorSelect.value;
+        let label;
+        if (val === ",") label = "Comma separated";
+        else if (val === ";") label = "Semicolon separated";
+        else if (val === " ") label = "Space separated";
+        else label = "Each on new line";
+        separatorLabel.textContent = label;
+        if (lastEmails.length) {
+          rebuildOutput();
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files && fileInput.files[0];
+        currentFile = file || null;
+        if (!file) {
+          fileMeta.innerHTML =
+            '<span>No file selected</span><span><span class="file-pill">.csv</span><span class="file-pill">Max ~5MB</span></span>';
+          processBtn.disabled = true;
+          outputArea.value = "";
+          copyBtn.disabled = true;
+          emailCountEl.textContent = "0";
+          rowCountEl.textContent = "0";
+          dupeCountEl.textContent = "0";
+          lastEmails = [];
+          lastRawCount = 0;
+          lastDupeCount = 0;
+          setStatus("warn", "Waiting for CSV file…");
+          return;
+        }
+
+        const sizeKB = Math.round(file.size / 1024);
+        const approxRows =
+          sizeKB < 64 ? "~1–1.5k" : sizeKB < 512 ? "~5–10k" : "10k+";
+
+        fileMeta.innerHTML =
+          '<span class="file-name">' +
+          file.name +
+          '</span><span><span class="file-pill">' +
+          sizeKB +
+          " KB</span><span class=\"file-pill\">" +
+          approxRows +
+          " rows est.</span></span>";
+
+        processBtn.disabled = false;
+        setStatus("warn", "Ready. Click Extract emails.");
+      });
+
+      function parseCSV(content, hasHeader) {
+        const lines = content.split(/\r\n|\n|\r/);
+        const rows = [];
+
+        for (let i = 0; i < lines.length; i++) {
+          let line = lines[i];
+          if (!line) continue;
+
+          const values = [];
+          let current = "";
+          let inQuotes = false;
+
+          for (let j = 0; j < line.length; j++) {
+            const ch = line[j];
+            if (ch === '"') {
+              if (inQuotes && line[j + 1] === '"') {
+                current += '"';
+                j++;
+              } else {
+                inQuotes = !inQuotes;
+              }
+            } else if (ch === "," && !inQuotes) {
+              values.push(current);
+              current = "";
+            } else {
+              current += ch;
+            }
+          }
+          values.push(current);
+
+          const trimmed = values.map((v) => v.trim());
+          if (trimmed.every((v) => !v)) continue;
+          rows.push(trimmed);
+        }
+
+        if (hasHeader && rows.length) {
+          rows.shift();
+        }
+
+        return rows;
+      }
+
+      function extractEmails(rows) {
+        const emailPattern =
+          /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+
+        const emails = [];
+        for (const row of rows) {
+          for (const cell of row) {
+            if (!cell) continue;
+            const matches = cell.match(emailPattern);
+            if (matches && matches.length) {
+              for (const m of matches) {
+                emails.push(m.toLowerCase());
+              }
+            }
+          }
+        }
+        return emails;
+      }
+
+      function formatEmails(emails, separatorChoice) {
+        if (!emails.length) return "";
+        if (separatorChoice === "newline") {
+          return emails.join("\n");
+        }
+        return emails.join(separatorChoice);
+      }
+
+      function rebuildOutput() {
+        const dedupe = getToggleState(dedupeToggle);
+        const sepChoice = separatorSelect.value;
+
+        let emails = lastEmails.slice();
+        let duplicateCount = 0;
+
+        if (dedupe) {
+          const seen = new Set();
+          const unique = [];
+          for (const e of emails) {
+            if (!seen.has(e)) {
+              seen.add(e);
+              unique.push(e);
+            } else {
+              duplicateCount++;
+            }
+          }
+          emails = unique;
+        }
+
+        lastDupeCount = duplicateCount;
+        emailCountEl.textContent = String(emails.length);
+        dupeCountEl.textContent = String(duplicateCount);
+
+        outputArea.value = formatEmails(
+          emails,
+          sepChoice === "newline" ? "\n" : sepChoice
+        );
+
+        if (emails.length) {
+          copyBtn.disabled = false;
+          setStatus(
+            "ok",
+            "Done. " +
+              emails.length +
+              " emails ready to paste into your mail client."
+          );
+        } else {
+          copyBtn.disabled = true;
+          setStatus(
+            "warn",
+            "No email addresses were detected in this CSV file."
+          );
+        }
+      }
+
+      processBtn.addEventListener("click", () => {
+        if (!currentFile) return;
+
+        processBtn.disabled = true;
+        setStatus("warn", "Reading CSV and extracting emails…");
+
+        const reader = new FileReader();
+
+        reader.onerror = () => {
+          processBtn.disabled = false;
+          setStatus("err", "Failed to read file. Please try again.");
+        };
+
+        reader.onload = () => {
+          try {
+            const text = typeof reader.result === "string" ? reader.result : "";
+            const hasHeader = getToggleState(headerToggle);
+            const rows = parseCSV(text, hasHeader);
+            lastRawCount = rows.length;
+            rowCountEl.textContent = String(rows.length);
+
+            const emails = extractEmails(rows);
+            lastEmails = emails;
+
+            rebuildOutput();
+          } catch (err) {
+            console.error(err);
+            setStatus(
+              "err",
+              "Something went wrong while parsing. Check that this is a valid CSV."
+            );
+          } finally {
+            processBtn.disabled = !currentFile;
+          }
+        };
+
+        reader.readAsText(currentFile);
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        const text = outputArea.value;
+        if (!text) return;
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            setStatus("ok", "Copied to clipboard. Paste into your email client.");
+          } else {
+            outputArea.select();
+            document.execCommand("copy");
+            setStatus("ok", "Copied to clipboard. Paste into your email client.");
+          }
+        } catch (err) {
+          console.error(err);
+          setStatus(
+            "err",
+            "Could not access clipboard. Select text and copy it manually."
+          );
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
