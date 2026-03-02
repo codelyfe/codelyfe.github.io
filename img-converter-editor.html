@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Converter & Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f9fc;
+      --surface: #ffffff;
+      --surface-elevated: #ffffff;
+      --border: #e2e6ef;
+      --border-strong: #c8ced9;
+      --text: #1a1d26;
+      --text-muted: #5c6370;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-muted: #dbeafe;
+      --success: #059669;
+      --danger: #dc2626;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --shadow-lg: 0 4px 20px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    header p {
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-size: 0.95rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .panel-body { padding: 18px; }
+
+    .import-panel .panel-body {
+      padding: 0;
+      min-height: 200px;
+    }
+    .drop-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, color .2s;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      background: var(--accent-muted);
+    }
+    .drop-zone input { display: none; }
+    .drop-zone .icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: border-color .2s, background .2s;
+    }
+    .drop-zone:hover .icon-wrap, .drop-zone.dragover .icon-wrap {
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+    .drop-zone .icon {
+      width: 24px;
+      height: 24px;
+      stroke: var(--text-muted);
+      transition: stroke .2s;
+    }
+    .drop-zone:hover .icon, .drop-zone.dragover .icon { stroke: var(--accent); }
+    .drop-zone .label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .drop-zone .hint {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 14px;
+    }
+    .drop-zone .browse-btn {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .drop-zone .browse-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .preview-wrap {
+      position: relative;
+      background: #e8eaef;
+      border-radius: var(--radius);
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .preview-wrap canvas {
+      max-width: 100%;
+      max-height: 400px;
+      display: block;
+    }
+    .preview-placeholder {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--border-strong); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+    .btn-block { width: 100%; }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-group select, .form-group input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+    }
+    .form-group input[type="range"] {
+      width: 100%;
+      height: 6px;
+      accent-color: var(--accent);
+    }
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .range-row input[type="range"] { flex: 1; }
+    .range-row span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .toolbar .btn { flex-shrink: 0; }
+
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .preset-btn {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      text-align: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .preset-btn:hover {
+      background: var(--accent-muted);
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .actions .btn { justify-content: center; }
+
+    .meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .editor-controls { margin-bottom: 16px; }
+    .editor-controls .form-group { margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Image Converter & Editor</h1>
+      <p>Convert between formats, change resolution, and edit — all in the browser</p>
+    </header>
+
+    <div class="layout">
+      <aside class="panel import-panel">
+        <div class="panel-title">Import</div>
+        <div class="panel-body">
+          <label class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" accept="image/*">
+            <div class="icon-wrap">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <span class="label">Drop image here</span>
+            <span class="hint">or choose a file</span>
+            <span class="browse-btn">Browse</span>
+          </label>
+        </div>
+      </aside>
+
+      <main class="panel" style="flex: 1;">
+        <div class="panel-title">Preview</div>
+        <div class="panel-body">
+          <div class="preview-wrap">
+            <canvas id="canvas"></canvas>
+            <div class="preview-placeholder" id="placeholder">Load an image to start</div>
+          </div>
+          <div class="meta" id="meta"></div>
+
+          <div class="tabs">
+            <button type="button" class="tab active" data-tab="convert">Convert</button>
+            <button type="button" class="tab" data-tab="edit">Edit</button>
+          </div>
+
+          <div id="tabConvert" class="tab-panel active">
+            <div class="form-group">
+              <label>Output format</label>
+              <select id="outFormat">
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPEG</option>
+                <option value="image/webp">WebP</option>
+                <option value="image/gif">GIF</option>
+                <option value="image/bmp">BMP</option>
+                <option value="image/avif">AVIF</option>
+              </select>
+            </div>
+            <div class="form-group" id="qualityGroup">
+              <label>Quality <span id="qualityVal">0.92</span></label>
+              <div class="range-row">
+                <input type="range" id="quality" min="0.1" max="1" step="0.01" value="0.92">
+                <span id="qualityPct">92%</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Resolution</label>
+              <div class="presets" id="resolutionPresets"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                <div class="form-group">
+                  <label>Width</label>
+                  <input type="number" id="outWidth" min="1" placeholder="auto">
+                </div>
+                <div class="form-group">
+                  <label>Height</label>
+                  <input type="number" id="outHeight" min="1" placeholder="auto">
+                </div>
+              </div>
+              <label style="display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem;">
+                <input type="checkbox" id="keepAspect" checked> Keep aspect ratio
+              </label>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn btn-primary btn-block" id="btnDownload">Download</button>
+            </div>
+          </div>
+
+          <div id="tabEdit" class="tab-panel">
+            <div class="toolbar">
+              <button type="button" class="btn btn-secondary btn-sm" id="btnRotateL">↶ 90°</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnRotateR">↷ 90°</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnFlipH">⇄ Flip H</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnFlipV">⇅ Flip V</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnResetEdit">Reset</button>
+            </div>
+            <div class="editor-controls">
+              <div class="form-group">
+                <label>Brightness <span id="brightVal">100</span></label>
+                <div class="range-row">
+                  <input type="range" id="brightness" min="0" max="200" value="100">
+                  <span>%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Contrast <span id="contrastVal">100</span></label>
+                <div class="range-row">
+                  <input type="range" id="contrast" min="0" max="200" value="100">
+                  <span>%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Saturation <span id="saturationVal">100</span></label>
+                <div class="range-row">
+                  <input type="range" id="saturation" min="0" max="200" value="100">
+                  <span>%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Blur <span id="blurVal">0</span></label>
+                <div class="range-row">
+                  <input type="range" id="blur" min="0" max="10" step="0.5" value="0">
+                  <span>px</span>
+                </div>
+              </div>
+            </div>
+            <div class="toolbar">
+              <button type="button" class="btn btn-secondary btn-sm" id="btnGrayscale">Grayscale</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnSepia">Sepia</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnInvert">Invert</button>
+            </div>
+            <div class="actions" style="margin-top: 16px;">
+              <button type="button" class="btn btn-primary btn-block" id="btnApplyEdit">Apply edits & update preview</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="panel">
+        <div class="panel-title">Batch / Options</div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label>Scale output</label>
+            <div class="range-row">
+              <input type="range" id="scale" min="10" max="200" value="100">
+              <span id="scaleVal">100%</span>
+            </div>
+          </div>
+          <p class="meta">Scale is applied at download. Use resolution above for exact dimensions.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const placeholder = document.getElementById('placeholder');
+  const meta = document.getElementById('meta');
+  const fileInput = document.getElementById('fileInput');
+  const dropZone = document.getElementById('dropZone');
+  const outFormat = document.getElementById('outFormat');
+  const quality = document.getElementById('quality');
+  const qualityVal = document.getElementById('qualityVal');
+  const qualityPct = document.getElementById('qualityPct');
+  const qualityGroup = document.getElementById('qualityGroup');
+  const outWidth = document.getElementById('outWidth');
+  const outHeight = document.getElementById('outHeight');
+  const keepAspect = document.getElementById('keepAspect');
+  const btnDownload = document.getElementById('btnDownload');
+  const scale = document.getElementById('scale');
+  const scaleVal = document.getElementById('scaleVal');
+  const resolutionPresets = document.getElementById('resolutionPresets');
+
+  let currentImage = null;
+  let sourceWidth = 0, sourceHeight = 0;
+  let editState = { brightness: 100, contrast: 100, saturation: 100, blur: 0, rotation: 0, flipH: 1, flipV: 1, filter: null };
+
+  const RESOLUTION_PRESETS = [
+    [1920, 1080], [1280, 720], [1024, 768], [800, 600], [640, 480],
+    [3840, 2160], [2560, 1440], [1080, 1080], [1200, 630], [600, 315]
+  ];
+
+  function showPlaceholder(show) {
+    placeholder.style.display = show ? 'block' : 'none';
+    canvas.style.display = show ? 'none' : 'block';
+  }
+
+  function drawPreview() {
+    if (!currentImage) return;
+    let w = currentImage.width;
+    let h = currentImage.height;
+    const rot = ((editState.rotation % 360) + 360) % 360;
+    if (rot === 90 || rot === 270) { const t = w; w = h; h = t; }
+    canvas.width = w;
+    canvas.height = h;
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate((editState.rotation * Math.PI) / 180);
+    ctx.scale(editState.flipH, editState.flipV);
+    ctx.translate(-currentImage.width / 2, -currentImage.height / 2);
+    ctx.drawImage(currentImage, 0, 0);
+    ctx.restore();
+    applyFiltersToCanvas();
+  }
+
+  function applyFiltersToCanvas() {
+    if (!ctx || !canvas.width || !canvas.height) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const d = imgData.data;
+    const b = editState.brightness / 100;
+    const c = (editState.contrast - 100) / 100;
+    const s = editState.saturation / 100;
+
+    for (let i = 0; i < d.length; i += 4) {
+      let r = d[i], g = d[i + 1], bl = d[i + 2];
+      r *= b; g *= b; bl *= b;
+      const avg = (r + g + bl) / 3;
+      r = avg + (r - avg) * (1 + c);
+      g = avg + (g - avg) * (1 + c);
+      bl = avg + (bl - avg) * (1 + c);
+      if (s !== 1) {
+        const gray = 0.299 * r + 0.587 * g + 0.114 * bl;
+        r = gray + (r - gray) * s;
+        g = gray + (g - gray) * s;
+        bl = gray + (bl - gray) * s;
+      }
+      if (editState.filter === 'grayscale') {
+        const v = 0.299 * r + 0.587 * g + 0.114 * bl;
+        r = g = bl = v;
+      } else if (editState.filter === 'sepia') {
+        const r0 = r, g0 = g, b0 = bl;
+        r = Math.min(255, r0 * 1.07 + g0 * 0.74 + b0 * 0.43);
+        g = Math.min(255, r0 * 0.42 + g0 * 0.89 + b0 * 0.34);
+        bl = Math.min(255, r0 * 0.27 + g0 * 0.52 + b0 * 0.21);
+      } else if (editState.filter === 'invert') {
+        r = 255 - r; g = 255 - g; bl = 255 - bl;
+      }
+      d[i] = Math.max(0, Math.min(255, r));
+      d[i + 1] = Math.max(0, Math.min(255, g));
+      d[i + 2] = Math.max(0, Math.min(255, bl));
+    }
+    ctx.putImageData(imgData, 0, 0);
+    if (editState.blur > 0) {
+      const tmp = document.createElement('canvas');
+      tmp.width = w;
+      tmp.height = h;
+      const tctx = tmp.getContext('2d');
+      tctx.filter = `blur(${editState.blur}px)`;
+      tctx.drawImage(canvas, 0, 0);
+      ctx.filter = 'none';
+      ctx.drawImage(tmp, 0, 0);
+    }
+  }
+
+  function loadImage(file) {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      sourceWidth = img.width;
+      sourceHeight = img.height;
+      currentImage = img;
+      editState = { brightness: 100, contrast: 100, saturation: 100, blur: 0, rotation: 0, flipH: 1, flipV: 1, filter: null };
+      document.getElementById('brightness').value = 100;
+      document.getElementById('contrast').value = 100;
+      document.getElementById('saturation').value = 100;
+      document.getElementById('blur').value = 0;
+      document.getElementById('brightVal').textContent = '100';
+      document.getElementById('contrastVal').textContent = '100';
+      document.getElementById('saturationVal').textContent = '100';
+      document.getElementById('blurVal').textContent = '0';
+      outWidth.placeholder = sourceWidth;
+      outHeight.placeholder = sourceHeight;
+      outWidth.value = '';
+      outHeight.value = '';
+      showPlaceholder(false);
+      drawPreview();
+      meta.textContent = `${sourceWidth} × ${sourceHeight} • ${(file.size / 1024).toFixed(1)} KB`;
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); alert('Failed to load image'); };
+    img.src = url;
+  }
+
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) loadImage(f);
+  });
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files[0];
+    if (f) loadImage(f);
+  });
+
+  outFormat.addEventListener('change', () => {
+    const isLossy = ['image/jpeg', 'image/webp', 'image/avif'].includes(outFormat.value);
+    qualityGroup.style.display = isLossy ? 'block' : 'none';
+  });
+
+  quality.addEventListener('input', () => {
+    const v = parseFloat(quality.value);
+    qualityVal.textContent = v.toFixed(2);
+    qualityPct.textContent = Math.round(v * 100) + '%';
+  });
+
+  scale.addEventListener('input', () => { scaleVal.textContent = scale.value + '%'; });
+
+  RESOLUTION_PRESETS.forEach(([w, h]) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'preset-btn';
+    btn.textContent = w + '×' + h;
+    btn.addEventListener('click', () => {
+      outWidth.value = w;
+      outHeight.value = h;
+    });
+    resolutionPresets.appendChild(btn);
+  });
+
+  function getOutputDimensions() {
+    let w = parseInt(outWidth.value, 10) || sourceWidth;
+    let h = parseInt(outHeight.value, 10) || sourceHeight;
+    if (keepAspect.checked && sourceWidth && sourceHeight) {
+      const inW = parseInt(outWidth.value, 10), inH = parseInt(outHeight.value, 10);
+      if (inW && !inH) { h = Math.round((sourceHeight / sourceWidth) * inW); }
+      else if (!inW && inH) { w = Math.round((sourceWidth / sourceHeight) * inH); }
+      else if (inW && inH) {
+        const r = Math.min(inW / sourceWidth, inH / sourceHeight);
+        w = Math.round(sourceWidth * r);
+        h = Math.round(sourceHeight * r);
+      }
+    }
+    const s = parseInt(scale.value, 10) / 100;
+    return [Math.round(w * s), Math.round(h * s)];
+  }
+
+  btnDownload.addEventListener('click', () => {
+    if (!currentImage) { alert('Load an image first'); return; }
+    const [w, h] = getOutputDimensions();
+    const mime = outFormat.value;
+    const qual = parseFloat(quality.value);
+    const off = document.createElement('canvas');
+    off.width = w;
+    off.height = h;
+    const octx = off.getContext('2d');
+    octx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, w, h);
+    off.toBlob(blob => {
+      if (!blob) { alert('Conversion failed'); return; }
+      const ext = mime.split('/')[1].replace('jpeg', 'jpg');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `image.${ext}`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }, mime, mime !== 'image/png' ? qual : undefined);
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.add('active');
+    });
+  });
+
+  document.getElementById('btnRotateL').addEventListener('click', () => { editState.rotation -= 90; drawPreview(); });
+  document.getElementById('btnRotateR').addEventListener('click', () => { editState.rotation += 90; drawPreview(); });
+  document.getElementById('btnFlipH').addEventListener('click', () => { editState.flipH *= -1; drawPreview(); });
+  document.getElementById('btnFlipV').addEventListener('click', () => { editState.flipV *= -1; drawPreview(); });
+  document.getElementById('btnResetEdit').addEventListener('click', () => {
+    editState = { brightness: 100, contrast: 100, saturation: 100, blur: 0, rotation: 0, flipH: 1, flipV: 1, filter: null };
+    document.getElementById('brightness').value = 100;
+    document.getElementById('contrast').value = 100;
+    document.getElementById('saturation').value = 100;
+    document.getElementById('blur').value = 0;
+    document.getElementById('brightVal').textContent = '100';
+    document.getElementById('contrastVal').textContent = '100';
+    document.getElementById('saturationVal').textContent = '100';
+    document.getElementById('blurVal').textContent = '0';
+    drawPreview();
+  });
+
+  ['brightness', 'contrast', 'saturation', 'blur'].forEach(id => {
+    const el = document.getElementById(id);
+    const label = document.getElementById(id.replace(/(\w+)/, '$1Val'));
+    el.addEventListener('input', () => {
+      editState[id] = parseFloat(el.value);
+      label.textContent = el.value;
+      drawPreview();
+    });
+  });
+
+  document.getElementById('btnGrayscale').addEventListener('click', () => { editState.filter = editState.filter === 'grayscale' ? null : 'grayscale'; drawPreview(); });
+  document.getElementById('btnSepia').addEventListener('click', () => { editState.filter = editState.filter === 'sepia' ? null : 'sepia'; drawPreview(); });
+  document.getElementById('btnInvert').addEventListener('click', () => { editState.filter = editState.filter === 'invert' ? null : 'invert'; drawPreview(); });
+  document.getElementById('btnApplyEdit').addEventListener('click', () => {
+    if (!currentImage) return;
+    const off = document.createElement('canvas');
+    off.width = canvas.width;
+    off.height = canvas.height;
+    off.getContext('2d').drawImage(canvas, 0, 0);
+    const img = new Image();
+    img.onload = function () {
+      currentImage = img;
+      editState = { brightness: 100, contrast: 100, saturation: 100, blur: 0, rotation: editState.rotation, flipH: 1, flipV: 1, filter: null };
+      document.getElementById('brightness').value = 100;
+      document.getElementById('contrast').value = 100;
+      document.getElementById('saturation').value = 100;
+      document.getElementById('blur').value = 0;
+      document.getElementById('brightVal').textContent = '100';
+      document.getElementById('contrastVal').textContent = '100';
+      document.getElementById('saturationVal').textContent = '100';
+      document.getElementById('blurVal').textContent = '0';
+      drawPreview();
+    };
+    img.src = off.toDataURL('image/png');
+  });
+
+  showPlaceholder(true);
+})();
+  </script>
+</body>
+</html>
