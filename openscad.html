@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OpenSCAD Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #1a1b26;
+      --panel: #24283b;
+      --border: #3b4261;
+      --text: #c0caf5;
+      --text-dim: #565f89;
+      --accent: #7aa2f7;
+      --accent-soft: rgba(122, 162, 247, 0.15);
+      --success: #9ece6a;
+      --error: #f7768e;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: 0;
+    }
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+    }
+    .editor-wrap {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+    .editor-label {
+      padding: 8px 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    #editor {
+      flex: 1;
+      min-height: 280px;
+      padding: 14px;
+      margin: 0;
+      border: none;
+      background: #16161e;
+      color: var(--text);
+      font: 14px/1.5 "JetBrains Mono", "Fira Code", monospace;
+      resize: none;
+      outline: none;
+    }
+    .preview-wrap {
+      display: flex;
+      flex-direction: column;
+      background: #16161e;
+    }
+    .preview-label {
+      padding: 8px 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    #preview {
+      position: relative;
+      flex: 1;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f14;
+    }
+    #preview canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .preview-rotation {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+    }
+    .preview-rotation label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-dim);
+    }
+    .preview-rotation input {
+      width: 64px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      font-size: 12px;
+    }
+    .preview-rotation input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .preview-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 11px;
+    }
+    .preview-toolbar .group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .preview-toolbar .group + .group { margin-left: 8px; border-left: 1px solid var(--border); padding-left: 8px; }
+    .preview-toolbar .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    .preview-toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .preview-toolbar input[type="checkbox"] { accent-color: var(--accent); }
+    .preview-toolbar input[type="color"] { width: 22px; height: 22px; padding: 0; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; background: var(--bg); vertical-align: middle; }
+    .preview-toolbar input[type="number"].wireframe-angle { width: 42px; padding: 2px 6px; font-size: 11px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); }
+    .preview-toolbar .wireframe-advanced { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .preview-toolbar .wireframe-advanced label { white-space: nowrap; }
+    .preview-transform {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+      padding: 8px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+    }
+    .preview-transform .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-transform .row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-dim);
+    }
+    .preview-transform .row input {
+      width: 52px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      font-size: 11px;
+    }
+    .preview-transform .row input:focus { outline: none; border-color: var(--accent); }
+    .preview-transform .apply-btn { margin-left: auto; }
+    .advanced-panel {
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .advanced-panel summary {
+      padding: 8px 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .advanced-panel summary:hover { color: var(--accent); }
+    .advanced-panel .advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px 16px;
+      padding: 10px 14px;
+      font-size: 11px;
+    }
+    .advanced-panel .advanced-grid label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-dim);
+    }
+    .advanced-panel .advanced-grid input[type="number"] { width: 48px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; }
+    .advanced-panel .advanced-grid input[type="range"] { flex: 1; min-width: 60px; accent-color: var(--accent); }
+    .advanced-panel .advanced-grid input[type="color"] { width: 24px; height: 22px; padding: 0; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; background: var(--bg); }
+    .advanced-panel .advanced-grid select { padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; }
+    .status {
+      padding: 8px 14px;
+      font-size: 12px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .status.error { color: var(--error); }
+    .status.ok { color: var(--success); }
+    .status.loading { color: var(--accent); }
+    .preview-progress {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(15, 15, 20, 0.85);
+      z-index: 10;
+    }
+    .preview-progress.visible {
+      display: flex;
+    }
+    .preview-progress .progress-bar {
+      width: 60%;
+      max-width: 280px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .preview-progress .progress-bar .fill {
+      height: 100%;
+      width: 40%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: progress-indeterminate 1.2s ease-in-out infinite;
+    }
+    @keyframes progress-indeterminate {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    .preview-progress .progress-label {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>OpenSCAD</h1>
+    <div class="toolbar">
+      <button type="button" class="btn btn-primary" id="compile" disabled>Compile &amp; preview</button>
+      <button type="button" class="btn" id="download" disabled>Download STL</button>
+    </div>
+  </header>
+  <main class="main">
+    <div class="editor-wrap">
+      <div class="editor-label">Code</div>
+      <textarea id="editor" spellcheck="false"></textarea>
+    </div>
+    <div class="preview-wrap">
+      <div class="editor-label">Preview</div>
+      <div class="preview-toolbar">
+        <div class="group">
+          <span style="color:var(--text-dim)">View</span>
+          <button type="button" class="btn btn-sm" id="viewFront" title="Front">Front</button>
+          <button type="button" class="btn btn-sm" id="viewTop" title="Top">Top</button>
+          <button type="button" class="btn btn-sm" id="viewRight" title="Right">Right</button>
+          <button type="button" class="btn btn-sm" id="viewIso" title="Isometric">Iso</button>
+          <button type="button" class="btn btn-sm" id="viewFit" title="Zoom to fit">Fit</button>
+        </div>
+        <div class="group">
+          <label><input type="checkbox" id="showGrid" checked> Grid</label>
+          <label><input type="checkbox" id="showAxes"> Axes</label>
+        </div>
+        <div class="group">
+          <label><input type="checkbox" id="wireframe"> Wireframe</label>
+          <label><input type="checkbox" id="flatShade"> Flat</label>
+        </div>
+        <div class="group wireframe-advanced">
+          <span style="color:var(--text-dim)">Wireframe</span>
+          <label title="Line color"><input type="color" id="wireframeColor" value="#c0caf5"></label>
+          <label><input type="text" id="wireframeHex" value="#c0caf5" maxlength="7" style="width:58px;padding:2px 6px;font-size:11px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></label>
+          <label><input type="checkbox" id="wireframeOverlay"> Overlay</label>
+          <label><input type="checkbox" id="edgesOnly"> Edges only</label>
+          <label>° <input type="number" id="edgeAngle" class="wireframe-angle" value="15" min="1" max="180" step="1" title="Edge angle threshold"></label>
+        </div>
+      </div>
+      <div id="preview">
+        <div class="preview-progress visible" id="previewProgress">
+          <div class="progress-bar"><div class="fill"></div></div>
+          <span class="progress-label" id="progressLabel">Loading…</span>
+        </div>
+      </div>
+      <div class="preview-transform">
+        <div class="row">
+          <span style="color:var(--text-dim);font-size:11px">Rotate °</span>
+          <label>X <input type="number" id="rotX" value="0" min="-180" max="180" step="1"></label>
+          <label>Y <input type="number" id="rotY" value="0" min="-180" max="180" step="1"></label>
+          <label>Z <input type="number" id="rotZ" value="0" min="-180" max="180" step="1"></label>
+        </div>
+        <div class="row">
+          <span style="color:var(--text-dim);font-size:11px">Scale</span>
+          <label>X <input type="number" id="scaleX" value="1" min="0.01" max="100" step="0.1"></label>
+          <label>Y <input type="number" id="scaleY" value="1" min="0.01" max="100" step="0.1"></label>
+          <label>Z <input type="number" id="scaleZ" value="1" min="0.01" max="100" step="0.1"></label>
+        </div>
+        <div class="row">
+          <span style="color:var(--text-dim);font-size:11px">Move</span>
+          <label>X <input type="number" id="transX" value="0" step="1"></label>
+          <label>Y <input type="number" id="transY" value="0" step="1"></label>
+          <label>Z <input type="number" id="transZ" value="0" step="1"></label>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm apply-btn" id="applyToCode" title="Write current transform into code">Apply to code</button>
+      </div>
+      <details class="advanced-panel">
+        <summary>Advanced (15 tools)</summary>
+        <div class="advanced-grid">
+          <label title="Camera field of view">1. FOV ° <input type="number" id="advFov" value="50" min="20" max="90" step="5"></label>
+          <label title="Scene background">2. Background <input type="color" id="advBg" value="#0f0f14"></label>
+          <label title="Model color">3. Mesh color <input type="color" id="advMeshColor" value="#7aa2f7"></label>
+          <label title="Model opacity">4. Opacity <input type="range" id="advOpacity" min="0.1" max="1" step="0.05" value="1"></label>
+          <label title="Material shininess">5. Shininess <input type="number" id="advShininess" value="30" min="0" max="200" step="5"></label>
+          <label title="Grid divisions">6. Grid divs <input type="number" id="advGridDivs" value="40" min="5" max="100" step="5"></label>
+          <label title="Grid size">7. Grid size <input type="number" id="advGridSize" value="80" min="20" max="200" step="10"></label>
+          <label title="Axes length">8. Axes len <input type="number" id="advAxesLen" value="25" min="5" max="80" step="5"></label>
+          <label title="Auto-rotate view">9. Auto-rotate <input type="checkbox" id="advAutoRotate"></label>
+          <label title="Show bounding box">10. Bounding box <input type="checkbox" id="advBbox"></label>
+          <label title="Render back faces">11. Double-sided <input type="checkbox" id="advDoubleSided"></label>
+          <label title="Ambient light">12. Ambient <input type="range" id="advAmbient" min="0" max="1.5" step="0.1" value="0.6"></label>
+          <label title="Main light">13. Light <input type="range" id="advLight" min="0" max="2" step="0.1" value="0.8"></label>
+          <label title="Reset camera">14. <button type="button" class="btn btn-sm" id="advResetCam">Reset camera</button></label>
+          <label title="Render resolution">15. Pixel ratio <select id="advPixelRatio"><option value="1">1×</option><option value="2" selected>2×</option></select></label>
+        </div>
+      </details>
+    </div>
+  </main>
+  <div class="status" id="status">Loading OpenSCAD WASM…</div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const editor = document.getElementById('editor');
+    const previewEl = document.getElementById('preview');
+    const compileBtn = document.getElementById('compile');
+    const downloadBtn = document.getElementById('download');
+    const statusEl = document.getElementById('status');
+    const rotXEl = document.getElementById('rotX');
+    const rotYEl = document.getElementById('rotY');
+    const rotZEl = document.getElementById('rotZ');
+    const scaleXEl = document.getElementById('scaleX');
+    const scaleYEl = document.getElementById('scaleY');
+    const scaleZEl = document.getElementById('scaleZ');
+    const transXEl = document.getElementById('transX');
+    const transYEl = document.getElementById('transY');
+    const transZEl = document.getElementById('transZ');
+    const showGridEl = document.getElementById('showGrid');
+    const showAxesEl = document.getElementById('showAxes');
+    const wireframeEl = document.getElementById('wireframe');
+    const flatShadeEl = document.getElementById('flatShade');
+    const wireframeColorEl = document.getElementById('wireframeColor');
+    const wireframeHexEl = document.getElementById('wireframeHex');
+    const wireframeOverlayEl = document.getElementById('wireframeOverlay');
+    const edgesOnlyEl = document.getElementById('edgesOnly');
+    const edgeAngleEl = document.getElementById('edgeAngle');
+    const previewProgressEl = document.getElementById('previewProgress');
+    const progressLabelEl = document.getElementById('progressLabel');
+    const advFovEl = document.getElementById('advFov');
+    const advBgEl = document.getElementById('advBg');
+    const advMeshColorEl = document.getElementById('advMeshColor');
+    const advOpacityEl = document.getElementById('advOpacity');
+    const advShininessEl = document.getElementById('advShininess');
+    const advGridDivsEl = document.getElementById('advGridDivs');
+    const advGridSizeEl = document.getElementById('advGridSize');
+    const advAxesLenEl = document.getElementById('advAxesLen');
+    const advAutoRotateEl = document.getElementById('advAutoRotate');
+    const advBboxEl = document.getElementById('advBbox');
+    const advDoubleSidedEl = document.getElementById('advDoubleSided');
+    const advAmbientEl = document.getElementById('advAmbient');
+    const advLightEl = document.getElementById('advLight');
+    const advResetCamEl = document.getElementById('advResetCam');
+    const advPixelRatioEl = document.getElementById('advPixelRatio');
+
+    const defaultCode = `// OpenSCAD - edit and click Compile & preview
+cube([20, 20, 20], center = true);
+`;
+    editor.value = defaultCode;
+
+    let openscadInstance = null;
+    let lastStlBuffer = null;
+    let scene, camera, renderer, controls, mesh = null;
+    let wireframeMesh = null;
+    let gridHelper = null;
+    let axesHelper = null;
+    let bboxHelper = null;
+    let ambientLight = null;
+    let dirLight = null;
+    let openscadStderr = [];
+
+    function setStatus(msg, type = '') {
+      statusEl.textContent = msg;
+      statusEl.className = 'status ' + type;
+    }
+
+    function showProgress(label = 'Loading…') {
+      progressLabelEl.textContent = label;
+      previewProgressEl.classList.add('visible');
+    }
+    function hideProgress() {
+      previewProgressEl.classList.remove('visible');
+    }
+
+    function initThree() {
+      if (renderer) return;
+      const width = previewEl.clientWidth;
+      const height = previewEl.clientHeight;
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(advBgEl.value);
+      camera = new THREE.PerspectiveCamera(parseFloat(advFovEl.value) || 50, width / height, 0.01, 100000);
+      camera.position.set(40, 40, 40);
+      camera.lookAt(0, 0, 0);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(parseFloat(advPixelRatioEl.value) || 2);
+      previewEl.appendChild(renderer.domElement);
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.rotateSpeed = 1.6;
+      controls.zoomSpeed = 1.4;
+      controls.panSpeed = 0.8;
+      controls.screenSpacePanning = true;
+      controls.minDistance = 8;
+      controls.maxDistance = 400;
+      controls.minPolarAngle = 0;
+      controls.maxPolarAngle = Math.PI;
+      controls.target.set(0, 0, 0);
+      dirLight = new THREE.DirectionalLight(0xffffff, parseFloat(advLightEl.value) || 0.8);
+      dirLight.position.set(1, 1, 1);
+      scene.add(dirLight);
+      const light2 = new THREE.DirectionalLight(0x7aa2f7, 0.4);
+      light2.position.set(-1, -1, 0.5);
+      scene.add(light2);
+      ambientLight = new THREE.AmbientLight(0x404060, parseFloat(advAmbientEl.value) || 0.6);
+      scene.add(ambientLight);
+      const gridSize = parseFloat(advGridSizeEl.value) || 80;
+      const gridDivs = parseInt(advGridDivsEl.value, 10) || 40;
+      gridHelper = new THREE.GridHelper(gridSize, gridDivs, 0x3b4261, 0x24283b);
+      gridHelper.position.y = -gridSize / 2;
+      scene.add(gridHelper);
+      const axesLen = parseFloat(advAxesLenEl.value) || 25;
+      axesHelper = new THREE.AxesHelper(axesLen);
+      axesHelper.visible = false;
+      scene.add(axesHelper);
+      controls.autoRotate = advAutoRotateEl.checked;
+      animate();
+    }
+
+    function animate() {
+      if (!renderer) return;
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function applyMeshTransform() {
+      if (!mesh) return;
+      const rx = (parseFloat(rotXEl.value) || 0) * Math.PI / 180;
+      const ry = (parseFloat(rotYEl.value) || 0) * Math.PI / 180;
+      const rz = (parseFloat(rotZEl.value) || 0) * Math.PI / 180;
+      mesh.rotation.set(rx, ry, rz);
+      const sx = parseFloat(scaleXEl.value) || 1;
+      const sy = parseFloat(scaleYEl.value) || 1;
+      const sz = parseFloat(scaleZEl.value) || 1;
+      mesh.scale.set(sx, sy, sz);
+      const tx = parseFloat(transXEl.value) || 0;
+      const ty = parseFloat(transYEl.value) || 0;
+      const tz = parseFloat(transZEl.value) || 0;
+      mesh.position.set(tx, ty, tz);
+      if (wireframeMesh) {
+        wireframeMesh.position.copy(mesh.position);
+        wireframeMesh.rotation.copy(mesh.rotation);
+        wireframeMesh.scale.copy(mesh.scale);
+      }
+      if (advBboxEl.checked) updateBbox();
+    }
+
+    function syncTransformFromMesh() {
+      if (!mesh) return;
+      rotXEl.value = Math.round(THREE.MathUtils.radToDeg(mesh.rotation.x));
+      rotYEl.value = Math.round(THREE.MathUtils.radToDeg(mesh.rotation.y));
+      rotZEl.value = Math.round(THREE.MathUtils.radToDeg(mesh.rotation.z));
+      scaleXEl.value = mesh.scale.x;
+      scaleYEl.value = mesh.scale.y;
+      scaleZEl.value = mesh.scale.z;
+      transXEl.value = Math.round(mesh.position.x * 100) / 100;
+      transYEl.value = Math.round(mesh.position.y * 100) / 100;
+      transZEl.value = Math.round(mesh.position.z * 100) / 100;
+    }
+
+    function wireframeColorValue() {
+      const hex = wireframeHexEl.value.trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) return parseInt(hex.slice(1), 16);
+      return 0xc0caf5;
+    }
+
+    function buildWireframeOverlay() {
+      if (!mesh || !mesh.geometry) return;
+      if (wireframeMesh) scene.remove(wireframeMesh);
+      const useEdges = edgesOnlyEl.checked;
+      const angle = (parseFloat(edgeAngleEl.value) || 15) * Math.PI / 180;
+      const edgeGeom = useEdges
+        ? new THREE.EdgesGeometry(mesh.geometry, angle)
+        : new THREE.WireframeGeometry(mesh.geometry);
+      const color = wireframeColorValue();
+      const lineMat = new THREE.LineBasicMaterial({ color });
+      wireframeMesh = new THREE.LineSegments(edgeGeom, lineMat);
+      wireframeMesh.position.copy(mesh.position);
+      wireframeMesh.rotation.copy(mesh.rotation);
+      wireframeMesh.scale.copy(mesh.scale);
+      scene.add(wireframeMesh);
+    }
+
+    function updateGrid() {
+      if (!scene || !gridHelper) return;
+      const gridSize = parseFloat(advGridSizeEl.value) || 80;
+      const gridDivs = parseInt(advGridDivsEl.value, 10) || 40;
+      scene.remove(gridHelper);
+      gridHelper.geometry.dispose();
+      gridHelper = new THREE.GridHelper(gridSize, gridDivs, 0x3b4261, 0x24283b);
+      gridHelper.position.y = -gridSize / 2;
+      scene.add(gridHelper);
+      gridHelper.visible = showGridEl.checked;
+    }
+
+    function updateAxes() {
+      if (!scene || !axesHelper) return;
+      const len = parseFloat(advAxesLenEl.value) || 25;
+      scene.remove(axesHelper);
+      axesHelper.geometry.dispose();
+      axesHelper = new THREE.AxesHelper(len);
+      axesHelper.visible = showAxesEl.checked;
+      scene.add(axesHelper);
+    }
+
+    function updateBbox() {
+      if (!scene) return;
+      if (bboxHelper) { scene.remove(bboxHelper); bboxHelper.geometry.dispose(); bboxHelper.material.dispose(); bboxHelper = null; }
+      if (!advBboxEl.checked || !mesh) return;
+      const box = new THREE.Box3().setFromObject(mesh);
+      const min = box.min, max = box.max;
+      const x0 = min.x, x1 = max.x, y0 = min.y, y1 = max.y, z0 = min.z, z1 = max.z;
+      const pos = new Float32Array([
+        x0, y0, z0, x1, y0, z0, x1, y0, z0, x1, y1, z0, x1, y1, z0, x0, y1, z0, x0, y1, z0, x0, y0, z0,
+        x0, y0, z1, x1, y0, z1, x1, y0, z1, x1, y1, z1, x1, y1, z1, x0, y1, z1, x0, y1, z1, x0, y0, z1,
+        x0, y0, z0, x0, y0, z1, x1, y0, z0, x1, y0, z1, x1, y1, z0, x1, y1, z1, x0, y1, z0, x0, y1, z1
+      ]);
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.computeBoundingSphere();
+      bboxHelper = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0xf7768e }));
+      scene.add(bboxHelper);
+    }
+
+    function applyAdvancedScene() {
+      if (scene) scene.background.set(advBgEl.value);
+      if (camera) { camera.fov = parseFloat(advFovEl.value) || 50; camera.updateProjectionMatrix(); }
+      if (renderer) renderer.setPixelRatio(parseFloat(advPixelRatioEl.value) || 2);
+      if (ambientLight) ambientLight.intensity = parseFloat(advAmbientEl.value) || 0.6;
+      if (dirLight) dirLight.intensity = parseFloat(advLightEl.value) || 0.8;
+      if (controls) controls.autoRotate = advAutoRotateEl.checked;
+      updateGrid();
+      updateAxes();
+      updateBbox();
+    }
+
+    function updateMeshMaterial() {
+      if (!mesh || !mesh.material) return;
+      const overlay = wireframeOverlayEl.checked;
+      mesh.material.wireframe = !overlay && wireframeEl.checked;
+      mesh.material.flatShading = flatShadeEl.checked;
+      mesh.material.color.set(advMeshColorEl.value);
+      mesh.material.opacity = parseFloat(advOpacityEl.value) || 1;
+      mesh.material.transparent = mesh.material.opacity < 1;
+      mesh.material.shininess = parseFloat(advShininessEl.value) || 30;
+      mesh.material.side = advDoubleSidedEl.checked ? THREE.DoubleSide : THREE.FrontSide;
+      mesh.material.needsUpdate = true;
+      if (wireframeMesh) {
+        wireframeMesh.visible = overlay;
+        if (wireframeMesh.material) wireframeMesh.material.color.setHex(wireframeColorValue());
+        if (overlay) {
+          wireframeMesh.position.copy(mesh.position);
+          wireframeMesh.rotation.copy(mesh.rotation);
+          wireframeMesh.scale.copy(mesh.scale);
+          const useEdges = edgesOnlyEl.checked;
+          const angle = (parseFloat(edgeAngleEl.value) || 15) * Math.PI / 180;
+          wireframeMesh.geometry.dispose();
+          wireframeMesh.geometry = useEdges
+            ? new THREE.EdgesGeometry(mesh.geometry, angle)
+            : new THREE.WireframeGeometry(mesh.geometry);
+        }
+      }
+    }
+
+    function showStl(arrayBuffer) {
+      initThree();
+      if (mesh) scene.remove(mesh);
+      if (wireframeMesh) { scene.remove(wireframeMesh); wireframeMesh.geometry.dispose(); wireframeMesh.material.dispose(); wireframeMesh = null; }
+      if (bboxHelper) { scene.remove(bboxHelper); bboxHelper.geometry.dispose(); bboxHelper.material.dispose(); bboxHelper = null; }
+      const loader = new STLLoader();
+      const geometry = loader.parse(arrayBuffer);
+      geometry.computeVertexNormals();
+      const opacity = parseFloat(advOpacityEl.value) || 1;
+      const mat = new THREE.MeshPhongMaterial({
+        color: advMeshColorEl.value,
+        specular: 0x222244,
+        shininess: parseFloat(advShininessEl.value) || 30,
+        wireframe: wireframeEl.checked,
+        flatShading: flatShadeEl.checked,
+        transparent: opacity < 1,
+        opacity,
+        side: advDoubleSidedEl.checked ? THREE.DoubleSide : THREE.FrontSide,
+      });
+      mesh = new THREE.Mesh(geometry, mat);
+      const bbox = new THREE.Box3().setFromObject(mesh);
+      const center = bbox.getCenter(new THREE.Vector3());
+      mesh.position.sub(center);
+      scene.add(mesh);
+      if (wireframeOverlayEl.checked) {
+        buildWireframeOverlay();
+        if (wireframeMesh) wireframeMesh.visible = true;
+      }
+      applyMeshTransform();
+      applyAdvancedScene();
+      syncTransformFromMesh();
+      lastStlBuffer = arrayBuffer;
+      downloadBtn.disabled = false;
+    }
+
+    function setView(dir) {
+      if (!camera || !controls) return;
+      const d = 50;
+      const t = new THREE.Vector3(0, 0, 0);
+      if (dir === 'front') camera.position.set(0, 0, d);
+      else if (dir === 'back') camera.position.set(0, 0, -d);
+      else if (dir === 'top') camera.position.set(0, d, 0);
+      else if (dir === 'bottom') camera.position.set(0, -d, 0);
+      else if (dir === 'right') camera.position.set(d, 0, 0);
+      else if (dir === 'left') camera.position.set(-d, 0, 0);
+      else if (dir === 'iso') camera.position.set(d * 0.7, d * 0.7, d * 0.7);
+      controls.target.copy(t);
+      controls.update();
+    }
+
+    function zoomToFit() {
+      if (!camera || !controls || !scene) return;
+      const box = new THREE.Box3();
+      if (mesh) box.expandByObject(mesh);
+      if (box.isEmpty()) return;
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = (camera.fov * Math.PI) / 180;
+      let distance = Math.abs(maxDim / Math.tan(fov / 2));
+      distance *= 1.4;
+      const dir = camera.position.clone().sub(controls.target).normalize();
+      camera.position.copy(center).add(dir.multiplyScalar(distance));
+      controls.target.copy(center);
+      controls.update();
+    }
+
+    function getWrappedCode(inner, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
+      const pad = (n) => String(Number(n.toFixed(2)));
+      const ind = inner.split('\n').map((l) => '  ' + l).join('\n');
+      const parts = [];
+      if (tx !== 0 || ty !== 0 || tz !== 0) parts.push(`translate([${pad(tx)}, ${pad(ty)}, ${pad(tz)}])`);
+      if (rx !== 0 || ry !== 0 || rz !== 0) parts.push(`rotate([${pad(rx)}, ${pad(ry)}, ${pad(rz)}])`);
+      if (sx !== 1 || sy !== 1 || sz !== 1) parts.push(`scale([${pad(sx)}, ${pad(sy)}, ${pad(sz)}])`);
+      if (parts.length === 0) return inner;
+      const prefix = parts.join(' ');
+      return `${prefix} {\n${ind}\n}`;
+    }
+
+    function applyToCode() {
+      const tx = parseFloat(transXEl.value) || 0;
+      const ty = parseFloat(transYEl.value) || 0;
+      const tz = parseFloat(transZEl.value) || 0;
+      const rx = parseFloat(rotXEl.value) || 0;
+      const ry = parseFloat(rotYEl.value) || 0;
+      const rz = parseFloat(rotZEl.value) || 0;
+      const sx = parseFloat(scaleXEl.value) || 1;
+      const sy = parseFloat(scaleYEl.value) || 1;
+      const sz = parseFloat(scaleZEl.value) || 1;
+      const wrapped = getWrappedCode(editor.value.trim(), tx, ty, tz, rx, ry, rz, sx, sy, sz);
+      editor.value = wrapped;
+      rotXEl.value = rotYEl.value = rotZEl.value = '0';
+      scaleXEl.value = scaleYEl.value = scaleZEl.value = '1';
+      transXEl.value = transYEl.value = transZEl.value = '0';
+      applyMeshTransform();
+      setStatus('Transform applied to code. Compile to update STL.', 'ok');
+      compile();
+    }
+
+    async function loadOpenSCAD() {
+      showProgress('Loading OpenSCAD WASM…');
+      const base = 'https://cdn.jsdelivr.net/npm/openscad-wasm@0.0.4/';
+      const { createOpenSCAD } = await import(base + 'openscad.js');
+      const instance = await createOpenSCAD({
+        print: () => {},
+        printErr: (t) => { openscadStderr.push(t); },
+      });
+      openscadInstance = instance;
+      hideProgress();
+      setStatus('Ready. Edit code and click Compile & preview.', 'ok');
+      compileBtn.disabled = false;
+    }
+
+    async function compile() {
+      if (!openscadInstance) return;
+      const code = editor.value.trim();
+      if (!code) {
+        setStatus('Enter some OpenSCAD code.', 'error');
+        return;
+      }
+      setStatus('Compiling…', 'loading');
+      showProgress('Rendering…');
+      compileBtn.disabled = true;
+      openscadStderr = [];
+      const instance = openscadInstance.getInstance();
+      try {
+        instance.FS.writeFile('/input.scad', code);
+        instance.callMain(['/input.scad', '-o', '/output.stl']);
+        const bytes = instance.FS.readFile('/output.stl');
+        instance.FS.unlink('/input.scad');
+        instance.FS.unlink('/output.stl');
+        const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+        showStl(buffer);
+        hideProgress();
+        setStatus('Rendered.', 'ok');
+      } catch (e) {
+        hideProgress();
+        try {
+          if (instance.FS.analyzePath('/input.scad').exists) instance.FS.unlink('/input.scad');
+          if (instance.FS.analyzePath('/output.stl').exists) instance.FS.unlink('/output.stl');
+        } catch (_) {}
+        const msg = typeof e === 'number' ? 'OpenSCAD failed (exit ' + e + ').' : (e.message || String(e));
+        const errLog = openscadStderr.length ? '\n' + openscadStderr.join('').trim().split('\n').slice(-5).join('\n') : '';
+        setStatus(msg + errLog, 'error');
+        console.error(e, openscadStderr);
+      }
+      compileBtn.disabled = false;
+    }
+
+    function downloadStl() {
+      if (!lastStlBuffer) return;
+      const blob = new Blob([lastStlBuffer], { type: 'application/octet-stream' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'model.stl';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    compileBtn.addEventListener('click', compile);
+    downloadBtn.addEventListener('click', downloadStl);
+    document.getElementById('applyToCode').addEventListener('click', applyToCode);
+    document.getElementById('viewFront').addEventListener('click', () => setView('front'));
+    document.getElementById('viewTop').addEventListener('click', () => setView('top'));
+    document.getElementById('viewRight').addEventListener('click', () => setView('right'));
+    document.getElementById('viewIso').addEventListener('click', () => setView('iso'));
+    document.getElementById('viewFit').addEventListener('click', zoomToFit);
+    showGridEl.addEventListener('change', () => { if (gridHelper) gridHelper.visible = showGridEl.checked; });
+    showAxesEl.addEventListener('change', () => { if (axesHelper) axesHelper.visible = showAxesEl.checked; });
+    wireframeEl.addEventListener('change', updateMeshMaterial);
+    flatShadeEl.addEventListener('change', updateMeshMaterial);
+    wireframeColorEl.addEventListener('input', () => { wireframeHexEl.value = wireframeColorEl.value; updateMeshMaterial(); });
+    wireframeHexEl.addEventListener('input', () => {
+      const hex = wireframeHexEl.value.trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) wireframeColorEl.value = hex;
+      updateMeshMaterial();
+    });
+    wireframeOverlayEl.addEventListener('change', () => {
+      if (wireframeOverlayEl.checked && mesh) buildWireframeOverlay();
+      if (wireframeMesh) wireframeMesh.visible = wireframeOverlayEl.checked;
+      updateMeshMaterial();
+    });
+    edgesOnlyEl.addEventListener('change', () => { if (wireframeOverlayEl.checked) updateMeshMaterial(); });
+    edgeAngleEl.addEventListener('input', () => { if (wireframeOverlayEl.checked) updateMeshMaterial(); });
+    edgeAngleEl.addEventListener('change', () => { if (wireframeOverlayEl.checked) updateMeshMaterial(); });
+    [rotXEl, rotYEl, rotZEl, scaleXEl, scaleYEl, scaleZEl, transXEl, transYEl, transZEl].forEach((el) => {
+      el.addEventListener('input', applyMeshTransform);
+      el.addEventListener('change', applyMeshTransform);
+    });
+
+    advFovEl.addEventListener('input', () => { if (camera) { camera.fov = parseFloat(advFovEl.value) || 50; camera.updateProjectionMatrix(); } });
+    advBgEl.addEventListener('input', () => { if (scene) scene.background.set(advBgEl.value); });
+    advMeshColorEl.addEventListener('input', updateMeshMaterial);
+    advOpacityEl.addEventListener('input', updateMeshMaterial);
+    advShininessEl.addEventListener('input', updateMeshMaterial);
+    advGridDivsEl.addEventListener('change', updateGrid);
+    advGridSizeEl.addEventListener('change', updateGrid);
+    advAxesLenEl.addEventListener('change', updateAxes);
+    advAutoRotateEl.addEventListener('change', () => { if (controls) controls.autoRotate = advAutoRotateEl.checked; });
+    advBboxEl.addEventListener('change', () => { updateBbox(); });
+    advDoubleSidedEl.addEventListener('change', updateMeshMaterial);
+    advAmbientEl.addEventListener('input', () => { if (ambientLight) ambientLight.intensity = parseFloat(advAmbientEl.value) || 0.6; });
+    advLightEl.addEventListener('input', () => { if (dirLight) dirLight.intensity = parseFloat(advLightEl.value) || 0.8; });
+    advResetCamEl.addEventListener('click', () => { camera.position.set(40, 40, 40); camera.lookAt(0, 0, 0); if (controls) controls.target.set(0, 0, 0); });
+    advPixelRatioEl.addEventListener('change', () => { if (renderer) renderer.setPixelRatio(parseFloat(advPixelRatioEl.value) || 2); });
+
+    window.addEventListener('resize', () => {
+      if (!camera || !renderer) return;
+      const w = previewEl.clientWidth;
+      const h = previewEl.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+    loadOpenSCAD();
+  </script>
+</body>
+</html>
