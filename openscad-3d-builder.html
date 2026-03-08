@@ -1,0 +1,692 @@
+/*
+========================================================
+ MIT License
+========================================================
+
+Copyright (c) 2026 Randal Burger Jr.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+RANDAL BURGER JR. BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+
+--------------------------------------------------------
+ Author  : Randal Burger Jr
+ License : MIT
+--------------------------------------------------------
+*/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenSCAD 3D Builder</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #1a1b26;
+      --panel: #24283b;
+      --accent: #7aa2f7;
+      --muted: #565f89;
+      --text: #c0caf5;
+      --green: #9ece6a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      height: 100%;
+      display: flex;
+      overflow: hidden;
+    }
+    .panel {
+      background: var(--panel);
+      padding: 12px;
+      overflow-y: auto;
+      overflow-x: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      flex-shrink: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .panel-left {
+      width: 300px;
+      min-width: 300px;
+      border-right: 1px solid var(--muted);
+    }
+    .panel-right {
+      width: 340px;
+      min-width: 300px;
+      border-left: 1px solid var(--muted);
+    }
+    .panel h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--muted);
+    }
+    .btn {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .btn:hover { filter: brightness(1.15); }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .btn-sm { padding: 6px 10px; font-size: 11px; }
+    .btn-danger { background: #f7768e; }
+    .btn-lock { background: var(--muted); font-size: 11px; padding: 4px 8px; }
+    .btn-lock.locked { background: var(--green); color: var(--bg); }
+    .block-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+    .block-tool {
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 2px dashed var(--muted);
+      border-radius: 6px;
+      cursor: grab;
+      font-size: 12px;
+      color: var(--text);
+      user-select: none;
+    }
+    .block-tool:hover { border-color: var(--accent); color: var(--accent); }
+    .block-tool:active { cursor: grabbing; }
+    .block-tool.dragging { opacity: 0.6; }
+    .viewport-wrap.drag-over { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .viewport-wrap { position: relative; }
+    .attach-ui {
+      position: absolute;
+      padding: 8px 10px;
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      pointer-events: auto;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .attach-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    .attach-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .viewport-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      font-size: 10px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .viewport-wrap { flex: 1 1 0; min-width: 0; min-height: 0; position: relative; }
+    #viewport { width: 100%; height: 100%; display: block; }
+    .obj-card {
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 10px;
+      border: 1px solid var(--muted);
+      min-width: 0;
+      overflow: visible;
+    }
+    .obj-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .obj-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .obj-header-btns { display: flex; gap: 4px; align-items: center; }
+    .obj-type { font-weight: 600; font-size: 12px; }
+    .obj-props { display: grid; gap: 6px; font-size: 11px; min-width: 0; }
+    .prop-row { display: flex; gap: 6px; align-items: center; min-width: 0; flex-wrap: wrap; }
+    .prop-row label { flex-shrink: 0; width: 22px; color: var(--muted); font-size: 10px; }
+    .prop-row input {
+      flex: 1 1 0;
+      min-width: 48px;
+      background: var(--panel);
+      border: 1px solid var(--muted);
+      color: var(--text);
+      padding: 5px 6px;
+      border-radius: 4px;
+      font: inherit;
+      font-size: 11px;
+    }
+    .prop-row input:focus { outline: none; border-color: var(--accent); }
+    #codeOut {
+      width: 100%;
+      height: 100%;
+      min-height: 200px;
+      background: var(--bg);
+      border: 1px solid var(--muted);
+      color: var(--green);
+      padding: 10px;
+      font: 12px/1.5 'JetBrains Mono', monospace;
+      border-radius: 4px;
+      resize: none;
+    }
+    #codeOut:focus { outline: none; border-color: var(--accent); }
+    .code-actions { margin-top: 8px; display: flex; gap: 6px; }
+    .obj-list { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+    .empty-hint { color: var(--muted); font-size: 11px; padding: 8px 0; flex-shrink: 0; }
+    @media (max-width: 1100px) {
+      body { flex-direction: column; overflow: auto; overflow-x: hidden; }
+      .panel-left, .panel-right { max-width: none; width: 100%; min-width: 0; border-right: none; border-left: none; border-bottom: 1px solid var(--muted); max-height: 38vh; min-height: 180px; }
+      .viewport-wrap { min-height: 45vh; flex: 1 1 auto; }
+    }
+    @media (max-width: 600px) {
+      .panel { padding: 10px; }
+      .prop-row input { width: 100%; min-width: 60px; }
+      .prop-row { gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="panel panel-left">
+    <h3>Add object</h3>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm" data-type="cube">Cube</button>
+      <button type="button" class="btn btn-sm" data-type="sphere">Sphere</button>
+      <button type="button" class="btn btn-sm" data-type="cylinder">Cylinder</button>
+    </div>
+    <h3>Drag blocks to viewport</h3>
+    <div class="block-tools">
+      <div class="block-tool" draggable="true" data-type="cube" title="Drag to viewport">Cube</div>
+      <div class="block-tool" draggable="true" data-type="sphere" title="Drag to viewport">Sphere</div>
+      <div class="block-tool" draggable="true" data-type="cylinder" title="Drag to viewport">Cylinder</div>
+    </div>
+    <h3>Objects</h3>
+    <div id="objList" class="obj-list"></div>
+    <p id="emptyHint" class="empty-hint">Add a cube, sphere, or cylinder to start.</p>
+  </aside>
+  <main class="viewport-wrap">
+    <canvas id="viewport"></canvas>
+    <div class="viewport-hint">Drag to orbit · Shift+drag to pan · Scroll to zoom</div>
+    <div id="attachUI" class="attach-ui" style="display: none;">
+      <span class="attach-label">Attach on this face</span>
+      <div class="attach-btns">
+        <button type="button" class="btn btn-sm attach-btn" data-type="cube">Cube</button>
+        <button type="button" class="btn btn-sm attach-btn" data-type="sphere">Sphere</button>
+        <button type="button" class="btn btn-sm attach-btn" data-type="cylinder">Cylinder</button>
+      </div>
+    </div>
+  </main>
+  <aside class="panel panel-right">
+    <h3>OpenSCAD output</h3>
+    <textarea id="codeOut" readonly placeholder="Generated code will appear here."></textarea>
+    <div class="code-actions">
+      <button type="button" class="btn btn-sm" id="copyCode">Copy code</button>
+      <button type="button" class="btn btn-sm" id="refreshCode">Refresh</button>
+    </div>
+  </aside>
+
+  <script>
+    const objects = [];
+    let scene, camera, renderer;
+    let selectedId = null;
+    const idGen = () => 'id_' + Math.random().toString(36).slice(2, 10);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const dragPlane = new THREE.Plane();
+    const dragPlaneNormal = new THREE.Vector3();
+    const intersectPoint = new THREE.Vector3();
+    const dropPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    let dragState = null;
+    const cameraTarget = new THREE.Vector3(0, 0, 0);
+    let hoverState = null;
+    const tempVec = new THREE.Vector3();
+    const tempQuat = new THREE.Quaternion();
+    const tempEuler = new THREE.Euler();
+
+    function getMouseNDC(canvas, clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    function getObjectMeshes() {
+      const list = [];
+      scene.traverse(c => { if (c.userData && c.userData.objId && c.isMesh) list.push(c); });
+      return list;
+    }
+
+    function initThree() {
+      const canvas = document.getElementById('viewport');
+      const w = canvas.parentElement.clientWidth;
+      const h = canvas.parentElement.clientHeight;
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1b26);
+      scene.add(new THREE.AmbientLight(0x404060));
+      const dir = new THREE.DirectionalLight(0xc0caf5, 0.9);
+      dir.position.set(5, 8, 5);
+      scene.add(dir);
+      const dir2 = new THREE.DirectionalLight(0x7aa2f7, 0.4);
+      dir2.position.set(-5, 3, -5);
+      scene.add(dir2);
+      camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 1000);
+      camera.position.set(12, 10, 12);
+      cameraTarget.set(0, 0, 0);
+      camera.lookAt(cameraTarget);
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      window.addEventListener('resize', () => {
+        const c = canvas.parentElement;
+        camera.aspect = c.clientWidth / c.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(c.clientWidth, c.clientHeight);
+      });
+
+      let prevX = 0, prevY = 0;
+      canvas.addEventListener('mousedown', e => {
+        getMouseNDC(canvas, e.clientX, e.clientY);
+        raycaster.setFromCamera(mouse, camera);
+        const meshes = getObjectMeshes();
+        const hits = raycaster.intersectObjects(meshes, true);
+        if (hits.length > 0) {
+          const hit = hits[0];
+          const hitObj = objects.find(o => o.id === hit.object.userData.objId);
+          if (hitObj && hitObj.locked) {
+            dragState = { type: 'camera', prevX: e.clientX, prevY: e.clientY };
+          } else {
+            dragState = {
+              type: 'object',
+              mesh: hit.object,
+              id: hit.object.userData.objId,
+              prevX: e.clientX,
+              prevY: e.clientY
+            };
+            camera.getWorldDirection(dragPlaneNormal);
+            dragPlane.setFromNormalAndCoplanarPoint(dragPlaneNormal, hit.object.position.clone());
+          }
+        } else {
+          dragState = { type: 'camera', prevX: e.clientX, prevY: e.clientY };
+        }
+      });
+      canvas.addEventListener('mouseup', () => {
+        if (dragState && dragState.type === 'object') {
+          const obj = objects.find(o => o.id === dragState.id);
+          if (obj && dragState.mesh) {
+            obj.position[0] = dragState.mesh.position.x;
+            obj.position[1] = dragState.mesh.position.y;
+            obj.position[2] = dragState.mesh.position.z;
+            syncScene();
+            renderUI();
+            updateCode();
+          }
+        }
+        dragState = null;
+      });
+      canvas.addEventListener('mouseleave', () => { dragState = null; });
+      canvas.addEventListener('mousemove', e => {
+        getMouseNDC(canvas, e.clientX, e.clientY);
+        if (dragState) {
+          if (dragState.type === 'object') {
+            raycaster.setFromCamera(mouse, camera);
+            if (raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
+              dragState.mesh.position.copy(intersectPoint);
+            }
+          } else {
+            const dx = (e.clientX - dragState.prevX) * 0.004;
+            const dy = (e.clientY - dragState.prevY) * 0.004;
+            if (e.shiftKey) {
+              tempVec.set(-dx, dy, 0).multiplyScalar(camera.position.distanceTo(cameraTarget) * 0.5);
+              tempVec.applyQuaternion(camera.quaternion);
+              cameraTarget.add(tempVec);
+              camera.position.add(tempVec);
+            } else {
+              tempVec.copy(camera.position).sub(cameraTarget);
+              const r = tempVec.length();
+              const theta = Math.atan2(tempVec.x, tempVec.z) - dx;
+              let phi = Math.acos(Math.max(-0.99, Math.min(0.99, tempVec.y / r))) + dy;
+              phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi));
+              camera.position.set(
+                cameraTarget.x + r * Math.sin(phi) * Math.sin(theta),
+                cameraTarget.y + r * Math.cos(phi),
+                cameraTarget.z + r * Math.sin(phi) * Math.cos(theta)
+              );
+              camera.lookAt(cameraTarget);
+            }
+            camera.updateProjectionMatrix();
+            dragState.prevX = e.clientX;
+            dragState.prevY = e.clientY;
+          }
+          return;
+        }
+        raycaster.setFromCamera(mouse, camera);
+        const meshes = getObjectMeshes();
+        const hits = raycaster.intersectObjects(meshes, true);
+        const attachUI = document.getElementById('attachUI');
+        const wrap = canvas.parentElement;
+        const wrapRect = wrap.getBoundingClientRect();
+        if (hits.length > 0) {
+          const hit = hits[0];
+          const worldNormal = hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+          const wasHidden = !hoverState;
+          hoverState = { point: hit.point.clone(), normal: worldNormal };
+          attachUI.style.display = 'flex';
+          const labelOnFace = hit.point.clone().add(worldNormal.clone().multiplyScalar(0.15));
+          labelOnFace.project(camera);
+          const px = (labelOnFace.x * 0.5 + 0.5) * wrapRect.width;
+          const py = (1 - (labelOnFace.y * 0.5 + 0.5)) * wrapRect.height;
+          if (wasHidden) {
+            attachUI.style.left = Math.max(4, Math.min(wrapRect.width - 120, px - 56)) + 'px';
+            attachUI.style.top = Math.max(4, Math.min(wrapRect.height - 80, py - 12)) + 'px';
+          }
+        } else {
+          hoverState = null;
+          attachUI.style.display = 'none';
+        }
+      });
+      canvas.addEventListener('mouseleave', e => {
+        if (e.relatedTarget && document.getElementById('attachUI').contains(e.relatedTarget)) return;
+        if (!dragState) document.getElementById('attachUI').style.display = 'none';
+        hoverState = null;
+      });
+      canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        tempVec.copy(camera.position).sub(cameraTarget).normalize();
+        const dist = camera.position.distanceTo(cameraTarget);
+        const d = e.deltaY > 0 ? 1.1 : 1 / 1.1;
+        const newDist = Math.max(4, Math.min(200, dist * d));
+        camera.position.copy(cameraTarget).add(tempVec.multiplyScalar(newDist));
+        camera.updateProjectionMatrix();
+      }, { passive: false });
+      animate();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    function addObject(type, position, rotation) {
+      const defaults = {
+        cube: { size: [2, 2, 2] },
+        sphere: { size: [2, 2, 2], r: 1 },
+        cylinder: { size: [2, 2, 2], r1: 1, r2: 1, h: 2 }
+      };
+      const d = defaults[type] || defaults.cube;
+      const pos = position && position.length === 3 ? [...position] : [0, 0, 0];
+      const rot = rotation && rotation.length === 3 ? [...rotation] : [0, 0, 0];
+      const obj = {
+        id: idGen(),
+        type,
+        size: [...(d.size || [2, 2, 2])],
+        position: pos,
+        rotation: rot,
+        r: d.r,
+        r1: d.r1,
+        r2: d.r2,
+        h: d.h,
+        locked: false
+      };
+      objects.push(obj);
+      syncScene();
+      renderUI();
+      updateCode();
+      selectObject(obj.id);
+    }
+
+    function addObjectAtFace(type, point, normal) {
+      const n = normal.clone().normalize();
+      let offset = 1;
+      let rotDeg = [0, 0, 0];
+      if (type === 'cube') {
+        tempQuat.setFromUnitVectors(new THREE.Vector3(0, -1, 0), n.clone().negate());
+        tempEuler.setFromQuaternion(tempQuat);
+        rotDeg = [tempEuler.x * 180 / Math.PI, tempEuler.y * 180 / Math.PI, tempEuler.z * 180 / Math.PI];
+      } else if (type === 'cylinder') {
+        offset = 1;
+        tempQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n);
+        tempEuler.setFromQuaternion(tempQuat);
+        rotDeg = [tempEuler.x * 180 / Math.PI, tempEuler.y * 180 / Math.PI, tempEuler.z * 180 / Math.PI];
+      } else if (type === 'sphere') {
+        offset = 1;
+      }
+      const pos = [
+        point.x + n.x * offset,
+        point.y + n.y * offset,
+        point.z + n.z * offset
+      ];
+      addObject(type, pos, rotDeg);
+    }
+
+    function removeObject(id) {
+      const i = objects.findIndex(o => o.id === id);
+      if (i === -1) return;
+      objects.splice(i, 1);
+      if (selectedId === id) selectedId = objects[0]?.id || null;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function syncScene() {
+      const toRemove = [];
+      scene.children.forEach(c => {
+        if (c.userData && c.userData.objId) toRemove.push(c);
+      });
+      toRemove.forEach(c => scene.remove(c));
+      objects.forEach(obj => {
+        const mesh = createMesh(obj);
+        if (mesh) {
+          mesh.userData.objId = obj.id;
+          scene.add(mesh);
+        }
+      });
+    }
+
+    function createMesh(obj) {
+      const [x, y, z] = obj.position;
+      const [rx, ry, rz] = (obj.rotation || [0, 0, 0]).map(r => r * Math.PI / 180);
+      let geometry;
+      if (obj.type === 'cube') {
+        const [sx, sy, sz] = obj.size;
+        geometry = new THREE.BoxGeometry(sx, sy, sz);
+      } else if (obj.type === 'sphere') {
+        const r = (obj.size[0] + obj.size[1] + obj.size[2]) / 6 || obj.r || 1;
+        geometry = new THREE.SphereGeometry(r, 32, 24);
+      } else if (obj.type === 'cylinder') {
+        const r1 = obj.r1 ?? obj.size[0] / 2;
+        const r2 = obj.r2 ?? obj.size[0] / 2;
+        const h = obj.h ?? obj.size[1];
+        geometry = new THREE.CylinderGeometry(r1, r2, h, 32);
+      } else return null;
+      const mat = new THREE.MeshPhongMaterial({
+        color: obj.locked ? 0x414868 : (selectedId === obj.id ? 0x7aa2f7 : 0x565f89),
+        transparent: true,
+        opacity: 0.9
+      });
+      const mesh = new THREE.Mesh(geometry, mat);
+      mesh.position.set(x, y, z);
+      mesh.rotation.set(rx, ry, rz);
+      return mesh;
+    }
+
+    function selectObject(id) {
+      selectedId = id;
+      syncScene();
+      renderUI();
+    }
+
+    function updateObject(id, field, value) {
+      const obj = objects.find(o => o.id === id);
+      if (!obj) return;
+      if (Array.isArray(value)) obj[field] = value;
+      else if (field === 'r') obj.r = Number(value);
+      else if (field === 'r1') obj.r1 = Number(value);
+      else if (field === 'r2') obj.r2 = Number(value);
+      else if (field === 'h') obj.h = Number(value);
+      syncScene();
+      updateCode();
+    }
+
+    function renderUI() {
+      const list = document.getElementById('objList');
+      const hint = document.getElementById('emptyHint');
+      list.innerHTML = '';
+      if (objects.length === 0) {
+        hint.style.display = 'block';
+        return;
+      }
+      hint.style.display = 'none';
+      objects.forEach(obj => {
+        const card = document.createElement('div');
+        card.className = 'obj-card' + (selectedId === obj.id ? ' selected' : '');
+        card.dataset.id = obj.id;
+        const isSphere = obj.type === 'sphere';
+        const isCyl = obj.type === 'cylinder';
+        const locked = !!obj.locked;
+        card.innerHTML = `
+          <div class="obj-header">
+            <span class="obj-type">${obj.type}</span>
+            <div class="obj-header-btns">
+              <button type="button" class="btn btn-sm btn-lock ${locked ? 'locked' : ''}" data-action="lock" title="${locked ? 'Unlock position' : 'Lock position'}">${locked ? '🔓' : '🔒'}</button>
+              <button type="button" class="btn btn-sm btn-danger" data-action="remove">×</button>
+            </div>
+          </div>
+          <div class="obj-props">
+            <div class="prop-row prop-position"><label>pos</label><input type="number" step="0.1" data-field="position" data-idx="0" value="${obj.position[0]}" ${locked ? 'disabled' : ''}><input type="number" step="0.1" data-field="position" data-idx="1" value="${obj.position[1]}" ${locked ? 'disabled' : ''}><input type="number" step="0.1" data-field="position" data-idx="2" value="${obj.position[2]}" ${locked ? 'disabled' : ''}></div>
+            <div class="prop-row prop-rotation"><label>rot</label><input type="number" step="1" data-field="rotation" data-idx="0" value="${(obj.rotation||[0,0,0])[0]}" ${locked ? 'disabled' : ''}><input type="number" step="1" data-field="rotation" data-idx="1" value="${(obj.rotation||[0,0,0])[1]}" ${locked ? 'disabled' : ''}><input type="number" step="1" data-field="rotation" data-idx="2" value="${(obj.rotation||[0,0,0])[2]}" ${locked ? 'disabled' : ''}></div>
+            ${!isSphere && !isCyl ? `<div class="prop-row"><label>size</label><input type="number" step="0.1" data-field="size" data-idx="0" value="${obj.size[0]}"><input type="number" step="0.1" data-field="size" data-idx="1" value="${obj.size[1]}"><input type="number" step="0.1" data-field="size" data-idx="2" value="${obj.size[2]}"></div>` : ''}
+            ${isSphere ? `<div class="prop-row"><label>r</label><input type="number" step="0.1" data-field="r" value="${obj.r ?? (obj.size[0]+obj.size[1]+obj.size[2])/6}"></div>` : ''}
+            ${isCyl ? `<div class="prop-row"><label>r1</label><input type="number" step="0.1" data-field="r1" value="${obj.r1 ?? 1}"></div><div class="prop-row"><label>r2</label><input type="number" step="0.1" data-field="r2" value="${obj.r2 ?? 1}"></div><div class="prop-row"><label>h</label><input type="number" step="0.1" data-field="h" value="${obj.h ?? 2}"></div>` : ''}
+          </div>
+        `;
+        card.querySelector('.obj-header').addEventListener('click', e => { if (!e.target.closest('button')) selectObject(obj.id); });
+        card.querySelector('[data-action="lock"]').addEventListener('click', () => {
+          obj.locked = !obj.locked;
+          syncScene();
+          renderUI();
+        });
+        card.querySelector('[data-action="remove"]').addEventListener('click', () => removeObject(obj.id));
+        card.querySelectorAll('input').forEach(inp => {
+          const apply = () => {
+            const field = inp.dataset.field;
+            const idx = inp.dataset.idx != null ? parseInt(inp.dataset.idx, 10) : null;
+            if (idx != null) {
+              const arr = [...obj[field]];
+              arr[idx] = parseFloat(inp.value) || 0;
+              updateObject(obj.id, field, arr);
+            } else {
+              updateObject(obj.id, field, parseFloat(inp.value) || 0);
+            }
+          };
+          inp.addEventListener('change', apply);
+          inp.addEventListener('input', apply);
+        });
+        list.appendChild(card);
+      });
+    }
+
+    function toOpenSCAD(obj) {
+      const [px, py, pz] = obj.position;
+      const [rx, ry, rz] = obj.rotation || [0, 0, 0];
+      const translate = `translate([${px.toFixed(2)}, ${py.toFixed(2)}, ${pz.toFixed(2)}])`;
+      const rotate = `rotate([${rx.toFixed(2)}, ${ry.toFixed(2)}, ${rz.toFixed(2)}])`;
+      let inner = '';
+      if (obj.type === 'cube') {
+        const [sx, sy, sz] = obj.size;
+        inner = `cube([${sx.toFixed(2)}, ${sy.toFixed(2)}, ${sz.toFixed(2)}], center=true);`;
+      } else if (obj.type === 'sphere') {
+        const r = obj.r ?? (obj.size[0] + obj.size[1] + obj.size[2]) / 6;
+        inner = `sphere(r=${r.toFixed(2)}, $fn=32);`;
+      } else if (obj.type === 'cylinder') {
+        const r1 = obj.r1 ?? 1, r2 = obj.r2 ?? 1, h = obj.h ?? 2;
+        inner = `cylinder(r1=${r1.toFixed(2)}, r2=${r2.toFixed(2)}, h=${h.toFixed(2)}, center=true, $fn=32);`;
+      }
+      return translate + '\n    ' + rotate + '\n    ' + inner;
+    }
+
+    function updateCode() {
+      const lines = ['union() {'];
+      objects.forEach(obj => {
+        lines.push('  ' + toOpenSCAD(obj).replace(/\n/g, '\n  '));
+      });
+      lines.push('}');
+      document.getElementById('codeOut').value = lines.join('\n');
+    }
+
+    document.querySelectorAll('.btn[data-type]').forEach(btn => {
+      btn.addEventListener('click', () => addObject(btn.dataset.type));
+    });
+
+    document.querySelectorAll('.block-tool').forEach(el => {
+      el.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', el.dataset.type);
+        e.dataTransfer.effectAllowed = 'copy';
+        el.classList.add('dragging');
+      });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+    });
+
+    const viewportWrap = document.querySelector('.viewport-wrap');
+    viewportWrap.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      viewportWrap.classList.add('drag-over');
+    });
+    viewportWrap.addEventListener('dragleave', () => viewportWrap.classList.remove('drag-over'));
+    viewportWrap.addEventListener('drop', e => {
+      e.preventDefault();
+      viewportWrap.classList.remove('drag-over');
+      const type = e.dataTransfer.getData('text/plain');
+      if (!type || !['cube', 'sphere', 'cylinder'].includes(type)) return;
+      const canvas = document.getElementById('viewport');
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) { addObject(type); return; }
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      raycaster.ray.intersectPlane(dropPlane, intersectPoint);
+      addObject(type, [intersectPoint.x, intersectPoint.y, intersectPoint.z]);
+    });
+
+    document.getElementById('copyCode').addEventListener('click', () => {
+      const ta = document.getElementById('codeOut');
+      ta.select();
+      document.execCommand('copy');
+    });
+    document.getElementById('refreshCode').addEventListener('click', updateCode);
+
+    document.querySelectorAll('.attach-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (hoverState) {
+          addObjectAtFace(btn.dataset.type, hoverState.point, hoverState.normal);
+          document.getElementById('attachUI').style.display = 'none';
+          hoverState = null;
+        }
+      });
+    });
+
+    initThree();
+    renderUI();
+    updateCode();
+  </script>
+</body>
+</html>
