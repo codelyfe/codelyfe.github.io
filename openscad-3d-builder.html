@@ -185,6 +185,9 @@
     .tab-panel.active { display: flex; }
     .grid-options { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .grid-options input[type="number"] { width: 56px; padding: 4px 6px; }
+    #viewportBgColor { width: 32px; height: 28px; padding: 2px; border: 1px solid var(--muted); border-radius: 4px; cursor: pointer; background: var(--panel); }
+    #viewportBgColor::-webkit-color-swatch-wrapper { padding: 0; }
+    #viewportBgColor::-webkit-color-swatch { border: none; border-radius: 2px; }
     .func-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .func-grid .btn { width: 100%; }
     .func-section { margin-top: 4px; }
@@ -204,6 +207,7 @@
     <span class="toolbar-label">Export</span>
     <button type="button" class="btn btn-sm" id="saveBtn">Download code</button>
     <span class="toolbar-label">View</span>
+    <label class="grid-options" title="Viewport background"><input type="color" id="viewportBgColor" value="#1a1b26" /> Bg</label>
     <label class="grid-options"><input type="checkbox" id="gridToggle" /> Grid</label>
     <label class="grid-options">Snap <input type="number" id="gridSnap" value="0.5" step="0.1" min="0" title="0 = off" /></label>
     <span class="toolbar-label">Tools</span>
@@ -1240,6 +1244,9 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 500);
+    });
+    document.getElementById('viewportBgColor').addEventListener('input', e => {
+      if (scene) scene.background.setStyle(e.target.value);
     });
     document.getElementById('gridToggle').addEventListener('change', updateGrid);
     document.getElementById('gridSnap').addEventListener('change', () => { syncScene(); renderUI(); });
