@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OpenSCAD 3D Builder</title>
+  <title>OpenSCAD 3D Builder — Advanced</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
@@ -13,6 +13,8 @@
       --muted: #565f89;
       --text: #c0caf5;
       --green: #9ece6a;
+      --orange: #e0af68;
+      --red: #f7768e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
@@ -23,8 +25,23 @@
       min-height: 100vh;
       height: 100%;
       display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar .btn { margin: 0; }
+    .toolbar-label { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-right: 4px; }
+    .toolbar-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; min-width: 36px; }
+    .toolbar-icon svg { width: 24px; height: 24px; fill: currentColor; }
+    .main-row { display: flex; flex: 1; min-height: 0; }
     .panel {
       background: var(--panel);
       padding: 12px;
@@ -37,16 +54,8 @@
       flex-shrink: 0;
       -webkit-overflow-scrolling: touch;
     }
-    .panel-left {
-      width: 300px;
-      min-width: 300px;
-      border-right: 1px solid var(--muted);
-    }
-    .panel-right {
-      width: 340px;
-      min-width: 300px;
-      border-left: 1px solid var(--muted);
-    }
+    .panel-left { width: 320px; min-width: 280px; border-right: 1px solid var(--muted); }
+    .panel-right { width: 360px; min-width: 300px; border-left: 1px solid var(--muted); }
     .panel h3 {
       font-size: 11px;
       text-transform: uppercase;
@@ -69,25 +78,27 @@
     .btn:hover { filter: brightness(1.15); }
     .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .btn-sm { padding: 6px 10px; font-size: 11px; }
-    .btn-danger { background: #f7768e; }
+    .btn-danger { background: var(--red); }
     .btn-lock { background: var(--muted); font-size: 11px; padding: 4px 8px; }
     .btn-lock.locked { background: var(--green); color: var(--bg); }
+    .btn-warn { background: var(--orange); color: var(--bg); }
     .block-tools { display: flex; flex-wrap: wrap; gap: 8px; }
     .block-tool {
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: var(--bg);
       border: 2px dashed var(--muted);
       border-radius: 6px;
       cursor: grab;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text);
       user-select: none;
     }
     .block-tool:hover { border-color: var(--accent); color: var(--accent); }
     .block-tool:active { cursor: grabbing; }
     .block-tool.dragging { opacity: 0.6; }
+    .viewport-wrap { flex: 1 1 0; min-width: 0; min-height: 0; position: relative; }
     .viewport-wrap.drag-over { outline: 2px solid var(--accent); outline-offset: -2px; }
-    .viewport-wrap { position: relative; }
+    #viewport { width: 100%; height: 100%; display: block; }
     .attach-ui {
       position: absolute;
       padding: 8px 10px;
@@ -111,30 +122,32 @@
       color: var(--muted);
       pointer-events: none;
     }
-    .viewport-wrap { flex: 1 1 0; min-width: 0; min-height: 0; position: relative; }
-    #viewport { width: 100%; height: 100%; display: block; }
+    .obj-list { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
     .obj-card {
       background: var(--bg);
       border-radius: 6px;
-      padding: 10px;
+      padding: 8px 10px;
       border: 1px solid var(--muted);
       min-width: 0;
       overflow: visible;
     }
     .obj-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .obj-card.group-card { border-left: 3px solid var(--orange); }
+    .obj-card.hidden { opacity: 0.6; }
     .obj-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       cursor: pointer;
+      gap: 6px;
     }
-    .obj-header-btns { display: flex; gap: 4px; align-items: center; }
+    .obj-header-btns { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
     .obj-type { font-weight: 600; font-size: 12px; }
     .obj-props { display: grid; gap: 6px; font-size: 11px; min-width: 0; }
     .prop-row { display: flex; gap: 6px; align-items: center; min-width: 0; flex-wrap: wrap; }
-    .prop-row label { flex-shrink: 0; width: 22px; color: var(--muted); font-size: 10px; }
-    .prop-row input {
+    .prop-row label { flex-shrink: 0; width: 28px; color: var(--muted); font-size: 10px; }
+    .prop-row input, .prop-row select {
       flex: 1 1 0;
       min-width: 48px;
       background: var(--panel);
@@ -145,11 +158,15 @@
       font: inherit;
       font-size: 11px;
     }
-    .prop-row input:focus { outline: none; border-color: var(--accent); }
+    .prop-row input[type="color"] { padding: 2px; min-width: 36px; width: 36px; cursor: pointer; }
+    .prop-row input:focus, .prop-row select:focus { outline: none; border-color: var(--accent); }
+    .tree-children { margin-left: 16px; border-left: 1px solid var(--muted); padding-left: 8px; }
+    .tree-node { margin-bottom: 4px; }
+    .empty-hint { color: var(--muted); font-size: 11px; padding: 8px 0; flex-shrink: 0; }
     #codeOut {
       width: 100%;
       height: 100%;
-      min-height: 200px;
+      min-height: 180px;
       background: var(--bg);
       border: 1px solid var(--muted);
       color: var(--green);
@@ -159,65 +176,127 @@
       resize: none;
     }
     #codeOut:focus { outline: none; border-color: var(--accent); }
-    .code-actions { margin-top: 8px; display: flex; gap: 6px; }
-    .obj-list { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
-    .empty-hint { color: var(--muted); font-size: 11px; padding: 8px 0; flex-shrink: 0; }
+    .code-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .tabs { display: flex; gap: 0; margin-bottom: 8px; border-bottom: 1px solid var(--muted); }
+    .tab { padding: 8px 12px; font-size: 11px; background: none; border: none; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; flex: 1; flex-direction: column; min-height: 0; }
+    .tab-panel.active { display: flex; }
+    .grid-options { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .grid-options input[type="number"] { width: 56px; padding: 4px 6px; }
+    .func-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .func-grid .btn { width: 100%; }
+    .func-section { margin-top: 4px; }
     @media (max-width: 1100px) {
-      body { flex-direction: column; overflow: auto; overflow-x: hidden; }
-      .panel-left, .panel-right { max-width: none; width: 100%; min-width: 0; border-right: none; border-left: none; border-bottom: 1px solid var(--muted); max-height: 38vh; min-height: 180px; }
-      .viewport-wrap { min-height: 45vh; flex: 1 1 auto; }
-    }
-    @media (max-width: 600px) {
-      .panel { padding: 10px; }
-      .prop-row input { width: 100%; min-width: 60px; }
-      .prop-row { gap: 4px; }
+      .main-row { flex-direction: column; }
+      .panel-left, .panel-right { max-width: none; width: 100%; min-width: 0; border: none; border-bottom: 1px solid var(--muted); max-height: 35vh; }
+      .viewport-wrap { min-height: 45vh; }
     }
   </style>
 </head>
 <body>
-  <aside class="panel panel-left">
-    <h3>Add object</h3>
-    <div class="btn-group">
-      <button type="button" class="btn btn-sm" data-type="cube">Cube</button>
-      <button type="button" class="btn btn-sm" data-type="sphere">Sphere</button>
-      <button type="button" class="btn btn-sm" data-type="cylinder">Cylinder</button>
-    </div>
-    <h3>Drag blocks to viewport</h3>
-    <div class="block-tools">
-      <div class="block-tool" draggable="true" data-type="cube" title="Drag to viewport">Cube</div>
-      <div class="block-tool" draggable="true" data-type="sphere" title="Drag to viewport">Sphere</div>
-      <div class="block-tool" draggable="true" data-type="cylinder" title="Drag to viewport">Cylinder</div>
-    </div>
-    <h3>Objects</h3>
-    <div id="objList" class="obj-list"></div>
-    <p id="emptyHint" class="empty-hint">Add a cube, sphere, or cylinder to start.</p>
-  </aside>
-  <main class="viewport-wrap">
-    <canvas id="viewport"></canvas>
-    <div class="viewport-hint">Drag to orbit · Shift+drag to pan · Scroll to zoom</div>
-    <div id="attachUI" class="attach-ui" style="display: none;">
-      <span class="attach-label">Attach on this face</span>
-      <div class="attach-btns">
-        <button type="button" class="btn btn-sm attach-btn" data-type="cube">Cube</button>
-        <button type="button" class="btn btn-sm attach-btn" data-type="sphere">Sphere</button>
-        <button type="button" class="btn btn-sm attach-btn" data-type="cylinder">Cylinder</button>
+  <div class="toolbar">
+    <span class="toolbar-label">Edit</span>
+    <button type="button" class="btn btn-sm" id="undoBtn" title="Undo (Ctrl+Z)">Undo</button>
+    <button type="button" class="btn btn-sm" id="redoBtn" title="Redo (Ctrl+Y)">Redo</button>
+    <button type="button" class="btn btn-sm btn-warn" id="duplicateBtn" title="Duplicate (Ctrl+D)">Duplicate</button>
+    <span class="toolbar-label">Export</span>
+    <button type="button" class="btn btn-sm" id="saveBtn">Download code</button>
+    <span class="toolbar-label">View</span>
+    <label class="grid-options"><input type="checkbox" id="gridToggle" /> Grid</label>
+    <label class="grid-options">Snap <input type="number" id="gridSnap" value="0.5" step="0.1" min="0" title="0 = off" /></label>
+    <span class="toolbar-label">Tools</span>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnResetCamera" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnFocusSelected" title="Focus selected"><svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-11C6.48 3 2 7.48 2 12s4.48 9 9 9 9-4.48 9-9S17.52 3 12 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnCenterOrigin" title="Center at origin"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnSnapGrid" title="Snap to grid"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnMirrorX" title="Mirror X"><svg viewBox="0 0 24 24"><path d="M9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnMirrorY" title="Mirror Y"><svg viewBox="0 0 24 24"><path d="M9 21H5V9h4v12zm6 0h-4V9h4v12zM3 5v2h18V5H3zm10 4H7V7h6v2zm4 4h-6v-2h6v2z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnMirrorZ" title="Mirror Z"><svg viewBox="0 0 24 24"><path d="M9 3v2H5v14h4v2H3V3h6zm8 0h6v6h-2V5h-4V3zm0 14v2h4v-4h2v6h-6v-2zm-4-6h2v4h-2v-4z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnToggleVisible" title="Toggle visible"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnCopySelectedCode" title="Copy selected code"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnClearAll" title="Clear all"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnResetRotation" title="Reset rotation"><svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8L18.2 16c.96-1.53 1.5-3.31 1.5-5.2 0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.8 8C4.84 9.53 4.3 11.31 4.3 13.2c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnResetScale" title="Reset scale (1,1,1)"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnViewTop" title="View top"><svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-2 15.42V12H6.5c.92-2.57 2.5-4.66 4.5-6.04V17.42zM18 11c0 3.52-2.34 6.62-5.5 7.78V5.96C14.5 7.34 16 9.43 16.94 12H12v6.42C15.5 17.62 18 14.52 18 11z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnViewFront" title="View front"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnViewRight" title="View right"><svg viewBox="0 0 24 24"><path d="M21 3H3v18h18V3zm-2 16H5V5h14v14zM7 10h2v4H7zm4-3h2v10h-2zm4 3h2v4h-2z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnRaise" title="Raise (Y+)"><svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5H7z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnLower" title="Lower (Y-)"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnFitAll" title="Fit all in view"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4V4zm0 10h6v6H4v-6zm10 0h6v6h-6v-6zm0-10h6v6h-6V4z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnSelectParent" title="Select parent"><svg viewBox="0 0 24 24"><path d="M8 12l4-4 4 4H8z"/></svg></button>
+    <button type="button" class="btn btn-sm toolbar-icon" id="fnSelectNext" title="Select next"><svg viewBox="0 0 24 24"><path d="M10 8l4 4-4 4V8z"/></svg></button>
+  </div>
+  <div class="main-row">
+    <aside class="panel panel-left">
+      <h3>Primitives</h3>
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm" data-type="cube">Cube</button>
+        <button type="button" class="btn btn-sm" data-type="sphere">Sphere</button>
+        <button type="button" class="btn btn-sm" data-type="cylinder">Cylinder</button>
+        <button type="button" class="btn btn-sm" data-type="cone">Cone</button>
+        <button type="button" class="btn btn-sm" data-type="torus">Torus</button>
       </div>
-    </div>
-  </main>
-  <aside class="panel panel-right">
-    <h3>OpenSCAD output</h3>
-    <textarea id="codeOut" readonly placeholder="Generated code will appear here."></textarea>
-    <div class="code-actions">
-      <button type="button" class="btn btn-sm" id="copyCode">Copy code</button>
-      <button type="button" class="btn btn-sm" id="refreshCode">Refresh</button>
-    </div>
-  </aside>
+      <h3>CSG groups</h3>
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-warn" data-type="group" data-op="union">Union</button>
+        <button type="button" class="btn btn-sm btn-warn" data-type="group" data-op="difference">Difference</button>
+        <button type="button" class="btn btn-sm btn-warn" data-type="group" data-op="intersection">Intersection</button>
+      </div>
+      <h3>Drag to viewport</h3>
+      <div class="block-tools">
+        <div class="block-tool" draggable="true" data-type="cube">Cube</div>
+        <div class="block-tool" draggable="true" data-type="sphere">Sphere</div>
+        <div class="block-tool" draggable="true" data-type="cylinder">Cyl</div>
+        <div class="block-tool" draggable="true" data-type="cone">Cone</div>
+        <div class="block-tool" draggable="true" data-type="torus">Torus</div>
+      </div>
+      <h3>Object tree</h3>
+      <div id="objList" class="obj-list"></div>
+      <p id="emptyHint" class="empty-hint">Add primitives or CSG groups to start.</p>
+    </aside>
+    <main class="viewport-wrap">
+      <canvas id="viewport"></canvas>
+      <div class="viewport-hint">Orbit · Shift+drag pan · Scroll zoom · Delete key removes selected</div>
+      <div id="attachUI" class="attach-ui" style="display: none;">
+        <span class="attach-label">Attach on face</span>
+        <div class="attach-btns">
+          <button type="button" class="btn btn-sm attach-btn" data-type="cube">Cube</button>
+          <button type="button" class="btn btn-sm attach-btn" data-type="sphere">Sphere</button>
+          <button type="button" class="btn btn-sm attach-btn" data-type="cylinder">Cylinder</button>
+          <button type="button" class="btn btn-sm attach-btn" data-type="cone">Cone</button>
+          <button type="button" class="btn btn-sm attach-btn" data-type="torus">Torus</button>
+        </div>
+      </div>
+    </main>
+    <aside class="panel panel-right">
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="code">OpenSCAD</button>
+        <button type="button" class="tab" data-tab="settings">Settings</button>
+      </div>
+      <div id="tabCode" class="tab-panel active" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+        <textarea id="codeOut" readonly placeholder="Generated code"></textarea>
+        <div class="code-actions">
+          <button type="button" class="btn btn-sm" id="copyCode">Copy code</button>
+          <button type="button" class="btn btn-sm" id="refreshCode">Refresh</button>
+        </div>
+      </div>
+      <div id="tabSettings" class="tab-panel" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+        <h3>Global $fn</h3>
+        <div class="prop-row"><label>$fn</label><input type="number" id="globalFn" value="32" min="4" max="360" /></div>
+        <h3>Export options</h3>
+        <label class="grid-options"><input type="checkbox" id="optModules" /> Use modules for groups</label>
+      </div>
+    </aside>
+  </div>
 
   <script>
-    const objects = [];
-    let scene, camera, renderer;
+    let objects = [];
+    let scene, camera, renderer, gridHelper;
     let selectedId = null;
     const idGen = () => 'id_' + Math.random().toString(36).slice(2, 10);
+    const PRIMITIVES = ['cube', 'sphere', 'cylinder', 'cone', 'torus'];
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -231,6 +310,37 @@
     const tempVec = new THREE.Vector3();
     const tempQuat = new THREE.Quaternion();
     const tempEuler = new THREE.Euler();
+    const identityQuat = new THREE.Quaternion();
+
+    let history = [];
+    let redoStack = [];
+    const HISTORY_MAX = 50;
+
+    function pushHistory() {
+      history.push(JSON.stringify(objects));
+      if (history.length > HISTORY_MAX) history.shift();
+      redoStack = [];
+    }
+    function undo() {
+      if (history.length === 0) return;
+      redoStack.push(JSON.stringify(objects));
+      objects = JSON.parse(history.pop());
+      selectedId = objects.length ? objects[0].id : null;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+    function redo() {
+      if (redoStack.length === 0) return;
+      history.push(JSON.stringify(objects));
+      objects = JSON.parse(redoStack.pop());
+      selectedId = objects.length ? objects[0].id : null;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+    function canUndo() { return history.length > 0; }
+    function canRedo() { return redoStack.length > 0; }
 
     function getMouseNDC(canvas, clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
@@ -238,10 +348,131 @@
       mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
     }
 
+    function isPrimitive(type) { return PRIMITIVES.includes(type); }
+    function isGroup(node) { return node.type === 'group' && Array.isArray(node.children); }
+
+    function collectPrimitives(nodes, parentMatrix, out) {
+      const mat = parentMatrix || new THREE.Matrix4();
+      if (!nodes) return;
+      nodes.forEach(node => {
+        if (node.visible === false) return;
+        const T = new THREE.Matrix4().compose(
+          new THREE.Vector3(node.position[0], node.position[1], node.position[2]),
+          new THREE.Quaternion().setFromEuler(new THREE.Euler(
+            (node.rotation[0] || 0) * Math.PI / 180,
+            (node.rotation[1] || 0) * Math.PI / 180,
+            (node.rotation[2] || 0) * Math.PI / 180
+          )),
+          new THREE.Vector3(node.scale?.[0] ?? 1, node.scale?.[1] ?? 1, node.scale?.[2] ?? 1)
+        );
+        const worldMat = mat.clone().multiply(T);
+        if (isGroup(node)) {
+          collectPrimitives(node.children, worldMat, out);
+        } else if (isPrimitive(node.type)) {
+          out.push({ node, worldMat });
+        }
+      });
+    }
+
+    function collectPrimitivesUnder(node, parentMatrix, out) {
+      if (!node || node.visible === false) return;
+      const mat = parentMatrix || new THREE.Matrix4();
+      const T = new THREE.Matrix4().compose(
+        new THREE.Vector3(node.position[0], node.position[1], node.position[2]),
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(
+          (node.rotation[0] || 0) * Math.PI / 180,
+          (node.rotation[1] || 0) * Math.PI / 180,
+          (node.rotation[2] || 0) * Math.PI / 180
+        )),
+        new THREE.Vector3(node.scale?.[0] ?? 1, node.scale?.[1] ?? 1, node.scale?.[2] ?? 1)
+      );
+      const worldMat = mat.clone().multiply(T);
+      if (isGroup(node)) {
+        (node.children || []).forEach(ch => collectPrimitivesUnder(ch, worldMat, out));
+      } else if (isPrimitive(node.type)) {
+        out.push({ node, worldMat });
+      }
+    }
+
     function getObjectMeshes() {
       const list = [];
       scene.traverse(c => { if (c.userData && c.userData.objId && c.isMesh) list.push(c); });
       return list;
+    }
+
+    function getNodeById(id, nodes) {
+      if (!nodes) return null;
+      for (const n of nodes) {
+        if (n.id === id) return n;
+        if (isGroup(n)) { const found = getNodeById(id, n.children); if (found) return found; }
+      }
+      return null;
+    }
+    function getParentOf(id, nodes, parent = null) {
+      if (!nodes) return null;
+      for (const n of nodes) {
+        if (n.id === id) return parent;
+        if (isGroup(n)) { const found = getParentOf(id, n.children, n); if (found !== undefined) return found; }
+      }
+      return undefined;
+    }
+
+    function getParentWorldMatrix(id, nodes, parentMat) {
+      const mat = parentMat || new THREE.Matrix4();
+      if (!nodes) return null;
+      for (const node of nodes) {
+        if (node.visible === false) continue;
+        const T = new THREE.Matrix4().compose(
+          new THREE.Vector3(node.position[0], node.position[1], node.position[2]),
+          new THREE.Quaternion().setFromEuler(new THREE.Euler(
+            (node.rotation[0] || 0) * Math.PI / 180,
+            (node.rotation[1] || 0) * Math.PI / 180,
+            (node.rotation[2] || 0) * Math.PI / 180
+          )),
+          new THREE.Vector3(node.scale?.[0] ?? 1, node.scale?.[1] ?? 1, node.scale?.[2] ?? 1)
+        );
+        const worldMat = mat.clone().multiply(T);
+        if (node.id === id) return mat;
+        if (isGroup(node)) {
+          const found = getParentWorldMatrix(id, node.children, worldMat);
+          if (found !== null) return found;
+        }
+      }
+      return null;
+    }
+    function getRootList(node) {
+      if (!node) return objects;
+      for (const root of objects) {
+        if (root.id === node.id) return objects;
+        if (isGroup(root) && getNodeById(node.id, root.children)) return root.children;
+      }
+      return objects;
+    }
+    function removeNodeById(id, nodes) {
+      const i = (nodes || objects).findIndex(n => n.id === id);
+      if (i !== -1) { nodes.splice(i, 1); return true; }
+      for (const n of nodes || objects) {
+        if (isGroup(n) && removeNodeById(id, n.children)) return true;
+      }
+      return false;
+    }
+    function cloneNode(node) {
+      const c = JSON.parse(JSON.stringify(node));
+      c.id = idGen();
+      if (c.children) c.children = c.children.map(cloneNode);
+      return c;
+    }
+    function addToParent(parent, node) {
+      if (!parent) objects.push(node);
+      else parent.children = parent.children || [], parent.children.push(node);
+    }
+
+    function snapToGrid(v) {
+      const step = parseFloat(document.getElementById('gridSnap').value) || 0;
+      if (step <= 0) return;
+      v[0] = Math.round(v[0] / step) * step;
+      v[1] = Math.round(v[1] / step) * step;
+      v[2] = Math.round(v[2] / step) * step;
     }
 
     function initThree() {
@@ -271,7 +502,6 @@
         renderer.setSize(c.clientWidth, c.clientHeight);
       });
 
-      let prevX = 0, prevY = 0;
       canvas.addEventListener('mousedown', e => {
         getMouseNDC(canvas, e.clientX, e.clientY);
         raycaster.setFromCamera(mouse, camera);
@@ -279,7 +509,7 @@
         const hits = raycaster.intersectObjects(meshes, true);
         if (hits.length > 0) {
           const hit = hits[0];
-          const hitObj = objects.find(o => o.id === hit.object.userData.objId);
+          const hitObj = getNodeById(hit.object.userData.objId, objects);
           if (hitObj && hitObj.locked) {
             dragState = { type: 'camera', prevX: e.clientX, prevY: e.clientY };
           } else {
@@ -299,11 +529,12 @@
       });
       canvas.addEventListener('mouseup', () => {
         if (dragState && dragState.type === 'object') {
-          const obj = objects.find(o => o.id === dragState.id);
+          const obj = getNodeById(dragState.id, objects);
           if (obj && dragState.mesh) {
             obj.position[0] = dragState.mesh.position.x;
             obj.position[1] = dragState.mesh.position.y;
             obj.position[2] = dragState.mesh.position.z;
+            snapToGrid(obj.position);
             syncScene();
             renderUI();
             updateCode();
@@ -341,7 +572,6 @@
               );
               camera.lookAt(cameraTarget);
             }
-            camera.updateProjectionMatrix();
             dragState.prevX = e.clientX;
             dragState.prevY = e.clientY;
           }
@@ -364,7 +594,7 @@
           const px = (labelOnFace.x * 0.5 + 0.5) * wrapRect.width;
           const py = (1 - (labelOnFace.y * 0.5 + 0.5)) * wrapRect.height;
           if (wasHidden) {
-            attachUI.style.left = Math.max(4, Math.min(wrapRect.width - 120, px - 56)) + 'px';
+            attachUI.style.left = Math.max(4, Math.min(wrapRect.width - 140, px - 70)) + 'px';
             attachUI.style.top = Math.max(4, Math.min(wrapRect.height - 80, py - 12)) + 'px';
           }
         } else {
@@ -384,9 +614,15 @@
         const d = e.deltaY > 0 ? 1.1 : 1 / 1.1;
         const newDist = Math.max(4, Math.min(200, dist * d));
         camera.position.copy(cameraTarget).add(tempVec.multiplyScalar(newDist));
-        camera.updateProjectionMatrix();
       }, { passive: false });
       animate();
+    }
+
+    function updateGrid() {
+      if (gridHelper) scene.remove(gridHelper);
+      if (!document.getElementById('gridToggle').checked) return;
+      gridHelper = new THREE.GridHelper(40, 40, 0x565f89, 0x363b54);
+      scene.add(gridHelper);
     }
 
     function animate() {
@@ -394,28 +630,55 @@
       renderer.render(scene, camera);
     }
 
-    function addObject(type, position, rotation) {
-      const defaults = {
-        cube: { size: [2, 2, 2] },
-        sphere: { size: [2, 2, 2], r: 1 },
-        cylinder: { size: [2, 2, 2], r1: 1, r2: 1, h: 2 }
-      };
-      const d = defaults[type] || defaults.cube;
+    const DEFAULTS = {
+      cube: { size: [2, 2, 2] },
+      sphere: { size: [2, 2, 2], r: 1 },
+      cylinder: { size: [2, 2, 2], r1: 1, r2: 1, h: 2 },
+      cone: { size: [2, 2, 2], r1: 1, r2: 0, h: 2 },
+      torus: { size: [2, 2, 2], r: 1, R: 0.3 }
+    };
+
+    function addObject(type, position, rotation, parentNode, op) {
+      pushHistory();
       const pos = position && position.length === 3 ? [...position] : [0, 0, 0];
       const rot = rotation && rotation.length === 3 ? [...rotation] : [0, 0, 0];
+      if (type === 'group') {
+        const obj = {
+          id: idGen(),
+          type: 'group',
+          operation: op || 'union',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+          children: [],
+          visible: true
+        };
+        addToParent(parentNode, obj);
+        syncScene();
+        renderUI();
+        updateCode();
+        selectObject(obj.id);
+        return;
+      }
+      const d = DEFAULTS[type] || DEFAULTS.cube;
       const obj = {
         id: idGen(),
         type,
         size: [...(d.size || [2, 2, 2])],
         position: pos,
         rotation: rot,
+        scale: [1, 1, 1],
         r: d.r,
         r1: d.r1,
         r2: d.r2,
         h: d.h,
-        locked: false
+        R: d.R,
+        color: '#565f89',
+        fn: 32,
+        locked: false,
+        visible: true
       };
-      objects.push(obj);
+      addToParent(parentNode, obj);
       syncScene();
       renderUI();
       updateCode();
@@ -426,75 +689,303 @@
       const n = normal.clone().normalize();
       let offset = 1;
       let rotDeg = [0, 0, 0];
-      if (type === 'cube') {
+      if (type === 'cube' || type === 'torus') {
         tempQuat.setFromUnitVectors(new THREE.Vector3(0, -1, 0), n.clone().negate());
         tempEuler.setFromQuaternion(tempQuat);
         rotDeg = [tempEuler.x * 180 / Math.PI, tempEuler.y * 180 / Math.PI, tempEuler.z * 180 / Math.PI];
-      } else if (type === 'cylinder') {
-        offset = 1;
+      } else if (type === 'cylinder' || type === 'cone') {
         tempQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n);
         tempEuler.setFromQuaternion(tempQuat);
         rotDeg = [tempEuler.x * 180 / Math.PI, tempEuler.y * 180 / Math.PI, tempEuler.z * 180 / Math.PI];
-      } else if (type === 'sphere') {
-        offset = 1;
       }
-      const pos = [
-        point.x + n.x * offset,
-        point.y + n.y * offset,
-        point.z + n.z * offset
-      ];
+      const pos = [point.x + n.x * offset, point.y + n.y * offset, point.z + n.z * offset];
       addObject(type, pos, rotDeg);
     }
 
     function removeObject(id) {
-      const i = objects.findIndex(o => o.id === id);
+      pushHistory();
+      const parent = getParentOf(id, objects);
+      const list = parent ? parent.children : objects;
+      const i = list.findIndex(n => n.id === id);
       if (i === -1) return;
-      objects.splice(i, 1);
-      if (selectedId === id) selectedId = objects[0]?.id || null;
+      list.splice(i, 1);
+      if (selectedId === id) selectedId = (objects[0] && objects[0].id) || null;
       syncScene();
       renderUI();
       updateCode();
     }
 
-    function syncScene() {
-      const toRemove = [];
-      scene.children.forEach(c => {
-        if (c.userData && c.userData.objId) toRemove.push(c);
-      });
-      toRemove.forEach(c => scene.remove(c));
-      objects.forEach(obj => {
-        const mesh = createMesh(obj);
-        if (mesh) {
-          mesh.userData.objId = obj.id;
-          scene.add(mesh);
+    function duplicateSelected() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      const clone = cloneNode(node);
+      const parent = getParentOf(selectedId, objects);
+      if (parent) {
+        parent.children = parent.children || [];
+        parent.children.push(clone);
+      } else {
+        objects.push(clone);
+      }
+      syncScene();
+      renderUI();
+      updateCode();
+      selectObject(clone.id);
+    }
+
+    function fnResetCamera() {
+      camera.position.set(12, 10, 12);
+      cameraTarget.set(0, 0, 0);
+      camera.lookAt(cameraTarget);
+    }
+
+    function fnFocusSelected() {
+      if (!selectedId) return;
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      const parentMat = getParentWorldMatrix(selectedId, objects, null);
+      const baseMat = parentMat || new THREE.Matrix4();
+      const items = [];
+      collectPrimitivesUnder(node, baseMat, items);
+      if (items.length === 0) return;
+      const box = new THREE.Box3();
+      items.forEach(({ node: n, worldMat }) => {
+        const mesh = createMesh(n);
+        if (mesh && mesh.geometry) {
+          mesh.geometry.computeBoundingBox();
+          const localBox = mesh.geometry.boundingBox.clone();
+          localBox.applyMatrix4(worldMat);
+          box.union(localBox);
+          mesh.geometry.dispose();
+          mesh.material.dispose();
         }
+      });
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z, 1);
+      cameraTarget.copy(center);
+      tempVec.set(1, 1, 1).normalize();
+      camera.position.copy(center).add(tempVec.multiplyScalar(maxDim * 2.2));
+      camera.lookAt(cameraTarget);
+    }
+
+    function fnCenterOrigin() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      node.position[0] = 0;
+      node.position[1] = 0;
+      node.position[2] = 0;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnSnapGrid() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      snapToGrid(node.position);
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnMirrorAxis(axis) {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      const idx = { x: 0, y: 1, z: 2 }[axis];
+      if (idx === undefined) return;
+      node.scale = node.scale || [1, 1, 1];
+      node.scale[idx] = (node.scale[idx] || 1) * -1;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnToggleVisible() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      node.visible = !(node.visible !== false);
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnCopySelectedCode() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      const fnDefault = Math.max(4, parseInt(document.getElementById('globalFn').value, 10) || 32);
+      const code = nodeToCode(node, '', fnDefault);
+      navigator.clipboard.writeText(code).catch(() => {
+        const ta = document.getElementById('codeOut');
+        ta.value = code;
+        ta.select();
+        document.execCommand('copy');
       });
     }
 
+    function fnClearAll() {
+      if (objects.length === 0) return;
+      if (!confirm('Remove all objects?')) return;
+      pushHistory();
+      objects = [];
+      selectedId = null;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function getFlatNodeList(nodes, out) {
+      if (!nodes) return out;
+      nodes.forEach(n => {
+        out.push(n);
+        if (isGroup(n) && n.children) getFlatNodeList(n.children, out);
+      });
+      return out;
+    }
+
+    function fnResetRotation() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      node.rotation = [0, 0, 0];
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnResetScale() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      node.scale = [1, 1, 1];
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnViewTop() {
+      camera.position.set(0.001, 25, 0.001);
+      cameraTarget.set(0, 0, 0);
+      camera.lookAt(cameraTarget);
+    }
+
+    function fnViewFront() {
+      camera.position.set(0, 0, 25);
+      cameraTarget.set(0, 0, 0);
+      camera.lookAt(cameraTarget);
+    }
+
+    function fnViewRight() {
+      camera.position.set(25, 0, 0);
+      cameraTarget.set(0, 0, 0);
+      camera.lookAt(cameraTarget);
+    }
+
+    function fnRaise() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      node.position[1] = (node.position[1] || 0) + 1;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnLower() {
+      const node = getNodeById(selectedId, objects);
+      if (!node) return;
+      pushHistory();
+      node.position[1] = (node.position[1] || 0) - 1;
+      syncScene();
+      renderUI();
+      updateCode();
+    }
+
+    function fnFitAll() {
+      const items = [];
+      collectPrimitives(objects, null, items);
+      if (items.length === 0) return;
+      const box = new THREE.Box3();
+      items.forEach(({ node: n, worldMat }) => {
+        const mesh = createMesh(n);
+        if (mesh && mesh.geometry) {
+          mesh.geometry.computeBoundingBox();
+          const localBox = mesh.geometry.boundingBox.clone();
+          localBox.applyMatrix4(worldMat);
+          box.union(localBox);
+          mesh.geometry.dispose();
+          mesh.material.dispose();
+        }
+      });
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z, 1);
+      cameraTarget.copy(center);
+      tempVec.set(1, 1, 1).normalize();
+      camera.position.copy(center).add(tempVec.multiplyScalar(maxDim * 2.2));
+      camera.lookAt(cameraTarget);
+    }
+
+    function fnSelectParent() {
+      const parent = getParentOf(selectedId, objects);
+      if (parent != null) selectObject(parent.id);
+    }
+
+    function fnSelectNext() {
+      const flat = getFlatNodeList(objects, []);
+      if (flat.length === 0) return;
+      const idx = flat.findIndex(n => n.id === selectedId);
+      const nextIdx = idx < 0 ? 0 : (idx + 1) % flat.length;
+      selectObject(flat[nextIdx].id);
+    }
+
+    function syncScene() {
+      const toRemove = [];
+      scene.traverse(c => { if (c.userData && c.userData.objId) toRemove.push(c); });
+      toRemove.forEach(c => scene.remove(c));
+      const items = [];
+      collectPrimitives(objects, null, items);
+      items.forEach(({ node, worldMat }) => {
+        const mesh = createMesh(node);
+        if (mesh) {
+          mesh.applyMatrix4(worldMat);
+          mesh.userData.objId = node.id;
+          scene.add(mesh);
+        }
+      });
+      updateGrid();
+    }
+
     function createMesh(obj) {
-      const [x, y, z] = obj.position;
-      const [rx, ry, rz] = (obj.rotation || [0, 0, 0]).map(r => r * Math.PI / 180);
       let geometry;
+      const fn = Math.max(4, Math.min(360, obj.fn || 32));
       if (obj.type === 'cube') {
         const [sx, sy, sz] = obj.size;
         geometry = new THREE.BoxGeometry(sx, sy, sz);
       } else if (obj.type === 'sphere') {
-        const r = (obj.size[0] + obj.size[1] + obj.size[2]) / 6 || obj.r || 1;
-        geometry = new THREE.SphereGeometry(r, 32, 24);
-      } else if (obj.type === 'cylinder') {
-        const r1 = obj.r1 ?? obj.size[0] / 2;
-        const r2 = obj.r2 ?? obj.size[0] / 2;
-        const h = obj.h ?? obj.size[1];
-        geometry = new THREE.CylinderGeometry(r1, r2, h, 32);
+        const r = obj.r ?? (obj.size[0] + obj.size[1] + obj.size[2]) / 6;
+        geometry = new THREE.SphereGeometry(r, fn, Math.floor(fn * 0.75));
+      } else if (obj.type === 'cylinder' || obj.type === 'cone') {
+        const r1 = obj.r1 ?? 1;
+        const r2 = obj.r2 ?? (obj.type === 'cone' ? 0 : 1);
+        const h = obj.h ?? 2;
+        geometry = new THREE.CylinderGeometry(r1, r2, h, fn);
+      } else if (obj.type === 'torus') {
+        const R = obj.R ?? 0.3;
+        const r = obj.r ?? 1;
+        geometry = new THREE.TorusGeometry(r, R, Math.floor(fn / 4), fn);
       } else return null;
+      const hex = parseInt((obj.color || '#565f89').replace('#', ''), 16);
       const mat = new THREE.MeshPhongMaterial({
-        color: obj.locked ? 0x414868 : (selectedId === obj.id ? 0x7aa2f7 : 0x565f89),
+        color: obj.locked ? 0x414868 : (selectedId === obj.id ? 0x7aa2f7 : hex),
         transparent: true,
         opacity: 0.9
       });
       const mesh = new THREE.Mesh(geometry, mat);
-      mesh.position.set(x, y, z);
-      mesh.rotation.set(rx, ry, rz);
       return mesh;
     }
 
@@ -505,105 +996,196 @@
     }
 
     function updateObject(id, field, value) {
-      const obj = objects.find(o => o.id === id);
+      const obj = getNodeById(id, objects);
       if (!obj) return;
       if (Array.isArray(value)) obj[field] = value;
-      else if (field === 'r') obj.r = Number(value);
-      else if (field === 'r1') obj.r1 = Number(value);
-      else if (field === 'r2') obj.r2 = Number(value);
-      else if (field === 'h') obj.h = Number(value);
+      else if (['r', 'r1', 'r2', 'h', 'R'].includes(field)) obj[field] = Number(value);
+      else if (field === 'fn') obj.fn = Math.max(4, Math.min(360, Number(value)));
+      else if (field === 'color') obj.color = value;
+      else if (field === 'operation') obj.operation = value;
       syncScene();
       updateCode();
+    }
+
+    function renderNode(node, depth = 0) {
+      const card = document.createElement('div');
+      card.className = 'tree-node obj-card';
+      const isGrp = isGroup(node);
+      if (isGrp) card.classList.add('group-card');
+      if (node.visible === false) card.classList.add('hidden');
+      card.dataset.id = node.id;
+      if (selectedId === node.id) card.classList.add('selected');
+      const isSphere = node.type === 'sphere';
+      const isCyl = node.type === 'cylinder' || node.type === 'cone';
+      const isTorus = node.type === 'torus';
+      const locked = !!node.locked;
+      const indent = '&nbsp;'.repeat(depth * 2);
+      if (isGrp) {
+        card.innerHTML = `
+          <div class="obj-header">
+            <span class="obj-type">${indent}${node.operation || 'union'} (${(node.children || []).length})</span>
+            <div class="obj-header-btns">
+              <select data-field="operation" class="prop-row" style="width:auto;padding:2px 4px;font-size:10px;">
+                <option value="union" ${(node.operation||'union')==='union'?'selected':''}>union</option>
+                <option value="difference" ${(node.operation||'')==='difference'?'selected':''}>difference</option>
+                <option value="intersection" ${(node.operation||'')==='intersection'?'selected':''}>intersection</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-danger" data-action="remove">×</button>
+            </div>
+          </div>
+          <div class="obj-props">
+            <div class="prop-row"><label>pos</label><input type="number" step="0.1" data-field="position" data-idx="0" value="${node.position[0]}"><input type="number" step="0.1" data-field="position" data-idx="1" value="${node.position[1]}"><input type="number" step="0.1" data-field="position" data-idx="2" value="${node.position[2]}"></div>
+            <div class="prop-row"><label>rot</label><input type="number" step="1" data-field="rotation" data-idx="0" value="${(node.rotation||[0,0,0])[0]}"><input type="number" step="1" data-field="rotation" data-idx="1" value="${(node.rotation||[0,0,0])[1]}"><input type="number" step="1" data-field="rotation" data-idx="2" value="${(node.rotation||[0,0,0])[2]}"></div>
+          </div>
+          <div class="tree-children" data-children></div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="obj-header">
+            <span class="obj-type">${indent}${node.type}</span>
+            <div class="obj-header-btns">
+              <button type="button" class="btn btn-sm btn-lock ${locked ? 'locked' : ''}" data-action="lock" title="${locked ? 'Unlock' : 'Lock'}">${locked ? '🔓' : '🔒'}</button>
+              <button type="button" class="btn btn-sm btn-danger" data-action="remove">×</button>
+            </div>
+          </div>
+          <div class="obj-props">
+            <div class="prop-row"><label>pos</label><input type="number" step="0.1" data-field="position" data-idx="0" value="${node.position[0]}" ${locked ? 'disabled' : ''}><input type="number" step="0.1" data-field="position" data-idx="1" value="${node.position[1]}" ${locked ? 'disabled' : ''}><input type="number" step="0.1" data-field="position" data-idx="2" value="${node.position[2]}" ${locked ? 'disabled' : ''}></div>
+            <div class="prop-row"><label>rot</label><input type="number" step="1" data-field="rotation" data-idx="0" value="${(node.rotation||[0,0,0])[0]}" ${locked ? 'disabled' : ''}><input type="number" step="1" data-field="rotation" data-idx="1" value="${(node.rotation||[0,0,0])[1]}" ${locked ? 'disabled' : ''}><input type="number" step="1" data-field="rotation" data-idx="2" value="${(node.rotation||[0,0,0])[2]}" ${locked ? 'disabled' : ''}></div>
+            <div class="prop-row"><label>scale</label><input type="number" step="0.1" data-field="scale" data-idx="0" value="${(node.scale||[1,1,1])[0]}"><input type="number" step="0.1" data-field="scale" data-idx="1" value="${(node.scale||[1,1,1])[1]}"><input type="number" step="0.1" data-field="scale" data-idx="2" value="${(node.scale||[1,1,1])[2]}"></div>
+            ${!isSphere && !isCyl && !isTorus ? `<div class="prop-row"><label>size</label><input type="number" step="0.1" data-field="size" data-idx="0" value="${node.size[0]}"><input type="number" step="0.1" data-field="size" data-idx="1" value="${node.size[1]}"><input type="number" step="0.1" data-field="size" data-idx="2" value="${node.size[2]}"></div>` : ''}
+            ${isSphere ? `<div class="prop-row"><label>r</label><input type="number" step="0.1" data-field="r" value="${node.r ?? 1}"></div>` : ''}
+            ${isCyl ? `<div class="prop-row"><label>r1</label><input type="number" step="0.1" data-field="r1" value="${node.r1 ?? 1}"></div><div class="prop-row"><label>r2</label><input type="number" step="0.1" data-field="r2" value="${node.r2 ?? (node.type==='cone'?0:1)}"></div><div class="prop-row"><label>h</label><input type="number" step="0.1" data-field="h" value="${node.h ?? 2}"></div>` : ''}
+            ${isTorus ? `<div class="prop-row"><label>R</label><input type="number" step="0.1" data-field="R" value="${node.R ?? 0.3}"></div><div class="prop-row"><label>r</label><input type="number" step="0.1" data-field="r" value="${node.r ?? 1}"></div>` : ''}
+            <div class="prop-row"><label>$fn</label><input type="number" min="4" max="360" data-field="fn" value="${node.fn ?? 32}"></div>
+            <div class="prop-row"><label>color</label><input type="color" data-field="color" value="${node.color || '#565f89'}"></div>
+          </div>
+        `;
+      }
+      card.querySelector('.obj-header').addEventListener('click', e => { if (!e.target.closest('button') && !e.target.closest('select')) selectObject(node.id); });
+      card.querySelectorAll('[data-action="remove"]').forEach(btn => btn.addEventListener('click', () => removeObject(node.id)));
+      if (!isGrp) {
+        card.querySelector('[data-action="lock"]')?.addEventListener('click', () => {
+          node.locked = !node.locked;
+          syncScene();
+          renderUI();
+        });
+      }
+      card.querySelectorAll('input, select').forEach(inp => {
+        const apply = () => {
+          const field = inp.dataset.field;
+          const idx = inp.dataset.idx != null ? parseInt(inp.dataset.idx, 10) : null;
+          if (idx != null) {
+            const arr = [...(node[field] || [0, 0, 0])];
+            arr[idx] = field === 'scale' ? parseFloat(inp.value) || 1 : parseFloat(inp.value) || 0;
+            updateObject(node.id, field, arr);
+          } else {
+            const val = field === 'color' ? inp.value : (field === 'operation' ? inp.value : parseFloat(inp.value) || 0);
+            updateObject(node.id, field, val);
+          }
+        };
+        inp.addEventListener('change', apply);
+        if (inp.type !== 'color') inp.addEventListener('input', apply);
+      });
+      return card;
     }
 
     function renderUI() {
       const list = document.getElementById('objList');
       const hint = document.getElementById('emptyHint');
       list.innerHTML = '';
-      if (objects.length === 0) {
-        hint.style.display = 'block';
-        return;
+      function appendTree(nodes, container, depth) {
+        if (!nodes || nodes.length === 0) return;
+        nodes.forEach(node => {
+          const card = renderNode(node, depth);
+          container.appendChild(card);
+          if (isGroup(node) && node.children && node.children.length) {
+            const chCont = card.querySelector('[data-children]');
+            if (chCont) appendTree(node.children, chCont, depth + 1);
+          }
+        });
       }
-      hint.style.display = 'none';
-      objects.forEach(obj => {
-        const card = document.createElement('div');
-        card.className = 'obj-card' + (selectedId === obj.id ? ' selected' : '');
-        card.dataset.id = obj.id;
-        const isSphere = obj.type === 'sphere';
-        const isCyl = obj.type === 'cylinder';
-        const locked = !!obj.locked;
-        card.innerHTML = `
-          <div class="obj-header">
-            <span class="obj-type">${obj.type}</span>
-            <div class="obj-header-btns">
-              <button type="button" class="btn btn-sm btn-lock ${locked ? 'locked' : ''}" data-action="lock" title="${locked ? 'Unlock position' : 'Lock position'}">${locked ? '🔓' : '🔒'}</button>
-              <button type="button" class="btn btn-sm btn-danger" data-action="remove">×</button>
-            </div>
-          </div>
-          <div class="obj-props">
-            <div class="prop-row prop-position"><label>pos</label><input type="number" step="0.1" data-field="position" data-idx="0" value="${obj.position[0]}" ${locked ? 'disabled' : ''}><input type="number" step="0.1" data-field="position" data-idx="1" value="${obj.position[1]}" ${locked ? 'disabled' : ''}><input type="number" step="0.1" data-field="position" data-idx="2" value="${obj.position[2]}" ${locked ? 'disabled' : ''}></div>
-            <div class="prop-row prop-rotation"><label>rot</label><input type="number" step="1" data-field="rotation" data-idx="0" value="${(obj.rotation||[0,0,0])[0]}" ${locked ? 'disabled' : ''}><input type="number" step="1" data-field="rotation" data-idx="1" value="${(obj.rotation||[0,0,0])[1]}" ${locked ? 'disabled' : ''}><input type="number" step="1" data-field="rotation" data-idx="2" value="${(obj.rotation||[0,0,0])[2]}" ${locked ? 'disabled' : ''}></div>
-            ${!isSphere && !isCyl ? `<div class="prop-row"><label>size</label><input type="number" step="0.1" data-field="size" data-idx="0" value="${obj.size[0]}"><input type="number" step="0.1" data-field="size" data-idx="1" value="${obj.size[1]}"><input type="number" step="0.1" data-field="size" data-idx="2" value="${obj.size[2]}"></div>` : ''}
-            ${isSphere ? `<div class="prop-row"><label>r</label><input type="number" step="0.1" data-field="r" value="${obj.r ?? (obj.size[0]+obj.size[1]+obj.size[2])/6}"></div>` : ''}
-            ${isCyl ? `<div class="prop-row"><label>r1</label><input type="number" step="0.1" data-field="r1" value="${obj.r1 ?? 1}"></div><div class="prop-row"><label>r2</label><input type="number" step="0.1" data-field="r2" value="${obj.r2 ?? 1}"></div><div class="prop-row"><label>h</label><input type="number" step="0.1" data-field="h" value="${obj.h ?? 2}"></div>` : ''}
-          </div>
-        `;
-        card.querySelector('.obj-header').addEventListener('click', e => { if (!e.target.closest('button')) selectObject(obj.id); });
-        card.querySelector('[data-action="lock"]').addEventListener('click', () => {
-          obj.locked = !obj.locked;
-          syncScene();
-          renderUI();
-        });
-        card.querySelector('[data-action="remove"]').addEventListener('click', () => removeObject(obj.id));
-        card.querySelectorAll('input').forEach(inp => {
-          const apply = () => {
-            const field = inp.dataset.field;
-            const idx = inp.dataset.idx != null ? parseInt(inp.dataset.idx, 10) : null;
-            if (idx != null) {
-              const arr = [...obj[field]];
-              arr[idx] = parseFloat(inp.value) || 0;
-              updateObject(obj.id, field, arr);
-            } else {
-              updateObject(obj.id, field, parseFloat(inp.value) || 0);
-            }
-          };
-          inp.addEventListener('change', apply);
-          inp.addEventListener('input', apply);
-        });
-        list.appendChild(card);
-      });
+      appendTree(objects, list, 0);
+      if (objects.length === 0) hint.style.display = 'block';
+      else hint.style.display = 'none';
+
+      document.getElementById('undoBtn').disabled = !canUndo();
+      document.getElementById('redoBtn').disabled = !canRedo();
+      document.getElementById('duplicateBtn').disabled = !selectedId;
     }
 
-    function toOpenSCAD(obj) {
+    function toOpenSCAD(obj, fnDefault) {
+      const fn = obj.fn || fnDefault || 32;
       const [px, py, pz] = obj.position;
       const [rx, ry, rz] = obj.rotation || [0, 0, 0];
+      const [sx, sy, sz] = obj.scale || [1, 1, 1];
       const translate = `translate([${px.toFixed(2)}, ${py.toFixed(2)}, ${pz.toFixed(2)}])`;
       const rotate = `rotate([${rx.toFixed(2)}, ${ry.toFixed(2)}, ${rz.toFixed(2)}])`;
+      const scale = (sx !== 1 || sy !== 1 || sz !== 1) ? `scale([${sx.toFixed(2)}, ${sy.toFixed(2)}, ${sz.toFixed(2)}])` : '';
       let inner = '';
       if (obj.type === 'cube') {
-        const [sx, sy, sz] = obj.size;
-        inner = `cube([${sx.toFixed(2)}, ${sy.toFixed(2)}, ${sz.toFixed(2)}], center=true);`;
+        const [sx2, sy2, sz2] = obj.size;
+        inner = `cube([${sx2.toFixed(2)}, ${sy2.toFixed(2)}, ${sz2.toFixed(2)}], center=true);`;
       } else if (obj.type === 'sphere') {
-        const r = obj.r ?? (obj.size[0] + obj.size[1] + obj.size[2]) / 6;
-        inner = `sphere(r=${r.toFixed(2)}, $fn=32);`;
-      } else if (obj.type === 'cylinder') {
-        const r1 = obj.r1 ?? 1, r2 = obj.r2 ?? 1, h = obj.h ?? 2;
-        inner = `cylinder(r1=${r1.toFixed(2)}, r2=${r2.toFixed(2)}, h=${h.toFixed(2)}, center=true, $fn=32);`;
+        const r = obj.r ?? 1;
+        inner = `sphere(r=${r.toFixed(2)}, $fn=${fn});`;
+      } else if (obj.type === 'cylinder' || obj.type === 'cone') {
+        const r1 = obj.r1 ?? 1, r2 = obj.r2 ?? (obj.type === 'cone' ? 0 : 1), h = obj.h ?? 2;
+        inner = `cylinder(r1=${r1.toFixed(2)}, r2=${r2.toFixed(2)}, h=${h.toFixed(2)}, center=true, $fn=${fn});`;
+      } else if (obj.type === 'torus') {
+        const R = obj.R ?? 0.3, r = obj.r ?? 1;
+        inner = `rotate_extrude($fn=${fn}) translate([${r.toFixed(2)}, 0, 0]) circle(r=${R.toFixed(2)}, $fn=${fn});`;
       }
-      return translate + '\n    ' + rotate + '\n    ' + inner;
+      const parts = [translate, rotate];
+      if (scale) parts.push(scale);
+      parts.push(inner);
+      return parts.join('\n    ');
+    }
+
+    function nodeToCode(node, indent, fnDefault) {
+      if (node.visible === false) return '';
+      const fn = fnDefault || 32;
+      if (node.type === 'group') {
+        const op = node.operation || 'union';
+        const [px, py, pz] = node.position || [0, 0, 0];
+        const [rx, ry, rz] = node.rotation || [0, 0, 0];
+        const [sx, sy, sz] = node.scale || [1, 1, 1];
+        const hasTransform = px !== 0 || py !== 0 || pz !== 0 || rx !== 0 || ry !== 0 || rz !== 0 || sx !== 1 || sy !== 1 || sz !== 1;
+        const children = (node.children || []).map(ch => nodeToCode(ch, indent + '  ', fn)).filter(Boolean);
+        if (children.length === 0) return indent + '// empty ' + op + '\n';
+        const inner = children.join('\n');
+        let out = indent + op + '() {\n' + inner + '\n' + indent + '}';
+        if (hasTransform) {
+          const pre = indent + `translate([${px.toFixed(2)}, ${py.toFixed(2)}, ${pz.toFixed(2)}]) rotate([${rx.toFixed(2)}, ${ry.toFixed(2)}, ${rz.toFixed(2)}])`;
+          const scaleStr = (sx !== 1 || sy !== 1 || sz !== 1) ? ` scale([${sx.toFixed(2)}, ${sy.toFixed(2)}, ${sz.toFixed(2)}])` : '';
+          out = pre + scaleStr + '\n' + out;
+        }
+        return out;
+      }
+      return indent + toOpenSCAD(node, fn);
     }
 
     function updateCode() {
-      const lines = ['union() {'];
-      objects.forEach(obj => {
-        lines.push('  ' + toOpenSCAD(obj).replace(/\n/g, '\n  '));
+      const fnDefault = Math.max(4, parseInt(document.getElementById('globalFn').value, 10) || 32);
+      const useModules = document.getElementById('optModules').checked;
+      const lines = [];
+      if (objects.length === 0) {
+        document.getElementById('codeOut').value = '// Add objects to generate OpenSCAD code';
+        return;
+      }
+      objects.forEach(root => {
+        lines.push(nodeToCode(root, '', fnDefault));
       });
-      lines.push('}');
-      document.getElementById('codeOut').value = lines.join('\n');
+      document.getElementById('codeOut').value = lines.join('\n\n');
     }
 
     document.querySelectorAll('.btn[data-type]').forEach(btn => {
-      btn.addEventListener('click', () => addObject(btn.dataset.type));
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.type;
+        const op = btn.dataset.op;
+        const sel = type !== 'group' ? getNodeById(selectedId, objects) : null;
+        const parent = (sel && sel.type === 'group') ? sel : null;
+        addObject(type, null, null, parent, op);
+      });
     });
 
     document.querySelectorAll('.block-tool').forEach(el => {
@@ -626,7 +1208,7 @@
       e.preventDefault();
       viewportWrap.classList.remove('drag-over');
       const type = e.dataTransfer.getData('text/plain');
-      if (!type || !['cube', 'sphere', 'cylinder'].includes(type)) return;
+      if (!type || !PRIMITIVES.includes(type)) return;
       const canvas = document.getElementById('viewport');
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) { addObject(type); return; }
@@ -643,6 +1225,55 @@
       document.execCommand('copy');
     });
     document.getElementById('refreshCode').addEventListener('click', updateCode);
+    document.getElementById('duplicateBtn').addEventListener('click', duplicateSelected);
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      updateCode();
+      const code = document.getElementById('codeOut').value;
+      const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'model.scad';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+    });
+    document.getElementById('gridToggle').addEventListener('change', updateGrid);
+    document.getElementById('gridSnap').addEventListener('change', () => { syncScene(); renderUI(); });
+
+    document.getElementById('fnResetCamera').addEventListener('click', fnResetCamera);
+    document.getElementById('fnFocusSelected').addEventListener('click', fnFocusSelected);
+    document.getElementById('fnCenterOrigin').addEventListener('click', fnCenterOrigin);
+    document.getElementById('fnSnapGrid').addEventListener('click', fnSnapGrid);
+    document.getElementById('fnMirrorX').addEventListener('click', () => fnMirrorAxis('x'));
+    document.getElementById('fnMirrorY').addEventListener('click', () => fnMirrorAxis('y'));
+    document.getElementById('fnMirrorZ').addEventListener('click', () => fnMirrorAxis('z'));
+    document.getElementById('fnToggleVisible').addEventListener('click', fnToggleVisible);
+    document.getElementById('fnCopySelectedCode').addEventListener('click', fnCopySelectedCode);
+    document.getElementById('fnClearAll').addEventListener('click', fnClearAll);
+    document.getElementById('fnResetRotation').addEventListener('click', fnResetRotation);
+    document.getElementById('fnResetScale').addEventListener('click', fnResetScale);
+    document.getElementById('fnViewTop').addEventListener('click', fnViewTop);
+    document.getElementById('fnViewFront').addEventListener('click', fnViewFront);
+    document.getElementById('fnViewRight').addEventListener('click', fnViewRight);
+    document.getElementById('fnRaise').addEventListener('click', fnRaise);
+    document.getElementById('fnLower').addEventListener('click', fnLower);
+    document.getElementById('fnFitAll').addEventListener('click', fnFitAll);
+    document.getElementById('fnSelectParent').addEventListener('click', fnSelectParent);
+    document.getElementById('fnSelectNext').addEventListener('click', fnSelectNext);
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const id = 'tab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1);
+        document.getElementById(id).classList.add('active');
+      });
+    });
 
     document.querySelectorAll('.attach-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -652,6 +1283,17 @@
           hoverState = null;
         }
       });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.target.closest('textarea') || e.target.closest('input')) return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedId) { removeObject(selectedId); e.preventDefault(); }
+      }
+      if (e.ctrlKey && e.key === 'z') { undo(); e.preventDefault(); }
+      if (e.ctrlKey && e.key === 'y') { redo(); e.preventDefault(); }
+      if (e.ctrlKey && e.key === 'd') { duplicateSelected(); e.preventDefault(); }
+      if (e.ctrlKey && e.key === 's') { document.getElementById('saveBtn').click(); e.preventDefault(); }
     });
 
     initThree();
