@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- Randal C. Burger Jr -->
 <head>
   <meta charset="UTF-8" />
   <title>CSV Email Collector</title>
@@ -49,6 +50,19 @@
       backdrop-filter: blur(18px);
     }
 
+    .shell-nav {
+      padding: 10px 18px;
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .shell-nav a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .shell-nav a:hover {
+      text-decoration: underline;
+    }
     .shell-header {
       display: flex;
       align-items: center;
@@ -648,6 +662,9 @@
   </style>
 </head>
 <body>
+  <nav class="shell-nav">
+    <a href="index.html">← Home</a>
+  </nav>
   <main class="shell" aria-label="CSV email collector">
     <header class="shell-header">
       <div class="traffic-lights" aria-hidden="true">

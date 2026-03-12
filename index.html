@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+<!-- Randal C. Burger Jr -->
 <head>
   <meta charset="utf-8" />
   <title>Codelyfe — GitHub Page</title>
@@ -41,8 +42,48 @@
       background:linear-gradient(180deg, rgba(2,8,23,.55), rgba(2,8,23,.15));
       border-bottom:1px solid rgba(148,163,184,.15);
     }
-    .bar{max-width:1200px;margin:0 auto;padding:14px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between}
+    header .bar{position:relative}
+    .bar{max-width:1200px;margin:0 auto;padding:14px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.6px;font-size:18px}
+    .brand a{color:var(--text)}
+    .nav-wrap{display:flex;align-items:center;gap:8px}
+    .nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .nav a{display:inline-block;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);transition:color var(--speed-1),background var(--speed-1)}
+    .nav a:hover,.nav a[aria-current="page"]{color:var(--text);background:rgba(255,255,255,.08)}
+    .menu-toggle{display:none;width:44px;height:44px;border-radius:12px;border:1px solid #94a3b83f;background:var(--glass);color:var(--text);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;transition:transform var(--speed-1)}
+    .menu-toggle:hover{background:rgba(255,255,255,.12)}
+    .menu-toggle span{display:block;width:20px;height:2px;background:currentColor;border-radius:1px;transition:transform var(--speed-1),opacity var(--speed-1)}
+    .menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+    .menu-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    @media (max-width:880px){
+      .menu-toggle{display:flex}
+      .nav-wrap{flex:1 1 100%;justify-content:flex-end}
+      .nav-wrap .nav{
+        position:fixed;
+        top:60px;
+        left:0;
+        right:0;
+        flex-direction:column;
+        align-items:stretch;
+        gap:0;
+        background:linear-gradient(180deg,rgba(2,8,23,.98),rgba(2,8,23,.95));
+        border-bottom:1px solid #94a3b83f;
+        padding:12px;
+        max-height:0;
+        overflow:hidden;
+        opacity:0;
+        visibility:hidden;
+        transition:max-height var(--speed-2),opacity var(--speed-1),visibility var(--speed-1);
+        box-shadow:0 12px 24px rgba(0,0,0,.3);
+        z-index:20;
+      }
+      .nav-wrap .nav.is-open{max-height:80vh;overflow:auto;opacity:1;visibility:visible}
+      .nav-wrap .nav a{padding:12px 14px;border-radius:10px}
+    }
+    @media (prefers-color-scheme: light) and (max-width:880px){
+      .nav-wrap .nav{background:linear-gradient(180deg,#fffef9,#fff)}
+    }
     .logo{width:36px;height:36px;border-radius:12px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand));box-shadow: inset 0 0 0 2px #ffffff66, 0 8px 20px rgba(14,165,233,.45)}
     .btn{border:1px solid #94a3b83f;background:var(--glass);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform var(--speed-1)}
     .btn:hover{transform:translateY(-2px)}
@@ -129,13 +170,28 @@
     <header>
       <div class="bar">
         <div class="brand">
-          <span class="logo" aria-hidden="true"></span>
-          <span>CODELYFE</span>
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
         </div>
-        <div class="actions">
-          <a class="btn" href="a11y-demo.html">A11y Demo</a>
-          <a class="btn" href="#projects">Projects</a>
-          <a class="btn" href="https://github.com/codelyfe" target="_blank" rel="noopener">GitHub</a>
+        <div class="nav-wrap" style="position:relative">
+          <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle menu" id="menu-btn">
+            <span></span><span></span><span></span>
+          </button>
+          <nav class="nav" id="main-nav" role="navigation" aria-label="Site">
+            <a href="index.html" aria-current="page">Home</a>
+            <a href="a11y-demo.html">A11y Demo</a>
+            <a href="document-converter.html">Document Converter</a>
+            <a href="export-emails-csv.html">Export Emails CSV</a>
+            <a href="image-to-svg.html">Image to SVG</a>
+            <a href="img-converter-editor.html">Img Converter</a>
+            <a href="minnesota-complaints-requests.html">Minnesota Complaints</a>
+            <a href="openscad.html">OpenSCAD</a>
+            <a href="openscad-3d-builder.html">OpenSCAD 3D Builder</a>
+            <a href="remove-background.html">Remove Background</a>
+            <a href="https://github.com/codelyfe" target="_blank" rel="noopener">GitHub</a>
+          </nav>
         </div>
       </div>
     </header>
@@ -1320,6 +1376,27 @@ html[data-a11y-pause-anim] *::after{
       cb.dispatchEvent(new Event('change', { bubbles: true }));
     }
   }, { passive: true });
+})();
+</script>
+<script>
+(function(){
+  var btn = document.getElementById("menu-btn");
+  var nav = document.getElementById("main-nav");
+  if (btn && nav) {
+    btn.addEventListener("click", function(){
+      var open = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", !open);
+      nav.classList.toggle("is-open", !open);
+    });
+    nav.querySelectorAll("a").forEach(function(a){
+      a.addEventListener("click", function(){
+        if (window.innerWidth <= 880) {
+          btn.setAttribute("aria-expanded", "false");
+          nav.classList.remove("is-open");
+        }
+      });
+    });
+  }
 })();
 </script>
 </body>

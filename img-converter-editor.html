@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- Randal C. Burger Jr -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,8 +44,32 @@
     }
 
     header {
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
       margin-bottom: 32px;
+    }
+    header .header-title { text-align: left; }
+    header .nav-home {
+      flex-shrink: 0;
+    }
+    header .nav-home a {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: border-color .2s, background .2s;
+    }
+    header .nav-home a:hover {
+      border-color: var(--accent);
+      background: var(--accent-muted);
     }
     header h1 {
       font-size: 1.75rem;
@@ -325,8 +350,11 @@
 <body>
   <div class="app">
     <header>
-      <h1>Image Converter & Editor</h1>
-      <p>Convert between formats, change resolution, and edit — all in the browser</p>
+      <div class="header-title">
+        <h1>Image Converter & Editor</h1>
+        <p>Convert between formats, change resolution, and edit — all in the browser</p>
+      </div>
+      <div class="nav-home"><a href="index.html">Home</a></div>
     </header>
 
     <div class="layout">

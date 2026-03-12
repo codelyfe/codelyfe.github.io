@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Remove Background — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --panel:#0f172a; --text:#e5f0ff; --muted:#9db3d1;
+      --brand:#0ea5e9; --brand-2:#14b8a6; --accent:#a78bfa;
+      --ring:0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
+      --shadow: 0 10px 30px rgba(2,8,23,.35), 0 2px 8px rgba(2,8,23,.25);
+      --glass: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      --speed-1:300ms;
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#f7fbff; --panel:#ffffff; --text:#0b1220; --muted:#44566c;
+        --shadow:0 10px 30px rgba(2,8,23,.15),0 2px 8px rgba(2,8,23,.08);
+        --glass:linear-gradient(180deg,#fff,#fff7);
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:16px/1.55 Inter,system-ui,sans-serif; color:var(--text);
+      background: radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.22),transparent 60%),
+        radial-gradient(1000px 600px at -10% -10%,rgba(167,139,250,.22),transparent 55%), var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{
+      position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);
+      background:linear-gradient(180deg, rgba(2,8,23,.55), rgba(2,8,23,.15));
+      border-bottom:1px solid rgba(148,163,184,.15);
+    }
+    .bar{max-width:900px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text)}
+    .logo{width:32px;height:32px;border-radius:10px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand))}
+    .btn{border:1px solid #94a3b83f;background:var(--glass);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font:600 14px/1 Inter,sans-serif;transition:transform var(--speed-1)}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    main{max-width:700px;margin:32px auto;padding:0 18px}
+    h1{font-weight:800;font-size:clamp(26px,4vw,34px);margin:0 0 8px}
+    .subtitle{color:var(--muted);font-size:15px;margin-bottom:28px}
+    .card{background:var(--panel);border-radius:16px;padding:24px;border:1px solid #94a3b82f;margin-bottom:20px}
+    .drop-zone{
+      border:2px dashed #94a3b85c;border-radius:14px;padding:32px;text-align:center;cursor:pointer;
+      background:rgba(255,255,255,.03);transition:border-color var(--speed-1),background var(--speed-1)
+    }
+    .drop-zone:hover,.drop-zone.dragover{border-color:var(--brand);background:rgba(14,165,233,.08)}
+    .drop-zone input{display:none}
+    .drop-zone p{margin:0;color:var(--muted)}.drop-zone p strong{color:var(--text)}
+    .file-uploaded{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(20,184,166,.4);background:rgba(20,184,166,.12);align-items:center;gap:10px;flex-wrap:wrap}
+    .file-uploaded.visible{display:flex}
+    .file-uploaded .name{font-weight:600;color:var(--text);flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .file-uploaded .size{font-size:13px;color:var(--muted)}
+    .file-uploaded .clear{margin-left:auto;padding:6px 10px;font-size:13px}
+    .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:20px}
+    .progress{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.35);font-size:14px;color:var(--text)}
+    .progress.visible{display:block}
+    .progress-bar-wrap{height:8px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;margin-top:10px}
+    .progress-bar-fill{height:100%;background:var(--brand);border-radius:999px;transition:width .2s;width:0%}
+    .out-section{display:none;margin-top:24px}
+    .out-section.visible{display:block}
+    .out-section a.btn{margin-top:10px;display:inline-block}
+    .preview-wrap{margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid #94a3b83f;background:#0c1222;display:inline-block}
+    .preview-wrap img{display:block;max-width:100%;height:auto;vertical-align:middle}
+    .preview-checker{background:repeating-conic-gradient(#1e293b 0% 25%, #334155 0% 50%) 50% / 16px 16px}
+    .err{color:#f87171;font-size:14px;margin-top:10px}
+    footer{padding:24px 18px;color:var(--muted);text-align:center;border-top:1px solid #94a3b826}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html"><span class="logo" aria-hidden="true"></span>CODELYFE</a>
+        </div>
+        <a class="btn" href="index.html">Home</a>
+      </div>
+    </header>
+    <main>
+      <h1>Remove Background</h1>
+      <p class="subtitle">Upload an image and remove its background in your browser. Uses AI locally — nothing is sent to a server. First run may take a moment to load the model.</p>
+
+      <div class="card">
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0">
+          <input type="file" id="fileIn" accept="image/*" />
+          <p><strong>Choose an image</strong> or drag it here</p>
+          <p style="font-size:13px;margin-top:6px">PNG, JPG, WebP, GIF</p>
+        </div>
+        <div class="file-uploaded" id="fileUploaded" aria-live="polite">
+          <span class="name" id="fileName"></span>
+          <span class="size" id="fileSize"></span>
+          <button type="button" class="btn clear" id="clearFile" aria-label="Remove file">Clear</button>
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="removeBtn" disabled>Remove background</button>
+        </div>
+        <div class="progress" id="progress">
+          <span id="progressText">Loading…</span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+        </div>
+        <div class="out-section" id="outSection">
+          <p class="out-msg" id="outMsg"></p>
+          <div class="preview-wrap preview-checker" id="previewWrap" style="display:none;">
+            <img id="previewImg" alt="Result with background removed" />
+          </div>
+          <a id="downloadLink" class="btn" href="#" download style="display:none;margin-top:12px">Download PNG</a>
+        </div>
+        <p class="err" id="err" aria-live="polite"></p>
+      </div>
+    </main>
+    <footer><a href="index.html">Codelyfe</a> — client-side background removal</footer>
+  </div>
+
+  <script type="module">
+(function(){
+  var dropZone = document.getElementById("dropZone");
+  var fileIn = document.getElementById("fileIn");
+  var removeBtn = document.getElementById("removeBtn");
+  var fileUploadedEl = document.getElementById("fileUploaded");
+  var fileNameEl = document.getElementById("fileName");
+  var fileSizeEl = document.getElementById("fileSize");
+  var progressEl = document.getElementById("progress");
+  var progressText = document.getElementById("progressText");
+  var progressBar = document.getElementById("progressBar");
+  var outSection = document.getElementById("outSection");
+  var outMsg = document.getElementById("outMsg");
+  var previewWrap = document.getElementById("previewWrap");
+  var previewImg = document.getElementById("previewImg");
+  var downloadLink = document.getElementById("downloadLink");
+  var errEl = document.getElementById("err");
+
+  var currentFile = null;
+
+  function formatBytes(n){ if (n < 1024) return n + " B"; if (n < 1024*1024) return (n/1024).toFixed(1) + " KB"; return (n/(1024*1024)).toFixed(1) + " MB"; }
+  function showErr(msg){ errEl.textContent = msg || ""; }
+  function showProgress(visible, text, pct){
+    progressEl.classList.toggle("visible", !!visible);
+    if (progressText) progressText.textContent = text || "Loading…";
+    if (progressBar) progressBar.style.width = (pct != null ? pct : 0) + "%";
+  }
+  function showOut(msg, showPreview, blob){
+    outSection.classList.add("visible");
+    outMsg.textContent = msg || "";
+    previewWrap.style.display = showPreview ? "inline-block" : "none";
+    downloadLink.style.display = blob ? "inline-block" : "none";
+    if (blob && previewImg){
+      var url = URL.createObjectURL(blob);
+      previewImg.src = url;
+      downloadLink.href = url;
+      downloadLink.download = (currentFile ? currentFile.name.replace(/\.[^.]*$/, "") : "image") + "-nobg.png";
+    }
+  }
+
+  dropZone.addEventListener("click", function(){ fileIn.click(); });
+  dropZone.addEventListener("dragover", function(e){ e.preventDefault(); dropZone.classList.add("dragover"); });
+  dropZone.addEventListener("dragleave", function(){ dropZone.classList.remove("dragover"); });
+  dropZone.addEventListener("drop", function(e){
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    var f = e.dataTransfer && e.dataTransfer.files[0];
+    if (f && f.type.indexOf("image/") === 0){ setFile(f); }
+  });
+  dropZone.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileIn.click(); } });
+  fileIn.addEventListener("change", function(){ var f = fileIn.files[0]; if (f) setFile(f); });
+
+  function setFile(file){
+    currentFile = file;
+    fileNameEl.textContent = file.name;
+    fileSizeEl.textContent = formatBytes(file.size);
+    fileUploadedEl.classList.add("visible");
+    showErr("");
+    showOut("", false);
+    outSection.classList.remove("visible");
+    removeBtn.disabled = false;
+  }
+
+  document.getElementById("clearFile").addEventListener("click", function(){
+    currentFile = null;
+    fileIn.value = "";
+    fileUploadedEl.classList.remove("visible");
+    removeBtn.disabled = true;
+    showErr("");
+    showOut("", false);
+    outSection.classList.remove("visible");
+    if (previewImg.src) URL.revokeObjectURL(previewImg.src);
+    previewImg.src = "";
+  });
+
+  removeBtn.addEventListener("click", function(){
+    if (!currentFile) return;
+    showErr("");
+    removeBtn.disabled = true;
+    showProgress(true, "Loading model…", 0);
+
+    function onProgress(key, current, total){
+      var pct = total ? Math.round((current / total) * 100) : 0;
+      progressText.textContent = key ? "Downloading " + key + "… " + current + " / " + total : "Processing…";
+      progressBar.style.width = pct + "%";
+    }
+
+    import("https://esm.sh/@imgly/background-removal@1").then(function(m){
+      var removeBackground = m.removeBackground || m.default;
+      if (typeof removeBackground !== "function") {
+        throw new Error("removeBackground not found. Module keys: " + (m && typeof m === "object" ? Object.keys(m).join(", ") : "n/a"));
+      }
+      progressText.textContent = "Processing image…";
+      progressBar.style.width = "50%";
+      return removeBackground(currentFile, { progress: onProgress });
+    }).then(function(blob){
+      showProgress(false);
+      showOut("Background removed. Preview below.", true, blob);
+      removeBtn.disabled = false;
+    }).catch(function(e){
+      showProgress(false);
+      showErr(e && (e.message || e.toString()) ? (e.message || e.toString()) : "Background removal failed. Try another image or check the console.");
+      removeBtn.disabled = false;
+    });
+  });
+})();
+  </script>
+</body>
+</html>
