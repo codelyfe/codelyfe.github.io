@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Lorem & Placeholder — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#0f172a;--text:#e5f0ff;--muted:#9db3d1;--brand:#0ea5e9;--brand-2:#14b8a6;--accent:#a78bfa;--ring:0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);--glass:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));--speed-1:300ms}
+    @media (prefers-color-scheme: light){:root{--bg:#f7fbff;--panel:#fff;--text:#0b1220;--muted:#44566c;--glass:linear-gradient(180deg,#fff,#fff7)}}
+    *{box-sizing:border-box} html,body{min-height:100%;margin:0}
+    body{font:16px/1.55 Inter,system-ui,sans-serif;color:var(--text);background:radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.22),transparent 60%),radial-gradient(1000px 600px at -10% -10%,rgba(167,139,250,.22),transparent 55%),var(--bg);overflow-x:hidden}
+    a{color:var(--brand);text-decoration:none} a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(2,8,23,.55),rgba(2,8,23,.15));border-bottom:1px solid rgba(148,163,184,.15)}
+    .bar{max-width:900px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px} .brand a{color:var(--text)}
+    .logo{width:32px;height:32px;border-radius:10px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand))}
+    .btn{border:1px solid #94a3b83f;background:var(--glass);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font:600 14px/1 Inter,sans-serif;transition:transform var(--speed-1)} .btn:hover{transform:translateY(-2px)}
+    main{max-width:900px;margin:32px auto;padding:0 18px}
+    h1{font-weight:800;font-size:clamp(26px,4vw,34px);margin:0 0 8px} .subtitle{color:var(--muted);font-size:15px;margin-bottom:28px}
+    .card{background:var(--panel);border-radius:16px;padding:24px;border:1px solid #94a3b82f;margin-bottom:20px}
+    label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:8px}
+    .row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:16px}
+    input[type="number"]{width:80px;padding:10px;border-radius:10px;border:1px solid #94a3b83f;background:var(--panel);color:var(--text);font-size:16px}
+    select{padding:10px 14px;border-radius:10px;border:1px solid #94a3b83f;background:var(--panel);color:var(--text);font:14px Inter,sans-serif}
+    textarea{width:100%;min-height:160px;padding:14px;border-radius:12px;border:1px solid #94a3b83f;background:#0c1222;color:var(--text);font:14px/1.6 Inter,sans-serif;resize:vertical}
+    .out-url{font:14px JetBrains Mono,monospace;word-break:break-all;padding:10px;border-radius:10px;background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.4);margin-top:12px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    footer{padding:24px 18px;color:var(--muted);text-align:center;border-top:1px solid #94a3b826}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header><div class="bar"><div class="brand"><a href="index.html"><span class="logo" aria-hidden="true"></span>CODELYFE</a></div><a class="btn" href="index.html">Home</a></div></header>
+    <main>
+      <h1>Lorem & Placeholder</h1>
+      <p class="subtitle">Generate placeholder text in multiple flavors and image URLs for mockups.</p>
+      <div class="card">
+        <label>Placeholder text</label>
+        <div class="row">
+          <label style="margin:0">Flavor:</label>
+          <select id="flavor">
+            <option value="lorem">Lorem Ipsum</option>
+            <option value="pirate">Pirate</option>
+            <option value="bacon">Bacon</option>
+            <option value="hipster">Hipster</option>
+            <option value="zombie">Zombie</option>
+          </select>
+          <label style="margin:0">Count:</label>
+          <select id="unit"><option value="words">Words</option><option value="sentences">Sentences</option><option value="paragraphs">Paragraphs</option></select>
+          <input type="number" id="count" min="1" max="500" value="50" />
+          <button type="button" class="btn" id="genText">Generate</button>
+        </div>
+        <textarea id="textOut" placeholder="Generated text will appear here…" readonly></textarea>
+        <div class="toolbar"><button type="button" class="btn" id="copyText">Copy text</button></div>
+        <label style="margin-top:24px">Placeholder image URL</label>
+        <p class="subtitle" style="margin-bottom:8px">Use in &lt;img src="…"&gt; for mockups. Size in pixels.</p>
+        <div class="row">
+          <input type="number" id="imgW" placeholder="Width" value="400" min="1" max="2000" style="width:100px" />
+          <span style="color:var(--muted)">×</span>
+          <input type="number" id="imgH" placeholder="Height" value="300" min="1" max="2000" style="width:100px" />
+          <button type="button" class="btn" id="genImg">Get URL</button>
+        </div>
+        <div class="out-url" id="imgUrl"></div>
+      </div>
+    </main>
+    <footer><a href="index.html">Codelyfe</a> — Lorem & placeholder</footer>
+  </div>
+  <script>
+(function(){
+  var flavors = {
+    lorem: "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum".split(" "),
+    pirate: "Ahoy matey bilge rat keelhaul scallywag doubloon grog blossom parley walk the plank hornswaggle careen yardarm pillage lass marooned crow's nest splice the main brace black spot driver hang the jib ballast".split(" "),
+    bacon: "Bacon ipsum dolor amet short ribs brisket pastrami pork belly pork chop strip steak tenderloin landjaeger ball tip ham hock t-bone tail kielbasa sausage chicken tri-tip rump boudin".split(" "),
+    hipster: "Artisan cold-pressed sustainable craft beer vinyl fixie kale chips meditation roof party umami aesthetic selvage retro typewriter chia microdosing".split(" "),
+    zombie: "Zombie brains braaains flesh undead virus apocalypse survivor bite corpse reanimate decay groaning stumble moan hunger brains".split(" ")
+  };
+  var sentences = {
+    lorem: ["Lorem ipsum dolor sit amet.", "Consectetur adipiscing elit.", "Sed do eiusmod tempor incididunt.", "Ut labore et dolore magna aliqua.", "Duis aute irure dolor in reprehenderit."],
+    pirate: ["Ahoy, ye scallywag!", "Shiver me timbers.", "Walk the plank, matey.", "Avast, thar she blows!", "Dead men tell no tales."],
+    bacon: ["Bacon ipsum dolor amet.", "Short ribs brisket pastrami.", "Pork belly pork chop.", "Tenderloin landjaeger ball tip.", "Ham hock t-bone tail."],
+    hipster: ["Artisan cold-pressed sustainable.", "Craft beer vinyl fixie.", "Kale chips meditation.", "Roof party umami aesthetic.", "Chia microdosing."],
+    zombie: ["Brains. Braaains.", "Flesh undead virus.", "Apocalypse survivor.", "Bite corpse reanimate.", "Groaning stumble moan."]
+  };
+  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+  function genWords(flavor, n){ var w = flavors[flavor] || flavors.lorem; var out = []; for (var i = 0; i < n; i++) out.push(pick(w)); return out.join(" "); }
+  function genSentences(flavor, n){ var s = sentences[flavor] || sentences.lorem; var out = []; for (var i = 0; i < n; i++) out.push(pick(s)); return out.join(" "); }
+  function genParagraphs(flavor, n){ var out = []; for (var i = 0; i < n; i++) out.push(genSentences(flavor, 4 + Math.floor(Math.random() * 4))); return out.join("\n\n"); }
+  document.getElementById("genText").addEventListener("click", function(){
+    var flavor = document.getElementById("flavor").value;
+    var unit = document.getElementById("unit").value;
+    var count = Math.max(1, Math.min(500, parseInt(document.getElementById("count").value, 10) || 50));
+    var text = unit === "words" ? genWords(flavor, count) : unit === "sentences" ? genSentences(flavor, count) : genParagraphs(flavor, count);
+    document.getElementById("textOut").value = text;
+  });
+  document.getElementById("copyText").addEventListener("click", function(){ var t = document.getElementById("textOut").value; if (t) navigator.clipboard.writeText(t); });
+  document.getElementById("genImg").addEventListener("click", function(){
+    var w = Math.max(1, parseInt(document.getElementById("imgW").value, 10) || 400);
+    var h = Math.max(1, parseInt(document.getElementById("imgH").value, 10) || 300);
+    var url = "https://picsum.photos/" + w + "/" + h + "?random=" + Date.now();
+    document.getElementById("imgUrl").textContent = url;
+  });
+})();
+  </script>
+</body>
+</html>
