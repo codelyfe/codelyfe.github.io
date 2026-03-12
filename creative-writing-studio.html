@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Creative Writing Studio — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#020617;--panel2:#0f172a;--text:#e5f0ff;--muted:#9ca3af;--brand:#0ea5e9;--accent:#f97316;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent)}
+    @media(prefers-color-scheme:light){
+      :root{--bg:#f8fafc;--panel:#f8fafc;--panel2:#ffffff;--text:#020617;--muted:#4b5563}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:15px/1.55 Inter,system-ui,sans-serif;color:var(--text);
+      background:
+        radial-gradient(900px 520px at 80% -10%,rgba(56,189,248,.24),transparent 60%),
+        radial-gradient(780px 480px at -10% -10%,rgba(249,115,22,.25),transparent 55%),
+        var(--bg,#020617);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,textarea:focus-visible,select:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.94),rgba(15,23,42,.6));border-bottom:1px solid rgba(148,163,184,.3)}
+    .bar{max-width:980px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:8px}
+    .logo{width:28px;height:28px;border-radius:10px;background:conic-gradient(from 0deg,var(--brand),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.7),0 10px 24px rgba(15,23,42,.72)}
+    .btn{border:1px solid rgba(148,163,184,.45);background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.9));color:var(--text);padding:7px 13px;border-radius:999px;cursor:pointer;font:600 13px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;box-shadow:0 12px 34px rgba(15,23,42,.8);transition:transform .2s,box-shadow .2s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 18px 46px rgba(15,23,42,.9)}
+    main{max-width:980px;margin:26px auto;padding:0 16px 32px}
+    h1{margin:0 0 4px;font-size:clamp(23px,4vw,30px);font-weight:800}
+    .subtitle{margin:0 0 18px;color:var(--muted);max-width:46rem}
+    .layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;align-items:flex-start}
+    @media(max-width:880px){.layout{grid-template-columns:1fr;}}
+    .card{background:radial-gradient(circle at top left,rgba(148,163,184,.4),transparent 55%),var(--panel2);border-radius:18px;padding:16px 16px 14px;border:1px solid rgba(148,163,184,.4);box-shadow:0 18px 45px rgba(15,23,42,.85)}
+    label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+    select,textarea,input[type="text"]{
+      width:100%;padding:7px 9px;border-radius:10px;border:1px solid rgba(148,163,184,.55);
+      background:radial-gradient(circle at top left,rgba(15,23,42,.3),transparent 60%),var(--panel2);
+      color:var(--text);font:13px/1.4 Inter,system-ui,sans-serif;
+    }
+    textarea{min-height:260px;resize:vertical}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .row>div{flex:1 1 120px}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+    .chip-btn{border-radius:999px;border:1px solid rgba(148,163,184,.55);padding:3px 8px;font-size:11px;color:var(--muted);cursor:pointer;background:rgba(15,23,42,.7)}
+    .chip-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .small{font-size:11px;color:var(--muted);margin-top:4px}
+    .prompt{font-size:13px;color:var(--muted);margin-top:8px;padding:8px 9px;border-radius:10px;border:1px dashed rgba(148,163,184,.5);background:rgba(15,23,42,.7)}
+    .counter{font-size:11px;color:var(--muted);margin-top:4px;text-align:right}
+    footer{padding:18px 16px 22px;border-top:1px solid rgba(148,163,184,.35);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(15,23,42,.8),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.5);background:radial-gradient(circle at top left,rgba(148,163,184,.3),transparent 60%),rgba(15,23,42,.95)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Creative Writing Studio</h1>
+      <p class="subtitle">
+        Mix random prompts, characters, and settings to beat writer’s block. Everything stays in your browser —
+        no saving or tracking.
+      </p>
+
+      <div class="layout">
+        <section class="card" aria-label="Prompt builder">
+          <div class="row">
+            <div>
+              <label for="tone">Tone</label>
+              <select id="tone">
+                <option value="wholesome">Wholesome</option>
+                <option value="mysterious">Mysterious</option>
+                <option value="epic">Epic</option>
+                <option value="slice-of-life">Slice of life</option>
+                <option value="sci-fi">Sci‑fi</option>
+              </select>
+            </div>
+            <div>
+              <label for="length">Length target</label>
+              <select id="length">
+                <option value="100">Micro (100 words)</option>
+                <option value="300" selected>Short (300 words)</option>
+                <option value="800">Scene (800 words)</option>
+                <option value="1500">Chapter (1.5k words)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label for="setting">Setting</label>
+              <input id="setting" type="text" placeholder="Optional: neon city rooftop, small-town diner…" />
+            </div>
+            <div>
+              <label for="character">Main character</label>
+              <input id="character" type="text" placeholder="Optional: retired hacker, anxious barista…" />
+            </div>
+          </div>
+          <div class="chips" id="chips">
+            <button type="button" class="chip-btn" data-tag="unexpected visitor">Unexpected visitor</button>
+            <button type="button" class="chip-btn" data-tag="broken promise">Broken promise</button>
+            <button type="button" class="chip-btn" data-tag="found message">Found message</button>
+            <button type="button" class="chip-btn" data-tag="time pressure">Time pressure</button>
+            <button type="button" class="chip-btn" data-tag="secret talent">Secret talent</button>
+          </div>
+          <button class="btn" id="promptBtn" type="button" style="margin-top:10px">🎲 New prompt</button>
+          <p class="prompt" id="promptText">
+            Click “New prompt” to generate a starting idea using the options above.
+          </p>
+          <p class="small">
+            Use prompts as a loose direction — change anything you like. This is your story.
+          </p>
+        </section>
+
+        <section class="card" aria-label="Draft area">
+          <label for="draft">Your draft</label>
+          <textarea id="draft" spellcheck="true" placeholder="Start writing here. Nothing is sent anywhere — this is just a scratchpad in your browser."></textarea>
+          <div class="counter" id="counter">0 words • target 300</div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+            <button class="btn" type="button" id="clearBtn">Clear</button>
+            <button class="btn" type="button" id="copyBtn">Copy text</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Creativity helper</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const tone = document.getElementById("tone");
+      const lengthSel = document.getElementById("length");
+      const setting = document.getElementById("setting");
+      const character = document.getElementById("character");
+      const chips = document.getElementById("chips");
+      const promptBtn = document.getElementById("promptBtn");
+      const promptText = document.getElementById("promptText");
+      const draft = document.getElementById("draft");
+      const counter = document.getElementById("counter");
+      const clearBtn = document.getElementById("clearBtn");
+      const copyBtn = document.getElementById("copyBtn");
+
+      const toneSnippets = {
+        wholesome:["about choosing kindness when it’s inconvenient","where strangers accidentally become found family","about a small risk that changes someone’s week"],
+        mysterious:["after something ordinary appears in an impossible place","where everyone shares a secret except the main character","in a town that pretends nothing strange is happening"],
+        epic:["on the night before everything changes","when an old myth starts bleeding into reality","where a quiet choice tilts the fate of a crowd"],
+        "slice-of-life":["set during a perfectly average weekday that isn’t","where a tiny misunderstanding spirals into something sweet","about the comfort of a repeated routine"],
+        "sci-fi":["after a glitch in a system nobody questions","on the edge between analog and digital worlds","where yesterday’s tech becomes suddenly dangerous"]
+      };
+
+      function sample(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+      chips.addEventListener("click",e=>{
+        const btn=e.target.closest("button[data-tag]");
+        if(!btn) return;
+        const t=btn.dataset.tag;
+        if(!setting.value) setting.value=t;
+        else if(!character.value) character.value=t;
+        else draft.value += (draft.value ? "\n" : "") + t.toUpperCase()+" — ";
+        updateCount();
+      });
+
+      promptBtn.addEventListener("click",()=>{
+        const toneKey = tone.value in toneSnippets ? tone.value : "wholesome";
+        const len = parseInt(lengthSel.value,10)||300;
+        const base = "Write a scene ";
+        const mood = sample(toneSnippets[toneKey]);
+        const place = setting.value ? " set in "+setting.value.trim() : " in a place you know well";
+        const who = character.value ? " Focus on "+character.value.trim()+"," : " Invent someone who really doesn’t want to be where they are,";
+        const twist = " and give them "+sample(["a very small but specific goal.","a choice between two imperfect options.","a memory that keeps interrupting the moment.","a question they’re afraid to ask."]);
+        promptText.textContent = base + mood + place + ". " + who + twist + " Aim for about "+len+" words, but ignore the number if the story wants more.";
+        updateCount();
+      });
+
+      function updateCount(){
+        const text = draft.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        const target = parseInt(lengthSel.value,10)||300;
+        counter.textContent = words+" words • target "+target;
+      }
+
+      draft.addEventListener("input",updateCount);
+      lengthSel.addEventListener("change",updateCount);
+
+      clearBtn.addEventListener("click",()=>{
+        if(draft.value && !confirm("Clear the draft? This cannot be undone.")) return;
+        draft.value="";
+        updateCount();
+      });
+
+      copyBtn.addEventListener("click",()=>{
+        if(!navigator.clipboard){draft.select();document.execCommand("copy");return;}
+        navigator.clipboard.writeText(draft.value||"").catch(()=>{});
+      });
+
+      updateCount();
+    })();
+  </script>
+</body>
+</html>
+

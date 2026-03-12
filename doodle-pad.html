@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Doodle Pad & Sketchboard — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#020617;--panel2:#020617;--text:#e5f0ff;--muted:#9ca3af;--brand:#0ea5e9;--accent:#fbbf24;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent)}
+    @media(prefers-color-scheme:light){
+      :root{--bg:#f8fafc;--panel:#f8fafc;--panel2:#ffffff;--text:#020617;--muted:#4b5563}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:15px/1.55 Inter,system-ui,sans-serif;color:var(--text);
+      background:
+        radial-gradient(900px 520px at 80% -10%,rgba(56,189,248,.24),transparent 60%),
+        radial-gradient(780px 480px at -10% -10%,rgba(251,191,36,.25),transparent 55%),
+        var(--bg,#020617);
+      overflow:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:20;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.94),rgba(15,23,42,.7));border-bottom:1px solid rgba(148,163,184,.3)}
+    .bar{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:8px}
+    .logo{width:26px;height:26px;border-radius:10px;background:conic-gradient(from 0deg,var(--brand),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.7),0 8px 22px rgba(15,23,42,.72)}
+    .btn{border:1px solid rgba(148,163,184,.45);background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.9));color:var(--text);padding:6px 11px;border-radius:999px;cursor:pointer;font:600 13px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;box-shadow:0 10px 30px rgba(15,23,42,.8);transition:transform .18s,box-shadow .18s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 16px 40px rgba(15,23,42,.9)}
+    main{max-width:1100px;margin:8px auto 0;padding:0 16px 12px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+    .swatch{width:22px;height:22px;border-radius:999px;border:2px solid rgba(15,23,42,.9);cursor:pointer;box-shadow:0 0 0 1px rgba(148,163,184,.4)}
+    .swatch[data-active="1"]{box-shadow:0 0 0 2px #e5e7eb,0 0 0 4px rgba(56,189,248,.9)}
+    input[type="range"]{width:120px}
+    .label{font-size:12px;color:var(--muted)}
+    .canvas-wrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(148,163,184,.5);box-shadow:0 18px 45px rgba(15,23,42,.9);background:radial-gradient(circle at top left,rgba(148,163,184,.45),transparent 60%),var(--panel2)}
+    #pad{display:block;width:100%;height:calc(100vh - 170px);touch-action:none;cursor:crosshair}
+    @media(max-width:640px){#pad{height:calc(100vh - 190px)}}
+    .hint{position:absolute;left:10px;bottom:8px;font-size:11px;color:rgba(148,163,184,.9);background:rgba(15,23,42,.8);padding:3px 7px;border-radius:999px}
+    footer{padding:10px 16px 18px;border-top:1px solid rgba(148,163,184,.35);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(15,23,42,.8),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:5px 9px;border-radius:999px;border:1px solid rgba(148,163,184,.5);background:radial-gradient(circle at top left,rgba(148,163,184,.3),transparent 60%),rgba(15,23,42,.95)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="toolbar" aria-label="Drawing controls">
+        <span class="label">Color</span>
+        <button type="button" class="swatch" data-color="#e5e7eb" style="background:#e5e7eb" data-active="1"></button>
+        <button type="button" class="swatch" data-color="#f97316" style="background:#f97316"></button>
+        <button type="button" class="swatch" data-color="#22c55e" style="background:#22c55e"></button>
+        <button type="button" class="swatch" data-color="#0ea5e9" style="background:#0ea5e9"></button>
+        <button type="button" class="swatch" data-color="#a855f7" style="background:#a855f7"></button>
+        <button type="button" class="swatch" data-color="#facc15" style="background:#facc15"></button>
+        <span class="label" style="margin-left:10px">Size</span>
+        <input id="size" type="range" min="1" max="40" value="6" />
+        <span class="label" id="sizeLabel">6px</span>
+        <button class="btn" id="erase" type="button">Eraser</button>
+        <button class="btn" id="clear" type="button">Clear</button>
+        <button class="btn" id="download" type="button">Download PNG</button>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="pad" aria-label="Drawing canvas"></canvas>
+        <div class="hint">Tip: Use your mouse or finger. Hold Shift while drawing for straighter lines.</div>
+      </div>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Doodle anything</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const canvas = document.getElementById("pad");
+      const ctx = canvas.getContext("2d");
+      const size = document.getElementById("size");
+      const sizeLabel = document.getElementById("sizeLabel");
+      const swatches = Array.from(document.querySelectorAll(".swatch"));
+      const eraseBtn = document.getElementById("erase");
+      const clearBtn = document.getElementById("clear");
+      const downloadBtn = document.getElementById("download");
+
+      let drawing = false;
+      let lastX = 0, lastY = 0;
+      let brushColor = "#e5e7eb";
+      let erasing = false;
+
+      function resize(){
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio||1,2);
+        canvas.width = rect.width*dpr;
+        canvas.height = rect.height*dpr;
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.scale(dpr,dpr);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.fillStyle = "rgba(15,23,42,1)";
+        ctx.fillRect(0,0,rect.width,rect.height);
+      }
+
+      window.addEventListener("resize", resize);
+      resize();
+
+      swatches.forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          swatches.forEach(b=>b.removeAttribute("data-active"));
+          btn.setAttribute("data-active","1");
+          brushColor = btn.dataset.color;
+          erasing = false;
+          eraseBtn.textContent = "Eraser";
+        });
+      });
+
+      size.addEventListener("input",()=>{
+        sizeLabel.textContent = size.value+"px";
+      });
+
+      function pointerPos(e){
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {x: clientX-rect.left, y: clientY-rect.top};
+      }
+
+      function start(e){
+        e.preventDefault();
+        drawing = true;
+        const p = pointerPos(e);
+        lastX = p.x; lastY = p.y;
+      }
+      function move(e){
+        if(!drawing) return;
+        e.preventDefault();
+        const p = pointerPos(e);
+        ctx.strokeStyle = erasing ? "rgba(15,23,42,1)" : brushColor;
+        ctx.lineWidth = parseFloat(size.value)||6;
+        ctx.beginPath();
+        ctx.moveTo(lastX,lastY);
+        ctx.lineTo(p.x,p.y);
+        ctx.stroke();
+        lastX = p.x; lastY = p.y;
+      }
+      function end(){
+        drawing = false;
+      }
+
+      canvas.addEventListener("mousedown", start);
+      canvas.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", end);
+
+      canvas.addEventListener("touchstart", start,{passive:false});
+      canvas.addEventListener("touchmove", move,{passive:false});
+      canvas.addEventListener("touchend", end);
+      canvas.addEventListener("touchcancel", end);
+
+      eraseBtn.addEventListener("click",()=>{
+        erasing = !erasing;
+        eraseBtn.textContent = erasing ? "Brush" : "Eraser";
+      });
+
+      clearBtn.addEventListener("click",()=>{
+        const rect = canvas.getBoundingClientRect();
+        ctx.fillStyle = "rgba(15,23,42,1)";
+        ctx.fillRect(0,0,rect.width,rect.height);
+      });
+
+      downloadBtn.addEventListener("click",()=>{
+        const link = document.createElement("a");
+        link.download = "doodle.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    })();
+  </script>
+</body>
+</html>
+

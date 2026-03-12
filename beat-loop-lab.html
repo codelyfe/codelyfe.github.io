@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Beat Loop Lab — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#020617;--panel2:#020617;--text:#e5f0ff;--muted:#9ca3af;--brand:#0ea5e9;--accent:#22c55e;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent)}
+    @media(prefers-color-scheme:light){
+      :root{--bg:#020617;--panel:#020617;--panel2:#020617;--text:#e5f0ff;--muted:#9ca3af}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:15px/1.55 Inter,system-ui,sans-serif;color:var(--text);
+      background:radial-gradient(900px 520px at 80% -10%,rgba(56,189,248,.4),transparent 60%),radial-gradient(780px 480px at -10% -10%,rgba(34,197,94,.35),transparent 55%),#020617;
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:20;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(15,23,42,.85));border-bottom:1px solid rgba(148,163,184,.3)}
+    .bar{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:8px}
+    .logo{width:26px;height:26px;border-radius:10px;background:conic-gradient(from 0deg,var(--brand),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.9),0 10px 26px rgba(15,23,42,.9)}
+    .btn{border:1px solid rgba(148,163,184,.45);background:radial-gradient(circle at top left,rgba(15,23,42,1),rgba(15,23,42,.9));color:var(--text);padding:6px 11px;border-radius:999px;cursor:pointer;font:600 13px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;box-shadow:0 12px 36px rgba(0,0,0,.9);transition:transform .18s,box-shadow .18s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 18px 50px rgba(0,0,0,1)}
+    main{max-width:980px;margin:18px auto 0;padding:0 16px 18px}
+    h1{margin:0 0 4px;font-size:clamp(23px,4vw,30px);font-weight:800}
+    .subtitle{margin:0 0 12px;color:var(--muted);max-width:46rem}
+    .card{background:radial-gradient(circle at top left,rgba(15,23,42,1),rgba(15,23,42,.96));border-radius:18px;padding:14px 14px 12px;border:1px solid rgba(148,163,184,.5);box-shadow:0 26px 80px rgba(0,0,0,1)}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+    .controls span{font-size:12px;color:var(--muted)}
+    input[type="range"]{width:140px}
+    .grid{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:3px;margin-top:6px}
+    .lane-label{grid-column:1/-1;margin-top:10px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px}
+    .step{position:relative;width:100%;aspect-ratio:1/1;border-radius:6px;border:1px solid rgba(148,163,184,.5);cursor:pointer;background:radial-gradient(circle at top left,rgba(15,23,42,1),rgba(15,23,42,.9))}
+    .step[data-on="1"]{background:linear-gradient(135deg,#22c55e,#0ea5e9);box-shadow:0 0 0 1px rgba(15,23,42,1),0 0 14px rgba(34,197,94,.9)}
+    .step[data-play="1"]::after{content:"";position:absolute;inset:2px;border-radius:4px;border:1px solid #facc15;box-shadow:0 0 0 1px rgba(250,204,21,.8)}
+    .hint{margin-top:6px;font-size:11px;color:var(--muted)}
+    footer{padding:10px 16px 18px;border-top:1px solid rgba(148,163,184,.35);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(15,23,42,.95),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:5px 9px;border-radius:999px;border:1px solid rgba(148,163,184,.5);background:radial-gradient(circle at top left,rgba(15,23,42,1),rgba(15,23,42,.9))}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Beat Loop Lab</h1>
+      <p class="subtitle">
+        Tap steps on the grid to program a tiny drum loop that plays in your browser. Works best on headphones.
+      </p>
+
+      <section class="card" aria-label="Sequencer">
+        <div class="controls">
+          <button class="btn" id="play" type="button">▶ Play</button>
+          <button class="btn" id="stop" type="button">■ Stop</button>
+          <button class="btn" id="clear" type="button">✕ Clear</button>
+          <span>BPM <input id="bpm" type="range" min="60" max="180" value="96" /> <span id="bpmLabel">96</span></span>
+          <span>Shuffle <input id="swing" type="range" min="0" max="0.2" step="0.02" value="0.04" /> <span id="swingLabel">Subtle</span></span>
+        </div>
+
+        <div class="lane-label">Kick</div>
+        <div class="grid" id="kickRow"></div>
+        <div class="lane-label">Snare</div>
+        <div class="grid" id="snareRow"></div>
+        <div class="lane-label">Hi‑hat</div>
+        <div class="grid" id="hatRow"></div>
+
+        <p class="hint">
+          Tip: Try kicks on 1 and 9, snares on 5 and 13, and hats on every second step for a basic groove.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Tiny drum machine</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      let nextTime = 0;
+      let currentStep = 0;
+      let playing = false;
+      const steps = 16;
+
+      const bpm = document.getElementById("bpm");
+      const bpmLabel = document.getElementById("bpmLabel");
+      const swing = document.getElementById("swing");
+      const swingLabel = document.getElementById("swingLabel");
+
+      const kickRow = document.getElementById("kickRow");
+      const snareRow = document.getElementById("snareRow");
+      const hatRow = document.getElementById("hatRow");
+      const playBtn = document.getElementById("play");
+      const stopBtn = document.getElementById("stop");
+      const clearBtn = document.getElementById("clear");
+
+      function makeRow(rowId){
+        const row = rowId;
+        for(let i=0;i<steps;i++){
+          const div = document.createElement("button");
+          div.type="button";
+          div.className="step";
+          div.dataset.on = "0";
+          div.dataset.step = String(i);
+          div.addEventListener("click",()=>{
+            div.dataset.on = div.dataset.on === "1" ? "0" : "1";
+          });
+          row.appendChild(div);
+        }
+      }
+      makeRow(kickRow);
+      makeRow(snareRow);
+      makeRow(hatRow);
+
+      function tick(){
+        if(!playing) return;
+        const lookAhead = 0.1;
+        const interval = (60/parseFloat(bpm.value||96))/4;
+        while(nextTime < ctx.currentTime + lookAhead){
+          scheduleStep(currentStep,nextTime);
+          const isEven = currentStep % 2 === 1;
+          const swingAmt = parseFloat(swing.value||0);
+          const offset = isEven ? swingAmt*interval : 0;
+          nextTime += interval + offset;
+          currentStep = (currentStep+1)%steps;
+        }
+        requestAnimationFrame(tick);
+      }
+
+      function scheduleStep(step,time){
+        const markStep = (row)=>{
+          const cells = row.querySelectorAll(".step");
+          cells.forEach((c,i)=>c.dataset.play = i===step ? "1":"0");
+        };
+        markStep(kickRow);
+        markStep(snareRow);
+        markStep(hatRow);
+
+        if(kickRow.querySelector('.step[data-step="'+step+'"][data-on="1"]')) playKick(time);
+        if(snareRow.querySelector('.step[data-step="'+step+'"][data-on="1"]')) playSnare(time);
+        if(hatRow.querySelector('.step[data-step="'+step+'"][data-on="1"]')) playHat(time);
+      }
+
+      function envNode(time,dur){
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0,time);
+        gain.gain.linearRampToValueAtTime(1,time+0.001);
+        gain.gain.exponentialRampToValueAtTime(0.001,time+dur);
+        gain.connect(ctx.destination);
+        return gain;
+      }
+
+      function playKick(time){
+        const osc = ctx.createOscillator();
+        const gain = envNode(time,0.25);
+        osc.type="sine";
+        osc.frequency.setValueAtTime(120,time);
+        osc.frequency.exponentialRampToValueAtTime(40,time+0.25);
+        osc.connect(gain);
+        osc.start(time);
+        osc.stop(time+0.26);
+      }
+      function playSnare(time){
+        const noiseBuf = ctx.createBuffer(1,ctx.sampleRate*0.2,ctx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuf;
+        const filter = ctx.createBiquadFilter();
+        filter.type="highpass";
+        filter.frequency.setValueAtTime(800,time);
+        const gain = envNode(time,0.18);
+        noise.connect(filter);
+        filter.connect(gain);
+        noise.start(time);
+        noise.stop(time+0.2);
+      }
+      function playHat(time){
+        const noiseBuf = ctx.createBuffer(1,ctx.sampleRate*0.05,ctx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuf;
+        const filter = ctx.createBiquadFilter();
+        filter.type="highpass";
+        filter.frequency.setValueAtTime(6000,time);
+        const gain = envNode(time,0.08);
+        noise.connect(filter);
+        filter.connect(gain);
+        noise.start(time);
+        noise.stop(time+0.09);
+      }
+
+      playBtn.addEventListener("click",async()=>{
+        if(ctx.state==="suspended") await ctx.resume();
+        if(playing) return;
+        playing = true;
+        nextTime = ctx.currentTime+0.05;
+        tick();
+      });
+      stopBtn.addEventListener("click",()=>{
+        playing = false;
+        [kickRow,snareRow,hatRow].forEach(row=>{
+          row.querySelectorAll(".step").forEach(c=>c.dataset.play="0");
+        });
+      });
+      clearBtn.addEventListener("click",()=>{
+        [kickRow,snareRow,hatRow].forEach(row=>{
+          row.querySelectorAll(".step").forEach(c=>{c.dataset.on="0";c.dataset.play="0";});
+        });
+      });
+
+      bpm.addEventListener("input",()=>{bpmLabel.textContent=bpm.value;});
+      swing.addEventListener("input",()=>{
+        const v=parseFloat(swing.value||0);
+        swingLabel.textContent = v===0 ? "Off" : v<0.08 ? "Subtle" : v<0.14 ? "Groovy" : "Heavy";
+      });
+      swing.dispatchEvent(new Event("input"));
+    })();
+  </script>
+</body>
+</html>
+

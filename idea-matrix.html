@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Idea Matrix — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c1222;
+      --surface: #111827;
+      --surface2: #1a2332;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --brand: #0ea5e9;
+      --accent: #a78bfa;
+      --border: rgba(148, 163, 184, 0.25);
+      --ring: 0 0 0 3px rgba(14, 165, 233, 0.4);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f1f5f9;
+        --surface: #ffffff;
+        --surface2: #f8fafc;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: rgba(15, 23, 42, 0.12);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; }
+    body {
+      font: 15px/1.5 Inter, system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    a { color: var(--brand); text-decoration: none; }
+    a:focus-visible, button:focus-visible, textarea:focus-visible { outline: none; box-shadow: var(--ring); }
+
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    header {
+      flex-shrink: 0;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .bar {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; }
+    .brand a { color: var(--text); }
+    .logo {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font: 600 13px/1 Inter, sans-serif;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: var(--surface); border-color: var(--brand); }
+    .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn.primary:hover { filter: brightness(1.1); }
+
+    main { flex: 1; max-width: 720px; margin: 0 auto; padding: 24px 16px 32px; width: 100%; }
+
+    h1 { margin: 0 0 6px; font-size: 1.75rem; font-weight: 800; }
+    .subtitle { margin: 0 0 24px; color: var(--muted); font-size: 14px; }
+
+    /* Inputs block */
+    .inputs {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .field { margin-bottom: 16px; }
+    .field:last-of-type { margin-bottom: 0; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font: 14px/1.45 Inter, sans-serif;
+      resize: vertical;
+    }
+    textarea::placeholder { color: var(--muted); opacity: 0.8; }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Concepts block */
+    .concepts-head { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .concepts-grid { grid-template-columns: 1fr; }
+    }
+    .concept-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 220px;
+      min-height: 220px;
+    }
+    .concept-card h3 {
+      margin: 0;
+      padding: 12px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .concept-body {
+      flex: 1;
+      padding: 12px 14px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
+    }
+    .concept-body::-webkit-scrollbar { width: 6px; }
+    .concept-body::-webkit-scrollbar-track { background: transparent; }
+    .concept-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .concept-idea { font-size: 14px; line-height: 1.45; word-break: break-word; margin-bottom: 10px; }
+    .concept-tags { font-size: 11px; color: var(--muted); line-height: 1.4; word-break: break-word; }
+    .empty-state { color: var(--muted); font-size: 14px; padding: 20px; text-align: center; }
+
+    footer {
+      flex-shrink: 0;
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html"><span class="logo" aria-hidden="true"></span> CODELYFE</a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Idea Matrix</h1>
+      <p class="subtitle">Combine problems, audiences, and mediums to get three random concept ideas. One idea per line in each box.</p>
+
+      <section class="inputs" aria-label="Your lists">
+        <div class="field">
+          <label for="problems">Problems / Needs</label>
+          <textarea id="problems" placeholder="e.g. staying focused at home&#10;learning in tiny sessions&#10;making chores less boring" rows="3"></textarea>
+          <p class="hint">Real frustrations or needs, one per line.</p>
+        </div>
+        <div class="field">
+          <label for="audiences">Audiences / People</label>
+          <textarea id="audiences" placeholder="e.g. remote workers&#10;students&#10;new parents" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label for="mediums">Mediums / Formats</label>
+          <textarea id="mediums" placeholder="e.g. tiny web app&#10;newsletter&#10;card deck" rows="3"></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="generate" type="button">Shuffle ideas</button>
+          <button class="btn" id="lockProblems" type="button">Lock problems</button>
+          <button class="btn" id="lockAudiences" type="button">Lock audiences</button>
+          <button class="btn" id="lockMediums" type="button">Lock mediums</button>
+        </div>
+      </section>
+
+      <p class="concepts-head">Generated concepts</p>
+      <div class="concepts-grid" id="matrix"></div>
+    </main>
+
+    <footer>Codelyfe · Idea Matrix</footer>
+  </div>
+
+  <script>
+    (function () {
+      const probs = document.getElementById("problems");
+      const auds = document.getElementById("audiences");
+      const meds = document.getElementById("mediums");
+      const matrix = document.getElementById("matrix");
+      const gen = document.getElementById("generate");
+      const lockP = document.getElementById("lockProblems");
+      const lockA = document.getElementById("lockAudiences");
+      const lockM = document.getElementById("lockMediums");
+
+      let lockedProblems = null;
+      let lockedAudiences = null;
+      let lockedMediums = null;
+
+      function parseLines(el) {
+        return (el.value || "").split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+      }
+
+      function sample(list, count) {
+        var arr = list.slice();
+        var out = [];
+        while (arr.length && out.length < count) {
+          var i = Math.floor(Math.random() * arr.length);
+          out.push(arr.splice(i, 1)[0]);
+        }
+        return out;
+      }
+
+      function buildMatrix() {
+        var p = lockedProblems !== null ? lockedProblems : parseLines(probs);
+        var a = lockedAudiences !== null ? lockedAudiences : parseLines(auds);
+        var m = lockedMediums !== null ? lockedMediums : parseLines(meds);
+
+        if (!p.length || !a.length || !m.length) {
+          matrix.innerHTML = '<p class="empty-state">Add at least one line to each list above, then click <strong>Shuffle ideas</strong>.</p>';
+          return;
+        }
+
+        var pPick = sample(p, 3);
+        var aPick = sample(a, 3);
+        var mPick = sample(m, 3);
+
+        matrix.innerHTML = "";
+        for (var i = 0; i < 3; i++) {
+          var prob = pPick[i] || p[0];
+          var aud = aPick[i] || a[0];
+          var med = mPick[i] || m[0];
+          var idea = "Help " + aud + " with " + prob + " using a " + med + ".";
+          var tags = prob + " · " + aud + " · " + med;
+
+          var card = document.createElement("div");
+          card.className = "concept-card";
+          card.innerHTML =
+            "<h3>Concept " + (i + 1) + "</h3>" +
+            "<div class=\"concept-body\">" +
+            "<p class=\"concept-idea\">" + escapeHtml(idea) + "</p>" +
+            "<div class=\"concept-tags\">" + escapeHtml(tags) + "</div>" +
+            "</div>";
+          matrix.appendChild(card);
+        }
+      }
+
+      function escapeHtml(s) {
+        var div = document.createElement("div");
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      gen.addEventListener("click", buildMatrix);
+      probs.addEventListener("input", function () { if (lockedProblems === null) buildMatrix(); });
+      auds.addEventListener("input", function () { if (lockedAudiences === null) buildMatrix(); });
+      meds.addEventListener("input", function () { if (lockedMediums === null) buildMatrix(); });
+
+      lockP.addEventListener("click", function () {
+        if (lockedProblems) { lockedProblems = null; lockP.textContent = "Lock problems"; }
+        else { lockedProblems = parseLines(probs); lockP.textContent = "Unlock problems"; }
+        buildMatrix();
+      });
+      lockA.addEventListener("click", function () {
+        if (lockedAudiences) { lockedAudiences = null; lockA.textContent = "Lock audiences"; }
+        else { lockedAudiences = parseLines(auds); lockA.textContent = "Unlock audiences"; }
+        buildMatrix();
+      });
+      lockM.addEventListener("click", function () {
+        if (lockedMediums) { lockedMediums = null; lockM.textContent = "Lock mediums"; }
+        else { lockedMediums = parseLines(meds); lockM.textContent = "Unlock mediums"; }
+        buildMatrix();
+      });
+
+      probs.value = "staying focused at home\nlearning complex topics in tiny sessions\nfinding calm during hectic days";
+      auds.value = "remote workers\nstudents\nnew parents\nsolo devs";
+      meds.value = "tiny web app\nprintable one-pager\n5-minute daily email\nsticky-note system";
+      buildMatrix();
+    })();
+  </script>
+</body>
+</html>
