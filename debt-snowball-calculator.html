@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Debt Snowball & Avalanche Planner — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#020617;--panel2:#0f172a;--text:#e5f0ff;--muted:#9ca3af;--brand:#0ea5e9;--accent:#a855f7;--good:#22c55e;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent);--glass:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.88))}
+    @media (prefers-color-scheme: light){
+      :root{--bg:#f8fafc;--panel:#f8fafc;--panel2:#ffffff;--text:#020617;--muted:#4b5563;--glass:linear-gradient(180deg,#ffffff,#f9fafb)}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:14px/1.55 Inter,system-ui,sans-serif;color:var(--text);
+      background:
+        radial-gradient(900px 500px at 80% -10%,rgba(56,189,248,.22),transparent 60%),
+        radial-gradient(800px 450px at -10% -10%,rgba(168,85,247,.25),transparent 55%),
+        var(--bg,#020617);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.9),rgba(15,23,42,.5));border-bottom:1px solid rgba(148,163,184,.25)}
+    .bar{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:8px}
+    .logo{width:28px;height:28px;border-radius:10px;background:conic-gradient(from 0deg,var(--brand),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.7),0 10px 24px rgba(15,23,42,.6)}
+    .btn{border:1px solid rgba(148,163,184,.4);background:var(--glass);color:var(--text);padding:8px 13px;border-radius:999px;cursor:pointer;font:600 13px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;box-shadow:0 10px 30px rgba(15,23,42,.75);transition:transform .22s,box-shadow .22s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 18px 40px rgba(15,23,42,.85)}
+    main{max-width:1040px;margin:26px auto;padding:0 16px 32px}
+    h1{margin:0 0 4px;font-size:clamp(23px,4vw,30px);font-weight:800}
+    .subtitle{margin:0 0 20px;color:var(--muted);max-width:48rem}
+    .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:18px;align-items:flex-start}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}}
+    .card{background:radial-gradient(circle at top left,rgba(148,163,184,.35),transparent 55%),var(--panel2);border-radius:18px;padding:16px 16px 14px;border:1px solid rgba(148,163,184,.35);box-shadow:0 18px 45px rgba(15,23,42,.8)}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th,td{padding:6px 4px;text-align:left}
+    th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid rgba(148,163,184,.35)}
+    tbody tr:nth-child(even){background-color:rgba(15,23,42,.28)}
+    input[type="number"],select{
+      width:100%;padding:6px 8px;border-radius:10px;border:1px solid rgba(148,163,184,.5);
+      background:radial-gradient(circle at top left,rgba(15,23,42,.3),transparent 60%),var(--panel2);
+      color:var(--text);font:12px/1.3 JetBrains Mono,monospace;
+    }
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+    .controls>div{flex:1 1 160px}
+    .strategy-toggle{display:inline-flex;border-radius:999px;border:1px solid rgba(148,163,184,.4);overflow:hidden}
+    .strategy-toggle button{border:0;background:transparent;color:var(--muted);padding:5px 9px;font-size:11px;cursor:pointer}
+    .strategy-toggle button[data-active="1"]{background:linear-gradient(90deg,var(--brand),var(--accent));color:#020617}
+    .small{font-size:11px;color:var(--muted);margin-top:4px}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px}
+    .summary-item{border-radius:14px;padding:9px 10px;background:radial-gradient(circle at top left,rgba(34,197,94,.28),transparent 60%),rgba(15,23,42,.9);border:1px solid rgba(34,197,94,.55)}
+    .summary-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .summary-value{font:700 16px/1.2 JetBrains Mono,monospace}
+    .summary-sub{font-size:11px;color:var(--muted);margin-top:3px}
+    .timeline{margin-top:10px}
+    .timeline-bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding:6px 4px;border-radius:14px;background:radial-gradient(circle at top,rgba(56,189,248,.22),transparent 70%),rgba(15,23,42,.95);border:1px solid rgba(148,163,184,.45);overflow-x:auto}
+    .tcol{flex:1 1 40px;min-width:40px;display:flex;flex-direction:column;align-items:center}
+    .bar{width:18px;border-radius:999px 999px 6px 6px;background:linear-gradient(180deg,var(--brand),var(--accent));position:relative;display:flex;align-items:flex-end;justify-content:center}
+    .bar small{position:absolute;bottom:3px;font-size:9px;color:#020617;font-weight:700}
+    .lab{margin-top:3px;font-size:10px;color:var(--muted);white-space:nowrap}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:11px;color:var(--muted)}
+    .legend span{display:inline-flex;align-items:center;gap:4px}
+    .dot{width:9px;height:9px;border-radius:999px;background:var(--brand)}
+    .note{margin-top:8px;font-size:11px;color:var(--muted)}
+    footer{padding:18px 16px 22px;border-top:1px solid rgba(148,163,184,.3);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(15,23,42,.8),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.5);background:radial-gradient(circle at top left,rgba(148,163,184,.3),transparent 60%),rgba(15,23,42,.95)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Debt Snowball & Avalanche Planner</h1>
+      <p class="subtitle">
+        See how quickly you can become debt‑free. Enter your debts, choose snowball (smallest balance)
+        or avalanche (highest rate), and visualize payoff time and interest saved.
+      </p>
+
+      <div class="layout">
+        <section class="card" aria-label="Debt list">
+          <div class="controls">
+            <div>
+              <label for="extraPay">Total budget for all debts (per month)</label>
+              <input id="extraPay" type="number" min="0" step="10" value="1200" />
+              <div class="small">This replaces the “minimums only” total. We’ll apply it using your strategy.</div>
+            </div>
+            <div>
+              <label>Strategy</label>
+              <div class="strategy-toggle" id="strategyToggle">
+                <button type="button" data-mode="snowball" data-active="1">Snowball</button>
+                <button type="button" data-mode="avalanche">Avalanche</button>
+              </div>
+              <div class="small">Snowball = smallest balance first. Avalanche = highest APR first.</div>
+            </div>
+          </div>
+
+          <table aria-label="Debts">
+            <thead>
+              <tr>
+                <th>Debt</th>
+                <th>Balance</th>
+                <th>APR %</th>
+                <th>Min / mo</th>
+              </tr>
+            </thead>
+            <tbody id="debtsBody">
+              <tr>
+                <td><input type="text" value="Credit Card" /></td>
+                <td><input type="number" value="4500" min="0" step="50" /></td>
+                <td><input type="number" value="23.9" min="0" step="0.1" /></td>
+                <td><input type="number" value="120" min="0" step="5" /></td>
+              </tr>
+              <tr>
+                <td><input type="text" value="Car Loan" /></td>
+                <td><input type="number" value="12000" min="0" step="50" /></td>
+                <td><input type="number" value="6.8" min="0" step="0.1" /></td>
+                <td><input type="number" value="260" min="0" step="5" /></td>
+              </tr>
+              <tr>
+                <td><input type="text" value="Student Loan" /></td>
+                <td><input type="number" value="24000" min="0" step="50" /></td>
+                <td><input type="number" value="4.9" min="0" step="0.1" /></td>
+                <td><input type="number" value="280" min="0" step="5" /></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" type="button" id="addDebt">+ Add debt</button>
+            <button class="btn" type="button" id="runBtn">Recalculate</button>
+          </div>
+          <p class="note">
+            Tip: Start by matching your actual minimums. Then increase the “Total budget” field to see how much
+            faster you could be out of debt.
+          </p>
+        </section>
+
+        <section class="card" aria-label="Results">
+          <div class="summary">
+            <div class="summary-item">
+              <div class="summary-label">Debt‑free in</div>
+              <div class="summary-value" id="monthsOut">0 mo</div>
+              <div class="summary-sub" id="yearsOut"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Total interest</div>
+              <div class="summary-value" id="interestOut">$0</div>
+              <div class="summary-sub" id="interestSavedOut"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">First win</div>
+              <div class="summary-value" id="firstOut">–</div>
+              <div class="summary-sub">Motivation from your first payoff</div>
+            </div>
+          </div>
+
+          <div class="timeline">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <strong style="font-size:13px">Payoff order & timeline</strong>
+              <span style="font-size:11px;color:var(--muted)">Height = months to pay that debt</span>
+            </div>
+            <div class="timeline-bars" id="timelineBars" role="img" aria-describedby="timelineDesc"></div>
+            <p id="timelineDesc" class="note">
+              Bars show each debt’s payoff time with your chosen strategy. Hover over a bar to see details.
+            </p>
+            <div class="legend">
+              <span><span class="dot"></span> Current strategy timeline</span>
+            </div>
+          </div>
+
+          <p class="note">
+            This is an estimate only. Real‑world results depend on fees, changing rates, and your actual payments.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Debt payoff helper</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const tbody = document.getElementById("debtsBody");
+      const extraPay = document.getElementById("extraPay");
+      const strategyToggle = document.getElementById("strategyToggle");
+      const runBtn = document.getElementById("runBtn");
+      const addDebtBtn = document.getElementById("addDebt");
+
+      const monthsOut = document.getElementById("monthsOut");
+      const yearsOut = document.getElementById("yearsOut");
+      const interestOut = document.getElementById("interestOut");
+      const interestSavedOut = document.getElementById("interestSavedOut");
+      const firstOut = document.getElementById("firstOut");
+      const bars = document.getElementById("timelineBars");
+
+      function fmtMoney(v){return isFinite(v)?v.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}):"-";}
+      function fmtMonths(m){if(!m)return"0 mo";return m+" mo";}
+
+      strategyToggle.querySelectorAll("button").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          strategyToggle.querySelectorAll("button").forEach(b=>b.removeAttribute("data-active"));
+          btn.setAttribute("data-active","1");
+          run();
+        });
+      });
+
+      addDebtBtn.addEventListener("click",()=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML = '<td><input type="text" value="New Debt" /></td>'
+          +'<td><input type="number" value="1000" min="0" step="50" /></td>'
+          +'<td><input type="number" value="18" min="0" step="0.1" /></td>'
+          +'<td><input type="number" value="50" min="0" step="5" /></td>';
+        tbody.appendChild(tr);
+      });
+
+      runBtn.addEventListener("click", run);
+      extraPay.addEventListener("change", run);
+      tbody.addEventListener("change", run);
+
+      function readDebts(){
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        return rows.map((tr,idx)=>{
+          const [nameEl,balEl,aprEl,minEl] = tr.querySelectorAll("input");
+          return {
+            id: idx,
+            name: nameEl.value || ("Debt "+(idx+1)),
+            balance: Math.max(0, parseFloat(balEl.value)||0),
+            rate: Math.max(0, parseFloat(aprEl.value)||0) / 100 / 12,
+            apr: Math.max(0, parseFloat(aprEl.value)||0),
+            min: Math.max(0, parseFloat(minEl.value)||0)
+          };
+        }).filter(d=>d.balance>0 && d.min>0);
+      }
+
+      function simulate(mode){
+        const debts = readDebts().map(d=>({...d,balance:d.balance,totalInterest:0,months:0,paidOffAt:null}));
+        if(!debts.length) return null;
+
+        const minTotal = debts.reduce((s,d)=>s+d.min,0);
+        let budget = Math.max(minTotal, parseFloat(extraPay.value)||0);
+        if(!budget || budget<=0) budget = minTotal;
+
+        let month=0;
+        let allPaid=false;
+        let order=[];
+        let maxMonths=1200;
+
+        while(!allPaid && month<maxMonths){
+          month++;
+          // Decide order this month
+          const active = debts.filter(d=>d.balance>0);
+          if(!active.length){ allPaid=true; break; }
+
+          active.sort((a,b)=>{
+            if(mode==="snowball"){
+              if(a.balance===b.balance) return b.apr-a.apr;
+              return a.balance-b.balance;
+            }else{
+              if(a.apr===b.apr) return a.balance-b.balance;
+              return b.apr-a.apr;
+            }
+          });
+
+          let pool = budget;
+          // First, pay minimums for all active
+          for(const d of active){
+            const due = Math.min(d.min, d.balance + d.balance*d.rate);
+            let interest = d.balance * d.rate;
+            if(interest<0) interest=0;
+            let pay = Math.min(due, pool);
+            if(pay<=0) continue;
+            const principal = Math.max(0, pay - interest);
+            d.balance = Math.max(0, d.balance - principal);
+            d.totalInterest += interest;
+            pool -= pay;
+          }
+
+          // Then, throw remaining pool at target according to strategy
+          if(pool>0){
+            const target = active[0];
+            if(target.balance>0){
+              const interest = target.balance * target.rate;
+              let pay = Math.min(pool, target.balance + interest);
+              const principal = Math.max(0, pay - interest);
+              target.balance = Math.max(0, target.balance - principal);
+              target.totalInterest += interest;
+              pool -= pay;
+            }
+          }
+
+          // mark payoff
+          for(const d of active){
+            if(d.balance<=0.01 && d.paidOffAt==null){
+              d.paidOffAt = month;
+              order.push(d);
+            }
+          }
+        }
+
+        const last = debts.reduce((m,d)=>Math.max(m,d.paidOffAt||0),0);
+        debts.forEach(d=>d.months=d.paidOffAt||last);
+
+        const totalInterest = debts.reduce((s,d)=>s+d.totalInterest,0);
+
+        // Baseline: paying only minimums
+        const baseline = simulateBaseline(readDebts());
+
+        return {debts, totalInterest, months:last, order, baseline};
+      }
+
+      function simulateBaseline(orig){
+        const debts = orig.map(d=>({...d,balance:d.balance,totalInterest:0,paidAt:null}));
+        let month=0;
+        let maxMonths=1200;
+        while(month<maxMonths){
+          month++;
+          let allDone=true;
+          for(const d of debts){
+            if(d.balance<=0) continue;
+            allDone=false;
+            const interest = d.balance * d.rate;
+            let pay = Math.min(d.min, d.balance + interest);
+            const principal = Math.max(0, pay - interest);
+            d.balance = Math.max(0, d.balance - principal);
+            d.totalInterest += interest;
+            if(d.balance<=0 && d.paidAt==null) d.paidAt = month;
+          }
+          if(allDone) break;
+        }
+        const last = debts.reduce((m,d)=>Math.max(m,d.paidAt||0),0);
+        const totalInterest = debts.reduce((s,d)=>s+d.totalInterest,0);
+        return {months:last,interest:totalInterest};
+      }
+
+      function run(){
+        const modeBtn = strategyToggle.querySelector("button[data-active='1']");
+        const mode = modeBtn ? modeBtn.dataset.mode : "snowball";
+        const result = simulate(mode);
+        if(!result){
+          monthsOut.textContent = "0 mo";
+          yearsOut.textContent = "";
+          interestOut.textContent = "$0";
+          interestSavedOut.textContent = "";
+          firstOut.textContent = "–";
+          bars.innerHTML = "";
+          return;
+        }
+
+        monthsOut.textContent = fmtMonths(result.months);
+        yearsOut.textContent = (result.months/12).toFixed(1).replace(/\.0$/,"") + " yrs";
+        interestOut.textContent = fmtMoney(result.totalInterest);
+
+        if(result.baseline){
+          const savedInt = result.baseline.interest - result.totalInterest;
+          const savedMonths = result.baseline.months - result.months;
+          interestSavedOut.textContent = (savedInt>0 || savedMonths>0)
+            ? fmtMoney(savedInt) + " interest • " + (savedMonths>0 ? savedMonths+" mo sooner" : "no time saved")
+            : "Uses about the same as minimums";
+        }else{
+          interestSavedOut.textContent = "";
+        }
+
+        if(result.order.length){
+          const first = result.order[0];
+          firstOut.textContent = first.name + " ("+fmtMonths(first.paidOffAt)+")";
+        }else{
+          firstOut.textContent = "–";
+        }
+
+        renderTimeline(result.debts);
+      }
+
+      function renderTimeline(debts){
+        bars.innerHTML = "";
+        if(!debts.length) return;
+        const maxM = debts.reduce((m,d)=>Math.max(m,d.months||0),0) || 1;
+        debts.forEach((d,idx)=>{
+          const col=document.createElement("div");
+          col.className="tcol";
+          const bar=document.createElement("div");
+          bar.className="bar";
+          bar.style.height = (d.months/maxM*100 || 2)+"%";
+          const sm=document.createElement("small");
+          sm.textContent = d.months;
+          bar.appendChild(sm);
+          bar.title = d.name+" — "+fmtMonths(d.months);
+          col.appendChild(bar);
+          const lab=document.createElement("div");
+          lab.className="lab";
+          lab.textContent = d.name;
+          col.appendChild(lab);
+          bars.appendChild(col);
+        });
+      }
+
+      run();
+    })();
+  </script>
+</body>
+</html>
+

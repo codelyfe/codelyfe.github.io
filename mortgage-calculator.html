@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Mortgage & Home Loan Planner — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#0f172a;--text:#e5f0ff;--muted:#9db3d1;--brand:#0ea5e9;--brand-2:#14b8a6;--accent:#a78bfa;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent);--glass:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));--speed:260ms}
+    @media (prefers-color-scheme: light){
+      :root{--bg:#f7fbff;--panel:#fff;--text:#020617;--muted:#475569;--glass:linear-gradient(180deg,#fff,#fff7)}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:15px/1.55 Inter,system-ui,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 80% -10%,rgba(56,189,248,.22),transparent 60%),
+        radial-gradient(800px 500px at -10% -10%,rgba(192,132,252,.22),transparent 55%),
+        var(--bg,#020617);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(2,8,23,.85),rgba(2,8,23,.4));border-bottom:1px solid rgba(148,163,184,.25)}
+    .bar{max-width:960px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:.6px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:10px}
+    .logo{width:30px;height:30px;border-radius:10px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.75),0 10px 24px rgba(15,118,210,.55)}
+    .btn{border:1px solid #94a3b83f;background:var(--glass);color:var(--text);padding:9px 14px;border-radius:999px;cursor:pointer;font:600 14px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:transform var(--speed),box-shadow var(--speed);box-shadow:0 10px 30px rgba(2,8,23,.45)}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 16px 40px rgba(15,23,42,.6)}
+    main{max-width:960px;margin:28px auto;padding:0 16px 32px}
+    h1{font-size:clamp(24px,4vw,32px);margin:0 0 6px;font-weight:800;letter-spacing:.3px}
+    .subtitle{margin:0 0 20px;color:var(--muted);max-width:46rem}
+    .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:18px;align-items:flex-start}
+    @media (max-width:840px){.layout{grid-template-columns:1fr}}
+    .card{background:var(--panel);border-radius:18px;padding:18px 18px 16px;border:1px solid rgba(148,163,184,.3);box-shadow:0 18px 45px rgba(15,23,42,.65)}
+    label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+    .field{margin-bottom:12px}
+    input[type="number"],input[type="text"],select{
+      width:100%;padding:9px 11px;border-radius:11px;border:1px solid rgba(148,163,184,.45);
+      background:radial-gradient(circle at top left,rgba(148,163,184,.15),transparent 55%),var(--panel);
+      color:var(--text);font:14px/1.3 JetBrains Mono,monospace;
+    }
+    input[type="range"]{width:100%}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row>.field{flex:1 1 120px}
+    .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+    .pill{border-radius:999px;padding:6px 9px;font-size:12px;border:1px solid rgba(148,163,184,.5);color:var(--muted);cursor:pointer;background:rgba(15,23,42,.65)}
+    .pill[data-active="1"]{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#0f172a;border-color:transparent}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:6px}
+    .summary-item{border-radius:14px;padding:10px 11px;background:radial-gradient(circle at top left,rgba(56,189,248,.25),transparent 60%),rgba(15,23,42,.85);border:1px solid rgba(148,163,184,.45)}
+    .summary-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    .summary-value{font:700 17px/1.2 JetBrains Mono,monospace}
+    .summary-sub{font-size:11px;color:var(--muted);margin-top:3px}
+    .chart{margin-top:10px}
+    .chart-bars{display:flex;align-items:flex-end;gap:8px;height:170px;padding:6px 4px;border-radius:14px;background:radial-gradient(circle at top,rgba(56,189,248,.24),transparent 65%),rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.45);overflow-x:auto}
+    .chart-bar{flex:1 1 40px;min-width:34px;border-radius:999px 999px 6px 6px;background:linear-gradient(180deg,var(--brand),var(--brand-2));position:relative;display:flex;align-items:flex-end;justify-content:center}
+    .chart-bar small{position:absolute;bottom:4px;font-size:10px;color:#0f172a;font-weight:700}
+    .chart-bar-label{margin-top:4px;font-size:10px;color:var(--muted);text-align:center;white-space:nowrap}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;color:var(--muted)}
+    .legend span{display:inline-flex;align-items:center;gap:4px}
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--brand)}
+    .dot.sec{background:var(--accent)}
+    .note{margin-top:10px;font-size:12px;color:var(--muted)}
+    footer{padding:18px 16px 22px;border-top:1px solid rgba(148,163,184,.28);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(2,8,23,.7),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.4);background:radial-gradient(circle at top left,rgba(148,163,184,.3),transparent 65%),rgba(15,23,42,.9)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Mortgage & Home Loan Planner</h1>
+      <p class="subtitle">
+        Estimate your monthly payment, total interest, and see how extra principal or a different term
+        changes your payoff over time. All calculations run locally in your browser.
+      </p>
+
+      <div class="layout">
+        <section class="card" aria-label="Inputs">
+          <div class="field">
+            <label for="homePrice">Home price</label>
+            <input id="homePrice" type="number" min="0" step="1000" value="400000" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="downPayment">Down payment</label>
+              <input id="downPayment" type="number" min="0" step="1000" value="80000" />
+            </div>
+            <div class="field">
+              <label for="interestRate">Interest rate (APR %)</label>
+              <input id="interestRate" type="number" min="0" step="0.01" value="6.5" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Loan term</label>
+            <div class="pill-row" id="termPills">
+              <button type="button" class="pill" data-years="15">15 years</button>
+              <button type="button" class="pill" data-years="20">20 years</button>
+              <button type="button" class="pill" data-years="30" data-active="1">30 years</button>
+            </div>
+            <input id="years" type="range" min="5" max="40" step="1" value="30" />
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">
+              <span id="yearsLabel">30</span> years
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="extra">Extra principal per month (optional)</label>
+            <input id="extra" type="number" min="0" step="50" value="0" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="taxes">Estimated yearly property tax</label>
+              <input id="taxes" type="number" min="0" step="100" value="6000" />
+            </div>
+            <div class="field">
+              <label for="insurance">Estimated yearly insurance</label>
+              <input id="insurance" type="number" min="0" step="50" value="1500" />
+            </div>
+          </div>
+
+          <button class="btn" type="button" id="calcBtn">Recalculate</button>
+        </section>
+
+        <section class="card" aria-label="Results">
+          <div class="summary">
+            <div class="summary-item">
+              <div class="summary-label">Monthly payment</div>
+              <div class="summary-value" id="monthlyOut">$0</div>
+              <div class="summary-sub" id="monthlyBreak">principal + interest</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Total interest</div>
+              <div class="summary-value" id="interestOut">$0</div>
+              <div class="summary-sub" id="interestPctOut"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Payoff time</div>
+              <div class="summary-value" id="termOut">0 yrs</div>
+              <div class="summary-sub" id="savedOut"></div>
+            </div>
+          </div>
+
+          <div class="chart" aria-label="Balance over time">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <strong style="font-size:13px">Balance snapshot</strong>
+              <span style="font-size:11px;color:var(--muted)">Year 0 vs mid vs end</span>
+            </div>
+            <div class="chart-bars" id="balanceBars" role="img" aria-describedby="balanceDesc"></div>
+            <p id="balanceDesc" class="note">
+              Bars compare how much principal you still owe at the start, halfway through, and at payoff with and without extra payments.
+            </p>
+            <div class="legend">
+              <span><span class="dot"></span> Standard schedule</span>
+              <span><span class="dot sec"></span> With extra principal</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="note">
+        This tool is for education only and does not replace advice from a lender or financial professional.
+      </p>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Mortgage helper</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const fmtMoney = v => isFinite(v) ? v.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}) : "-";
+      const fmtYears = m => (m/12).toFixed(1).replace(/\.0$/,"");
+
+      const price = document.getElementById("homePrice");
+      const down = document.getElementById("downPayment");
+      const rate = document.getElementById("interestRate");
+      const yearsRange = document.getElementById("years");
+      const yearsLabel = document.getElementById("yearsLabel");
+      const extra = document.getElementById("extra");
+      const taxes = document.getElementById("taxes");
+      const insurance = document.getElementById("insurance");
+      const termPills = document.getElementById("termPills");
+
+      const monthlyOut = document.getElementById("monthlyOut");
+      const monthlyBreak = document.getElementById("monthlyBreak");
+      const interestOut = document.getElementById("interestOut");
+      const interestPctOut = document.getElementById("interestPctOut");
+      const termOut = document.getElementById("termOut");
+      const savedOut = document.getElementById("savedOut");
+      const bars = document.getElementById("balanceBars");
+
+      termPills.querySelectorAll(".pill").forEach(p => {
+        p.addEventListener("click", () => {
+          termPills.querySelectorAll(".pill").forEach(x => x.removeAttribute("data-active"));
+          p.setAttribute("data-active","1");
+          yearsRange.value = p.dataset.years;
+          yearsLabel.textContent = p.dataset.years;
+          recalc();
+        });
+      });
+
+      yearsRange.addEventListener("input", () => {
+        yearsLabel.textContent = yearsRange.value;
+        termPills.querySelectorAll(".pill").forEach(x => x.removeAttribute("data-active"));
+        termPills.querySelectorAll(".pill").forEach(x => {
+          if (x.dataset.years === yearsRange.value) x.setAttribute("data-active","1");
+        });
+      });
+
+      document.getElementById("calcBtn").addEventListener("click", recalc);
+      [price, down, rate, extra, taxes, insurance].forEach(el => el.addEventListener("change", recalc));
+
+      function buildSchedule(balance, monthlyRate, monthlyPayment, monthlyExtra){
+        let m = 0;
+        let totalInterest = 0;
+        const snapshots = {};
+        const targetMonths = [
+          0,
+          Math.round((parseFloat(yearsRange.value) * 12) / 2),
+          parseFloat(yearsRange.value) * 12
+        ];
+
+        const safe = n => (n in snapshots) ? snapshots[n] : null;
+        snapshots[0] = balance;
+
+        while (balance > 0 && m < 1200){
+          const interest = balance * monthlyRate;
+          let principalPay = monthlyPayment - interest + monthlyExtra;
+          if (principalPay > balance) principalPay = balance;
+          balance -= principalPay;
+          totalInterest += interest;
+          m++;
+          if (targetMonths.includes(m)) snapshots[m] = balance;
+          if (balance <= 0){ snapshots[m] = 0; break; }
+        }
+        return { months:m, interest:totalInterest, snapshots };
+      }
+
+      function recalc(){
+        const homePrice = parseFloat(price.value) || 0;
+        const dp = parseFloat(down.value) || 0;
+        const principal = Math.max(0, homePrice - dp);
+        const y = parseFloat(yearsRange.value) || 30;
+        const n = y * 12;
+        const r = (parseFloat(rate.value) || 0) / 100 / 12;
+        const extraM = Math.max(0, parseFloat(extra.value) || 0);
+        const taxM = (parseFloat(taxes.value) || 0) / 12;
+        const insM = (parseFloat(insurance.value) || 0) / 12;
+
+        if (!principal || !n || r <= 0){
+          monthlyOut.textContent = "$0";
+          interestOut.textContent = "$0";
+          interestPctOut.textContent = "";
+          termOut.textContent = "0 yrs";
+          savedOut.textContent = "";
+          bars.innerHTML = "";
+          return;
+        }
+
+        const payment = (principal * r) / (1 - Math.pow(1 + r, -n));
+        const scheduleBase = buildSchedule(principal, r, payment, 0);
+        const scheduleExtra = extraM > 0 ? buildSchedule(principal, r, payment, extraM) : scheduleBase;
+
+        const fullMonthly = payment + taxM + insM + extraM;
+        const piMonthly = payment + extraM;
+
+        monthlyOut.textContent = fmtMoney(fullMonthly);
+        monthlyBreak.textContent = fmtMoney(piMonthly) + " P&I  •  " + fmtMoney(taxM + insM) + " taxes/ins.";
+
+        interestOut.textContent = fmtMoney(scheduleExtra.interest);
+        const totalPaid = scheduleExtra.interest + principal;
+        const pct = totalPaid ? (scheduleExtra.interest / totalPaid) * 100 : 0;
+        interestPctOut.textContent = pct ? pct.toFixed(1).replace(/\.0$/,"") + "% of total paid" : "";
+
+        termOut.textContent = fmtYears(scheduleExtra.months) + " yrs";
+        const monthsSaved = scheduleBase.months - scheduleExtra.months;
+        const interestSaved = scheduleBase.interest - scheduleExtra.interest;
+        savedOut.textContent = monthsSaved > 0
+          ? fmtYears(monthsSaved) + " yrs sooner • " + fmtMoney(interestSaved) + " interest saved"
+          : "No extra payments yet";
+
+        renderBars(principal, scheduleBase, scheduleExtra);
+      }
+
+      function renderBars(principal, base, extraSched){
+        const target = [0, Math.round(parseFloat(yearsRange.value)*6), parseFloat(yearsRange.value)*12];
+        const baseSnap = target.map(m => (m in base.snapshots ? base.snapshots[m] : null));
+        const extraSnap = target.map(m => (m in extraSched.snapshots ? extraSched.snapshots[m] : null));
+
+        const maxVal = Math.max(principal, ...baseSnap.filter(v=>v!=null), ...extraSnap.filter(v=>v!=null), 1);
+        bars.innerHTML = "";
+
+        const labels = ["Start","Halfway","End"];
+        for (let i=0;i<3;i++){
+          const col = document.createElement("div");
+          col.style.display="flex";
+          col.style.flex="1 1 0";
+          col.style.flexDirection="column";
+          col.style.alignItems="center";
+
+          const stack = document.createElement("div");
+          stack.style.display="grid";
+          stack.style.gridTemplateColumns="repeat(2,1fr)";
+          stack.style.gap="4px";
+          stack.style.alignItems="flex-end";
+          stack.style.height="100%";
+
+          const v1 = baseSnap[i] != null ? baseSnap[i] : (i===0?principal:0);
+          const v2 = extraSnap[i] != null ? extraSnap[i] : v1;
+
+          [v1,v2].forEach((v,idx)=>{
+            const wrap = document.createElement("div");
+            wrap.style.display="flex";
+            wrap.style.alignItems="flex-end";
+            wrap.style.justifyContent="center";
+            const bar = document.createElement("div");
+            bar.className="chart-bar";
+            bar.style.height = (v/maxVal*100 || 2) + "%";
+            bar.style.background = idx===0
+              ? "linear-gradient(180deg,var(--brand),var(--brand-2))"
+              : "linear-gradient(180deg,var(--accent),var(--brand-2))";
+            const label = document.createElement("small");
+            label.textContent = v ? Math.round(v/1000)+"k" : "0";
+            bar.appendChild(label);
+            wrap.appendChild(bar);
+            stack.appendChild(wrap);
+          });
+
+          col.appendChild(stack);
+          const lab = document.createElement("div");
+          lab.className="chart-bar-label";
+          lab.textContent = labels[i];
+          col.appendChild(lab);
+          bars.appendChild(col);
+        }
+      }
+
+      recalc();
+    })();
+  </script>
+</body>
+</html>
+

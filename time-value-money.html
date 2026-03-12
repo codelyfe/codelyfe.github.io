@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Time Value of Money Visualizer — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#020617;--panel2:#0f172a;--text:#e5f0ff;--muted:#9ca3af;--brand:#0ea5e9;--accent:#a855f7;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent)}
+    @media(prefers-color-scheme:light){
+      :root{--bg:#f8fafc;--panel:#f8fafc;--panel2:#ffffff;--text:#020617;--muted:#4b5563}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:14px/1.55 Inter,system-ui,sans-serif;color:var(--text);
+      background:
+        radial-gradient(900px 520px at 80% -10%,rgba(56,189,248,.24),transparent 60%),
+        radial-gradient(780px 480px at -10% -10%,rgba(168,85,247,.25),transparent 55%),
+        var(--bg,#020617);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.94),rgba(15,23,42,.6));border-bottom:1px solid rgba(148,163,184,.3)}
+    .bar{max-width:980px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:8px}
+    .logo{width:28px;height:28px;border-radius:10px;background:conic-gradient(from 0deg,var(--brand),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.7),0 10px 24px rgba(15,23,42,.72)}
+    .btn{border:1px solid rgba(148,163,184,.45);background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.9));color:var(--text);padding:7px 13px;border-radius:999px;cursor:pointer;font:600 13px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;box-shadow:0 12px 34px rgba(15,23,42,.8);transition:transform .2s,box-shadow .2s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 18px 46px rgba(15,23,42,.9)}
+    main{max-width:980px;margin:26px auto;padding:0 16px 32px}
+    h1{margin:0 0 4px;font-size:clamp(23px,4vw,30px);font-weight:800}
+    .subtitle{margin:0 0 18px;color:var(--muted);max-width:46rem}
+    .layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;align-items:flex-start}
+    @media(max-width:880px){.layout{grid-template-columns:1fr}}
+    .card{background:radial-gradient(circle at top left,rgba(148,163,184,.4),transparent 55%),var(--panel2);border-radius:18px;padding:16px 16px 14px;border:1px solid rgba(148,163,184,.4);box-shadow:0 18px 45px rgba(15,23,42,.85)}
+    label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+    input[type="number"],select{
+      width:100%;padding:6px 8px;border-radius:10px;border:1px solid rgba(148,163,184,.55);
+      background:radial-gradient(circle at top left,rgba(15,23,42,.3),transparent 60%),var(--panel2);
+      color:var(--text);font:12px/1.3 JetBrains Mono,monospace;
+    }
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .row>div{flex:1 1 130px}
+    .small{font-size:11px;color:var(--muted);margin-top:3px}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:6px}
+    .summary-item{border-radius:14px;padding:9px 10px;background:radial-gradient(circle at top left,rgba(56,189,248,.25),transparent 60%),rgba(15,23,42,.92);border:1px solid rgba(56,189,248,.5)}
+    .summary-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .summary-value{font:700 16px/1.2 JetBrains Mono,monospace}
+    .summary-sub{font-size:11px;color:var(--muted);margin-top:3px}
+    .chart{margin-top:8px}
+    .bars{height:180px;border-radius:14px;background:radial-gradient(circle at top,rgba(56,189,248,.22),transparent 70%),rgba(15,23,42,.95);border:1px solid rgba(148,163,184,.45);padding:8px 10px;display:flex;align-items:flex-end;gap:10px;overflow-x:auto}
+    .col{flex:1 1 40px;min-width:40px;display:flex;flex-direction:column;align-items:center}
+    .bar{width:18px;border-radius:999px 999px 6px 6px;background:linear-gradient(180deg,var(--brand),var(--accent));position:relative;display:flex;align-items:flex-end;justify-content:center}
+    .bar small{position:absolute;bottom:3px;font-size:9px;color:#020617;font-weight:700}
+    .lab{margin-top:3px;font-size:10px;color:var(--muted);white-space:nowrap}
+    .note{margin-top:8px;font-size:11px;color:var(--muted)}
+    footer{padding:18px 16px 22px;border-top:1px solid rgba(148,163,184,.35);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(15,23,42,.8),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.5);background:radial-gradient(circle at top left,rgba(148,163,184,.3),transparent 60%),rgba(15,23,42,.95)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Time Value of Money Visualizer</h1>
+      <p class="subtitle">
+        Compare investing a lump sum vs monthly contributions, and see how interest rate and time change the
+        final amount.
+      </p>
+
+      <div class="layout">
+        <section class="card" aria-label="Inputs">
+          <div class="row">
+            <div>
+              <label for="pv">Starting amount</label>
+              <input id="pv" type="number" min="0" step="100" value="5000" />
+              <p class="small">Initial lump sum invested today.</p>
+            </div>
+            <div>
+              <label for="pm">Monthly contribution</label>
+              <input id="pm" type="number" min="0" step="50" value="400" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="rate">Expected yearly return %</label>
+              <input id="rate" type="number" min="0" step="0.1" value="7" />
+            </div>
+            <div>
+              <label for="years">Years invested</label>
+              <input id="years" type="number" min="1" max="60" value="20" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="inflation">Estimated yearly inflation % (optional)</label>
+            <input id="inflation" type="number" min="0" step="0.1" value="3" />
+            <p class="small">We’ll show an “inflation‑adjusted” future value so you can think in today’s dollars.</p>
+          </div>
+          <button class="btn" id="calcBtn" type="button">Recalculate</button>
+        </section>
+
+        <section class="card" aria-label="Results">
+          <div class="summary">
+            <div class="summary-item">
+              <div class="summary-label">Future value</div>
+              <div class="summary-value" id="fvOut">$0</div>
+              <div class="summary-sub" id="fvAdjOut"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Total contributed</div>
+              <div class="summary-value" id="contribOut">$0</div>
+              <div class="summary-sub" id="growthOut"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Lump vs monthly</div>
+              <div class="summary-value" id="splitOut">$0</div>
+              <div class="summary-sub" id="splitLabel"></div>
+            </div>
+          </div>
+
+          <div class="chart" aria-label="Growth over time">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <strong style="font-size:13px">Growth snapshots</strong>
+              <span style="font-size:11px;color:var(--muted)">Bars show value at years 0, 5, 10, 20</span>
+            </div>
+            <div class="bars" id="bars"></div>
+            <p class="note">
+              This assumes steady returns and contributions. Real markets move up and down and may earn more or less.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Investing helper</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const pv = document.getElementById("pv");
+      const pm = document.getElementById("pm");
+      const rate = document.getElementById("rate");
+      const years = document.getElementById("years");
+      const inflation = document.getElementById("inflation");
+
+      const fvOut = document.getElementById("fvOut");
+      const fvAdjOut = document.getElementById("fvAdjOut");
+      const contribOut = document.getElementById("contribOut");
+      const growthOut = document.getElementById("growthOut");
+      const splitOut = document.getElementById("splitOut");
+      const splitLabel = document.getElementById("splitLabel");
+      const bars = document.getElementById("bars");
+
+      document.getElementById("calcBtn").addEventListener("click", recalc);
+      [pv,pm,rate,years,inflation].forEach(el=>el.addEventListener("change",recalc));
+
+      function fmt(v){return isFinite(v)?v.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}):"-";}
+
+      function fvLump(pv,r,n){
+        return pv*Math.pow(1+r,n);
+      }
+      function fvSeries(pmt,r,n){
+        if(!r) return pmt*n;
+        return pmt*((Math.pow(1+r,n)-1)/r);
+      }
+
+      function recalc(){
+        const P = Math.max(0,parseFloat(pv.value)||0);
+        const PM = Math.max(0,parseFloat(pm.value)||0);
+        const Y = Math.min(Math.max(parseFloat(years.value)||0,1),60);
+        const rYear = Math.max(0,parseFloat(rate.value)||0)/100;
+        const r = rYear/12;
+        const n = Y*12;
+        const inflYear = Math.max(0,parseFloat(inflation.value)||0)/100;
+
+        const fvL = fvLump(P,r,n);
+        const fvM = fvSeries(PM,r,n);
+        const fvTotal = fvL+fvM;
+
+        const contrib = P + PM*n;
+        const growth = fvTotal - contrib;
+
+        fvOut.textContent = fmt(fvTotal);
+        if(inflYear>0){
+          const adj = fvTotal/Math.pow(1+inflYear,Y);
+          fvAdjOut.textContent = "≈ "+fmt(adj)+" in today's dollars";
+        }else{
+          fvAdjOut.textContent = "No inflation adjustment set.";
+        }
+
+        contribOut.textContent = fmt(contrib);
+        const mult = contrib?fvTotal/contrib:0;
+        growthOut.textContent = (growth>0?fmt(growth)+" from growth • ":"") + (mult?mult.toFixed(2)+"× contributions":"");
+
+        splitOut.textContent = fmt(fvL)+" / "+fmt(fvM);
+        splitLabel.textContent = "Lump sum vs monthly contributions at the end of "+Y+" yrs";
+
+        renderBars(P,PM,r,n,Y);
+      }
+
+      function renderBars(P,PM,r,n,Y){
+        bars.innerHTML="";
+        const checkpoints=[0,5,10,Y];
+        const vals=checkpoints.map(y=>{
+          const m=y*12;
+          return fvLump(P,r,m)+fvSeries(PM,r,m);
+        });
+        const maxVal=Math.max(...vals,1);
+        checkpoints.forEach((y,idx)=>{
+          const v=vals[idx];
+          const col=document.createElement("div");
+          col.className="col";
+          const bar=document.createElement("div");
+          bar.className="bar";
+          bar.style.height=(v/maxVal*100||2)+"%";
+          const sm=document.createElement("small");
+          sm.textContent=v?Math.round(v/1000)+"k":"0";
+          bar.appendChild(sm);
+          col.appendChild(bar);
+          const lab=document.createElement("div");
+          lab.className="lab";
+          lab.textContent=y+" yr";
+          col.appendChild(lab);
+          bars.appendChild(col);
+        });
+      }
+
+      function fvLump(pv,r,n){
+        return pv*Math.pow(1+r,n);
+      }
+      function fvSeries(pmt,r,n){
+        if(!r) return pmt*n;
+        return pmt*((Math.pow(1+r,n)-1)/r);
+      }
+
+      recalc();
+    })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<!-- Randal C. Burger Jr -->
+<head>
+  <meta charset="utf-8" />
+  <title>Calorie & Weight Change Planner — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root{--panel:#020617;--panel2:#0f172a;--text:#e5f0ff;--muted:#9ca3af;--brand:#0ea5e9;--accent:#22c55e;--warn:#f97316;--ring:0 0 0 3px color-mix(in srgb,var(--brand) 40%,transparent)}
+    @media(prefers-color-scheme:light){
+      :root{--bg:#f8fafc;--panel:#f8fafc;--panel2:#ffffff;--text:#020617;--muted:#4b5563}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:14px/1.55 Inter,system-ui,sans-serif;color:var(--text);
+      background:
+        radial-gradient(900px 520px at 80% -10%,rgba(56,189,248,.24),transparent 60%),
+        radial-gradient(780px 480px at -10% -10%,rgba(34,197,94,.22),transparent 55%),
+        var(--bg,#020617);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(15,23,42,.94),rgba(15,23,42,.6));border-bottom:1px solid rgba(148,163,184,.3)}
+    .bar{max-width:980px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:8px}
+    .logo{width:28px;height:28px;border-radius:10px;background:conic-gradient(from 0deg,var(--brand),var(--accent),var(--brand));box-shadow:inset 0 0 0 2px rgba(15,23,42,.7),0 10px 24px rgba(15,23,42,.72)}
+    .btn{border:1px solid rgba(148,163,184,.45);background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.9));color:var(--text);padding:7px 13px;border-radius:999px;cursor:pointer;font:600 13px/1 Inter,sans-serif;display:inline-flex;align-items:center;gap:6px;box-shadow:0 12px 34px rgba(15,23,42,.8);transition:transform .2s,box-shadow .2s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 18px 46px rgba(15,23,42,.9)}
+    main{max-width:980px;margin:26px auto;padding:0 16px 32px}
+    h1{margin:0 0 4px;font-size:clamp(23px,4vw,30px);font-weight:800}
+    .subtitle{margin:0 0 18px;color:var(--muted);max-width:46rem}
+    .layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;align-items:flex-start}
+    @media(max-width:880px){.layout{grid-template-columns:1fr}}
+    .card{background:radial-gradient(circle at top left,rgba(148,163,184,.4),transparent 55%),var(--panel2);border-radius:18px;padding:16px 16px 14px;border:1px solid rgba(148,163,184,.4);box-shadow:0 18px 45px rgba(15,23,42,.85)}
+    label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+    input[type="number"],select{
+      width:100%;padding:6px 8px;border-radius:10px;border:1px solid rgba(148,163,184,.55);
+      background:radial-gradient(circle at top left,rgba(15,23,42,.3),transparent 60%),var(--panel2);
+      color:var(--text);font:12px/1.3 JetBrains Mono,monospace;
+    }
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .row>div{flex:1 1 120px}
+    .small{font-size:11px;color:var(--muted);margin-top:3px}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:6px}
+    .summary-item{border-radius:14px;padding:9px 10px;background:radial-gradient(circle at top left,rgba(34,197,94,.25),transparent 60%),rgba(15,23,42,.92);border:1px solid rgba(34,197,94,.5)}
+    .summary-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .summary-value{font:700 16px/1.2 JetBrains Mono,monospace}
+    .summary-sub{font-size:11px;color:var(--muted);margin-top:3px}
+    .chart{margin-top:8px}
+    .chart-lines{height:180px;border-radius:14px;background:radial-gradient(circle at top,rgba(56,189,248,.22),transparent 70%),rgba(15,23,42,.95);border:1px solid rgba(148,163,184,.45);padding:8px 10px;position:relative;overflow:hidden}
+    .axis-x{position:absolute;bottom:4px;left:10px;right:10px;height:1px;background:rgba(148,163,184,.45)}
+    .axis-y{position:absolute;top:6px;bottom:18px;left:10px;width:1px;background:rgba(148,163,184,.45)}
+    .line{position:absolute;height:2px;border-radius:999px;transform-origin:left center}
+    .line.maintain{background:var(--brand)}
+    .line.goal{background:var(--accent)}
+    .lineText{position:absolute;font-size:10px;color:var(--muted)}
+    .note{margin-top:8px;font-size:11px;color:var(--muted)}
+    footer{padding:18px 16px 22px;border-top:1px solid rgba(148,163,184,.35);color:var(--muted);text-align:center;background:linear-gradient(0deg,rgba(15,23,42,.8),transparent)}
+    .sig{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.5);background:radial-gradient(circle at top left,rgba(148,163,184,.3),transparent 60%),rgba(15,23,42,.95)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Calorie & Weight Change Planner</h1>
+      <p class="subtitle">
+        Estimate your maintenance calories and how a calorie deficit or surplus could change your weight over
+        the next 12 weeks. Uses simple formulas — not medical advice.
+      </p>
+
+      <div class="layout">
+        <section class="card" aria-label="Inputs">
+          <div class="row">
+            <div>
+              <label for="sex">Sex</label>
+              <select id="sex">
+                <option value="m">Male</option>
+                <option value="f">Female</option>
+              </select>
+            </div>
+            <div>
+              <label for="age">Age (years)</label>
+              <input id="age" type="number" min="10" max="100" value="30" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="height">Height (cm)</label>
+              <input id="height" type="number" min="120" max="230" value="178" />
+            </div>
+            <div>
+              <label for="weight">Current weight (kg)</label>
+              <input id="weight" type="number" min="35" max="250" value="80" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="activity">Activity level</label>
+            <select id="activity">
+              <option value="1.2">Sedentary (little exercise)</option>
+              <option value="1.375" selected>Lightly active (1–3x / week)</option>
+              <option value="1.55">Moderately active (3–5x / week)</option>
+              <option value="1.725">Very active (6–7x / week)</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="calories">Daily calories</label>
+              <input id="calories" type="number" min="800" max="6000" value="2200" />
+              <p class="small">What you plan to eat on average.</p>
+            </div>
+            <div>
+              <label for="weeks">Timeline (weeks)</label>
+              <input id="weeks" type="number" min="1" max="52" value="12" />
+            </div>
+          </div>
+
+          <button class="btn" id="calcBtn" type="button">Recalculate</button>
+          <p class="small">
+            For rough estimates only. Always talk to a medical professional before making big changes to diet or weight.
+          </p>
+        </section>
+
+        <section class="card" aria-label="Results">
+          <div class="summary">
+            <div class="summary-item">
+              <div class="summary-label">Maintenance calories</div>
+              <div class="summary-value" id="maintOut">0 kcal</div>
+              <div class="summary-sub" id="maintLabel"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Daily difference</div>
+              <div class="summary-value" id="diffOut">0 kcal</div>
+              <div class="summary-sub" id="diffLabel"></div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">Projected change</div>
+              <div class="summary-value" id="weightOut">0 kg</div>
+              <div class="summary-sub" id="weightLabel"></div>
+            </div>
+          </div>
+
+          <div class="chart" aria-label="Weight trajectory">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <strong style="font-size:13px">12‑week weight trend (linear estimate)</strong>
+              <span style="font-size:11px;color:var(--muted)">Green = goal plan, blue = maintain</span>
+            </div>
+            <div class="chart-lines" id="chartArea">
+              <div class="axis-x"></div>
+              <div class="axis-y"></div>
+            </div>
+            <p class="note" id="noteTxt">
+              Lines show a simple straight‑line projection assuming 7700 kcal ≈ 1 kg of body fat. Real‑world changes are slower and non‑linear.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <span class="sig">Codelyfe • Health helper</span>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const sex = document.getElementById("sex");
+      const age = document.getElementById("age");
+      const height = document.getElementById("height");
+      const weight = document.getElementById("weight");
+      const activity = document.getElementById("activity");
+      const calories = document.getElementById("calories");
+      const weeks = document.getElementById("weeks");
+
+      const maintOut = document.getElementById("maintOut");
+      const maintLabel = document.getElementById("maintLabel");
+      const diffOut = document.getElementById("diffOut");
+      const diffLabel = document.getElementById("diffLabel");
+      const weightOut = document.getElementById("weightOut");
+      const weightLabel = document.getElementById("weightLabel");
+      const chartArea = document.getElementById("chartArea");
+
+      document.getElementById("calcBtn").addEventListener("click", recalc);
+      [sex,age,height,weight,activity,calories,weeks].forEach(el=>el.addEventListener("change",recalc));
+
+      function recalc(){
+        const s = sex.value==="f"?"f":"m";
+        const a = parseFloat(age.value)||0;
+        const h = parseFloat(height.value)||0;
+        const w = parseFloat(weight.value)||0;
+        const act = parseFloat(activity.value)||1.2;
+        const c = parseFloat(calories.value)||0;
+        const wks = Math.min(Math.max(parseFloat(weeks.value)||0,1),52);
+
+        // Mifflin‑St Jeor BMR
+        let bmr = 10*w + 6.25*h - 5*a + (s==="m"?5:-161);
+        if(!isFinite(bmr) || bmr<800) bmr = 800;
+        const maint = Math.round(bmr*act);
+        maintOut.textContent = maint.toLocaleString()+" kcal";
+        maintLabel.textContent = "BMR "+Math.round(bmr)+" × activity ("+act.toFixed(3)+")";
+
+        const diff = c - maint;
+        const sign = diff>0?"+":"";
+        diffOut.textContent = sign+diff.toLocaleString()+" kcal";
+        diffLabel.textContent = diff>0
+          ? "Surplus (possible weight gain)"
+          : diff<0
+            ? "Deficit (possible weight loss)"
+            : "Matched to estimated maintenance";
+
+        const days = wks*7;
+        const totalDiff = diff * days;
+        const kgChange = totalDiff/7700;
+        const finalWeight = w + kgChange;
+
+        weightOut.textContent = (kgChange>=0?"+":"") + kgChange.toFixed(1).replace(/\.0$/,"") + " kg";
+        weightLabel.textContent = "From "+w.toFixed(1)+" → "+finalWeight.toFixed(1)+" kg over "+wks+" weeks (idealized).";
+
+        drawLines(w,finalWeight,wks);
+      }
+
+      function drawLines(startKg,endKg,weeksCount){
+        chartArea.querySelectorAll(".line,.lineText").forEach(el=>el.remove());
+
+        const h = chartArea.clientHeight || 180;
+        const usableH = h-30;
+        const top = 8;
+        const left = 14;
+        const right = chartArea.clientWidth-14;
+        const width = Math.max(right-left,10);
+
+        const maintainY = yFor(startKg,startKg,startKg,usableH,top);
+        const goalY = yFor(startKg,endKg,startKg,usableH,top);
+
+        addLine(maintainY,"maintain","Maintain",startKg);
+        addLine(goalY,"goal","Plan",endKg);
+
+        function yFor(y0,y1,val,span,topPad){
+          const maxVal = Math.max(y0,y1);
+          const minVal = Math.min(y0,y1);
+          const range = (maxVal-minVal)||1;
+          const t = (val-minVal)/range;
+          return topPad + (1-t)*span;
+        }
+
+        function addLine(y,cls,label,val){
+          const line=document.createElement("div");
+          line.className="line "+cls;
+          line.style.left=left+"px";
+          line.style.width=width+"px";
+          line.style.top=y+"px";
+          chartArea.appendChild(line);
+
+          const txt=document.createElement("div");
+          txt.className="lineText";
+          txt.style.left=(left+4)+"px";
+          txt.style.top=(y-10)+"px";
+          txt.textContent=label+" ~ "+val.toFixed(1)+" kg";
+          chartArea.appendChild(txt);
+        }
+      }
+
+      recalc();
+    })();
+  </script>
+</body>
+</html>
+
