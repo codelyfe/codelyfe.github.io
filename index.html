@@ -91,6 +91,81 @@
     .github-corner svg{width:36px;height:36px;fill:#fff;opacity:.9}
 
     main{max-width:1200px;margin:22px auto;padding:0 18px;display:grid;gap:24px}
+    .tool-gallery{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:10px;
+      margin-bottom:8px;
+    }
+    @media (max-width:720px){
+      .tool-gallery{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+    @media (max-width:520px){
+      .tool-gallery{
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+    }
+    .tool-chip{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:9px 11px;
+      border-radius:999px;
+      border:1px solid #94a3b842;
+      background:linear-gradient(135deg,#020617dd,#020617f5);
+      color:var(--muted);
+      font-size:12px;
+      text-decoration:none;
+      overflow:hidden;
+      transition:background var(--speed-1),border-color var(--speed-1),transform var(--speed-1),color var(--speed-1);
+    }
+    .tool-chip span.label{
+      flex:1 1 auto;
+      min-width:0;
+      font-weight:600;
+      color:var(--text);
+      white-space:nowrap;
+      overflow:hidden;
+      position:relative;
+    }
+    .tool-chip span.label-inner{
+      display:inline-block;
+      padding-right:32px;
+      will-change:transform;
+      transform:translateX(0);
+    }
+    .tool-chip span.tag{
+      flex:0 0 auto;
+      font-size:10px;
+      padding:3px 7px;
+      border-radius:999px;
+      border:1px solid #94a3b842;
+      background:rgba(15,23,42,.9);
+    }
+    .tool-chip:hover{
+      border-color:#60a5fa;
+      color:var(--text);
+      transform:translateY(-1px);
+      background:linear-gradient(135deg,rgba(37,99,235,.85),rgba(8,47,73,.98));
+    }
+    .tool-chip:hover .label-inner{
+      animation:tool-marquee 5s ease-in-out infinite;
+    }
+    @keyframes tool-marquee{
+      0%,12%{transform:translateX(0)}
+      40%,60%{transform:translateX(-40%)}
+      88%,100%{transform:translateX(0)}
+    }
+    @media (max-width:520px){
+      .tool-chip{
+        flex-direction:row;
+        align-items:center;
+      }
+    }
     .hero{display:grid;gap:18px;align-items:center;grid-template-columns:1.2fr .8fr}
     @media (max-width:900px){.hero{grid-template-columns:1fr}}
     .title{font-weight:800;font-size:clamp(32px,6vw,64px);line-height:1.05;letter-spacing:.6px;background:linear-gradient(90deg,var(--text),color-mix(in srgb, var(--text) 60%, transparent));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -181,47 +256,7 @@
           </button>
           <nav class="nav" id="main-nav" role="navigation" aria-label="Site">
             <a href="index.html" aria-current="page">Home</a>
-            <a href="a11y-demo.html">A11y Demo</a>
-            <a href="document-converter.html">Document Converter</a>
-            <a href="export-emails-csv.html">Export Emails CSV</a>
-            <a href="image-to-svg.html">Image to SVG</a>
-            <a href="imgtodataurl.html">Image → Data URI</a>
-            <a href="image-to-ascii.html">Image → ASCII</a>
-            <a href="img-converter-editor.html">Img Converter</a>
-            <a href="minnesota-complaints-requests.html">Minnesota Complaints</a>
-            <a href="openscad.html">OpenSCAD</a>
-            <a href="openscad-3d-builder.html">OpenSCAD 3D Builder</a>
-            <a href="remove-background.html">Remove Background</a>
-            <a href="markdown-editor.html">Markdown Editor</a>
-            <a href="qr-codes.html">QR Codes</a>
-            <a href="json-csv-tools.html">JSON & CSV Tools</a>
-            <a href="color-tools.html">Color & Contrast</a>
-            <a href="password-generator.html">Password Generator</a>
-            <a href="lorem-placeholder.html">Lorem & Placeholder</a>
-            <a href="encode-hash.html">Encode & Hash</a>
-            <a href="text-diff.html">Text Diff</a>
-            <a href="regex-tester.html">Regex Tester</a>
-            <a href="jwt-decoder.html">JWT Decoder</a>
-            <a href="zip-creator.html">ZIP Creator</a>
-            <a href="image-compressor.html">Image Compressor</a>
-            <a href="gzip-tool.html">Gzip Tool</a>
-            <a href="brotli-tool.html">Brotli Tool</a>
-            <a href="text-compressor.html">Text Compressor</a>
-            <a href="timestamp-converter.html">Timestamp Converter</a>
-            <a href="uuid-generator.html">UUID Generator</a>
-            <a href="cron-explainer.html">Cron Explainer</a>
-            <a href="case-converter.html">Case Converter</a>
-            <a href="html-entities.html">HTML Entities</a>
-            <a href="mortgage-calculator.html">Mortgage Planner</a>
-            <a href="debt-snowball-calculator.html">Debt Snowball</a>
-            <a href="budget-visualizer.html">Budget Visualizer</a>
-            <a href="calorie-weight-planner.html">Calorie &amp; Weight</a>
-            <a href="time-value-money.html">Time Value of Money</a>
-            <a href="creative-writing-studio.html">Writing Studio</a>
-            <a href="doodle-pad.html">Doodle Pad</a>
-            <a href="moodboard-builder.html">Moodboard</a>
-            <a href="beat-loop-lab.html">Beat Loop Lab</a>
-            <a href="idea-matrix.html">Idea Matrix</a>
+            <a href="#projects">Projects</a>
             <a href="https://github.com/codelyfe" target="_blank" rel="noopener">GitHub</a>
           </nav>
         </div>
@@ -229,6 +264,52 @@
     </header>
 
     <main>
+      <section aria-label="Tool gallery">
+        <div class="tool-gallery">
+          <a class="tool-chip" href="a11y-demo.html"><span class="label"><span class="label-inner">A11y Demo</span></span><span class="tag">Accessibility</span></a>
+          <a class="tool-chip" href="document-converter.html"><span class="label"><span class="label-inner">Document Converter</span></span><span class="tag">Docs</span></a>
+          <a class="tool-chip" href="export-emails-csv.html"><span class="label"><span class="label-inner">Export Emails CSV</span></span><span class="tag">Data</span></a>
+          <a class="tool-chip" href="image-to-svg.html"><span class="label"><span class="label-inner">Image → SVG</span></span><span class="tag">Images</span></a>
+          <a class="tool-chip" href="imgtodataurl.html"><span class="label"><span class="label-inner">Image → Data URI</span></span><span class="tag">Images</span></a>
+          <a class="tool-chip" href="image-to-ascii.html"><span class="label"><span class="label-inner">Image → ASCII</span></span><span class="tag">Images</span></a>
+          <a class="tool-chip" href="img-converter-editor.html"><span class="label"><span class="label-inner">Img Converter</span></span><span class="tag">Images</span></a>
+          <a class="tool-chip" href="remove-background.html"><span class="label"><span class="label-inner">Remove Background</span></span><span class="tag">Images</span></a>
+          <a class="tool-chip" href="image-compressor.html"><span class="label"><span class="label-inner">Image Compressor</span></span><span class="tag">Images</span></a>
+          <a class="tool-chip" href="qr-codes.html"><span class="label"><span class="label-inner">QR Codes</span></span><span class="tag">Utility</span></a>
+          <a class="tool-chip" href="json-csv-tools.html"><span class="label"><span class="label-inner">JSON &amp; CSV Tools</span></span><span class="tag">Data</span></a>
+          <a class="tool-chip" href="color-tools.html"><span class="label"><span class="label-inner">Color &amp; Contrast</span></span><span class="tag">Design</span></a>
+          <a class="tool-chip" href="password-generator.html"><span class="label"><span class="label-inner">Password Generator</span></span><span class="tag">Security</span></a>
+          <a class="tool-chip" href="lorem-placeholder.html"><span class="label"><span class="label-inner">Lorem &amp; Placeholder</span></span><span class="tag">Content</span></a>
+          <a class="tool-chip" href="encode-hash.html"><span class="label"><span class="label-inner">Encode &amp; Hash</span></span><span class="tag">Utility</span></a>
+          <a class="tool-chip" href="text-diff.html"><span class="label"><span class="label-inner">Text Diff</span></span><span class="tag">Text</span></a>
+          <a class="tool-chip" href="regex-tester.html"><span class="label"><span class="label-inner">Regex Tester</span></span><span class="tag">Text</span></a>
+          <a class="tool-chip" href="jwt-decoder.html"><span class="label"><span class="label-inner">JWT Decoder</span></span><span class="tag">Security</span></a>
+          <a class="tool-chip" href="zip-creator.html"><span class="label"><span class="label-inner">ZIP Creator</span></span><span class="tag">Files</span></a>
+          <a class="tool-chip" href="gzip-tool.html"><span class="label"><span class="label-inner">Gzip Tool</span></span><span class="tag">Compression</span></a>
+          <a class="tool-chip" href="brotli-tool.html"><span class="label"><span class="label-inner">Brotli Tool</span></span><span class="tag">Compression</span></a>
+          <a class="tool-chip" href="text-compressor.html"><span class="label"><span class="label-inner">Text Compressor</span></span><span class="tag">Compression</span></a>
+          <a class="tool-chip" href="timestamp-converter.html"><span class="label"><span class="label-inner">Timestamp Converter</span></span><span class="tag">Time</span></a>
+          <a class="tool-chip" href="uuid-generator.html"><span class="label"><span class="label-inner">UUID Generator</span></span><span class="tag">IDs</span></a>
+          <a class="tool-chip" href="cron-explainer.html"><span class="label"><span class="label-inner">Cron Explainer</span></span><span class="tag">Time</span></a>
+          <a class="tool-chip" href="case-converter.html"><span class="label"><span class="label-inner">Case Converter</span></span><span class="tag">Text</span></a>
+          <a class="tool-chip" href="html-entities.html"><span class="label"><span class="label-inner">HTML Entities</span></span><span class="tag">HTML</span></a>
+          <a class="tool-chip" href="mortgage-calculator.html"><span class="label"><span class="label-inner">Mortgage Planner</span></span><span class="tag">Finance</span></a>
+          <a class="tool-chip" href="debt-snowball-calculator.html"><span class="label"><span class="label-inner">Debt Snowball</span></span><span class="tag">Finance</span></a>
+          <a class="tool-chip" href="budget-visualizer.html"><span class="label"><span class="label-inner">Budget Visualizer</span></span><span class="tag">Finance</span></a>
+          <a class="tool-chip" href="calorie-weight-planner.html"><span class="label"><span class="label-inner">Calorie &amp; Weight</span></span><span class="tag">Health</span></a>
+          <a class="tool-chip" href="time-value-money.html"><span class="label"><span class="label-inner">Time Value of Money</span></span><span class="tag">Finance</span></a>
+          <a class="tool-chip" href="creative-writing-studio.html"><span class="label"><span class="label-inner">Writing Studio</span></span><span class="tag">Creative</span></a>
+          <a class="tool-chip" href="doodle-pad.html"><span class="label"><span class="label-inner">Doodle Pad</span></span><span class="tag">Creative</span></a>
+          <a class="tool-chip" href="moodboard-builder.html"><span class="label"><span class="label-inner">Moodboard</span></span><span class="tag">Creative</span></a>
+          <a class="tool-chip" href="beat-loop-lab.html"><span class="label"><span class="label-inner">Beat Loop Lab</span></span><span class="tag">Audio</span></a>
+          <a class="tool-chip" href="idea-matrix.html"><span class="label"><span class="label-inner">Idea Matrix</span></span><span class="tag">Ideation</span></a>
+          <a class="tool-chip" href="minnesota-complaints-requests.html"><span class="label"><span class="label-inner">Minnesota Complaints</span></span><span class="tag">Docs</span></a>
+          <a class="tool-chip" href="openscad.html"><span class="label"><span class="label-inner">OpenSCAD</span></span><span class="tag">3D</span></a>
+          <a class="tool-chip" href="openscad-3d-builder.html"><span class="label"><span class="label-inner">OpenSCAD 3D Builder</span></span><span class="tag">3D</span></a>
+          <a class="tool-chip" href="markdown-editor.html"><span class="label"><span class="label-inner">Markdown Editor</span></span><span class="tag">Content</span></a>
+        </div>
+      </section>
+
       <section class="hero">
         <div>
           <div class="title pulse">Invent. Build. <span style="background:linear-gradient(90deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent">Ship</span>.</div>
