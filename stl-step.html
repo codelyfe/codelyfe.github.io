@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>STL / STEP Builder — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+  <style>
+    :root{
+      --bg:#020617;
+      --panel:#020617;
+      --panel-soft:#0b1220;
+      --text:#e5f0ff;
+      --muted:#9db3d1;
+      --brand:#0ea5e9;
+      --brand-2:#14b8a6;
+      --accent:#a78bfa;
+      --ring:0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f5f7ff;
+        --panel:#ffffff;
+        --panel-soft:#eef2ff;
+        --text:#020617;
+        --muted:#4b5563;
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.2),transparent 60%),
+        radial-gradient(900px 600px at -10% -10%,rgba(167,139,250,.2),transparent 55%),
+        var(--bg);
+      overflow:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,textarea:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{
+      position:sticky;top:0;z-index:10;
+      backdrop-filter:saturate(120%) blur(6px);
+      background:linear-gradient(180deg,rgba(2,8,23,.95),rgba(2,8,23,.7));
+      border-bottom:1px solid rgba(148,163,184,.35);
+    }
+    .bar{
+      max-width:1100px;
+      margin:0 auto;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:.06em;
+    }
+    .brand a{
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .logo{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand));
+      box-shadow:inset 0 0 0 2px #ffffff40,0 8px 18px rgba(15,23,42,.9);
+    }
+    .btn{
+      border-radius:12px;
+      border:1px solid #94a3b83f;
+      background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.75));
+      color:var(--text);
+      padding:8px 13px;
+      font:600 13px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(15,23,42,.75);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    main{
+      max-width:1100px;
+      margin:14px auto;
+      padding:0 18px 16px;
+      width:100%;
+      min-height:0;
+    }
+    .title-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    h1{
+      margin:0 0 2px;
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.04em;
+    }
+    .subtitle{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .pill{
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.4);
+      font-size:11px;
+      color:var(--muted);
+      background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(15,23,42,.7));
+      white-space:nowrap;
+    }
+    .shell{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1.2fr);
+      gap:12px;
+      background:rgba(15,23,42,.9);
+      border-radius:18px;
+      border:1px solid rgba(148,163,184,.38);
+      padding:10px;
+      min-height:0;
+      box-shadow:0 18px 50px rgba(15,23,42,.9);
+    }
+    @media (max-width:880px){
+      .shell{grid-template-columns:minmax(0,1fr);height:auto}
+      body{overflow:auto}
+      .app{grid-template-rows:auto auto auto}
+    }
+    .col{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:0;
+    }
+    .label-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    textarea{
+      width:100%;
+      min-height:220px;
+      border-radius:12px;
+      border:1px solid rgba(148,163,184,.4);
+      background:#020617;
+      color:#e5e7eb;
+      padding:10px;
+      font:12px/1.5 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+      resize:vertical;
+    }
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:2px;
+    }
+    .toolbar button{
+      font-size:11px;
+      padding:6px 10px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.45);
+      background:#020617;
+      color:var(--text);
+      cursor:pointer;
+    }
+    .toolbar button.primary{
+      border-color:transparent;
+      background:linear-gradient(90deg,#0ea5e9,#22c55e);
+      color:#020617;
+      font-weight:600;
+    }
+    .toolbar button[disabled]{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .viewer{
+      position:relative;
+      flex:1 1 auto;
+      min-height:220px;
+      border-radius:12px;
+      border:1px solid rgba(148,163,184,.45);
+      background:#020617;
+      overflow:hidden;
+    }
+    .viewer canvas{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+    .status{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+      min-height:1.2em;
+    }
+    footer{
+      padding:18px;
+      color:var(--muted);
+      text-align:center;
+      border-top:1px solid rgba(148,163,184,.26);
+      background:linear-gradient(0deg,#02081733,transparent);
+      font-size:13px;
+    }
+    footer a{color:#93c5fd}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">Home</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="title-row">
+        <div>
+          <h1>STL / STEP Builder</h1>
+          <p class="subtitle">Describe simple primitives in code and preview them as a 3D mesh. Export an STL for printing, STEP coming later.</p>
+        </div>
+        <span class="pill">Primitives: box, cylinder, sphere • ops: union, subtract</span>
+      </div>
+
+      <div class="shell">
+        <section class="col" aria-label="Code editor">
+          <div class="label-row">
+            <span>Model script</span>
+            <span>Syntax: small JS helper API</span>
+          </div>
+          <textarea id="code" spellcheck="false"></textarea>
+          <div class="toolbar">
+            <button type="button" class="primary" id="runBtn">Render model</button>
+            <button type="button" id="exampleBtn">Load example</button>
+            <button type="button" id="clearBtn">Clear</button>
+          </div>
+          <div class="status" id="codeStatus"></div>
+        </section>
+
+        <section class="col" aria-label="3D preview and export">
+          <div class="label-row">
+            <span>3D preview</span>
+            <span id="metaInfo">No model yet</span>
+          </div>
+          <div class="viewer" id="viewer"></div>
+          <div class="toolbar">
+            <button type="button" id="stlBtn">Download STL</button>
+            <button type="button" id="stepBtn" disabled title="STEP export requires a CAD kernel; not wired up yet.">Download STEP (soon)</button>
+            <button type="button" id="resetCamBtn">Reset camera</button>
+          </div>
+          <div class="status" id="status">Write code and click “Render model”.</div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      Created by <a href="https://codelyfe.github.io" target="_blank" rel="noopener">Codelyfe.github.io</a>
+    </footer>
+  </div>
+
+  <script>
+    const codeEl = document.getElementById('code');
+    const runBtn = document.getElementById('runBtn');
+    const exampleBtn = document.getElementById('exampleBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const stlBtn = document.getElementById('stlBtn');
+    const stepBtn = document.getElementById('stepBtn');
+    const resetCamBtn = document.getElementById('resetCamBtn');
+    const viewer = document.getElementById('viewer');
+    const statusEl = document.getElementById('status');
+    const codeStatus = document.getElementById('codeStatus');
+    const metaInfo = document.getElementById('metaInfo');
+
+    let renderer, scene, camera, controlsLike = null;
+    let currentGroup = null;
+
+    function initThree(){
+      const rect = viewer.getBoundingClientRect();
+      renderer = new THREE.WebGLRenderer({ antialias:true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(rect.width, rect.height);
+      viewer.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x020617);
+
+      camera = new THREE.PerspectiveCamera(45, rect.width/rect.height, 0.1, 1000);
+      camera.position.set(6, 6, 10);
+      camera.lookAt(0,0,0);
+
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x111827, 1.0);
+      scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.7);
+      dir.position.set(5, 10, 5);
+      scene.add(dir);
+
+      const grid = new THREE.GridHelper(40, 40, 0x334155, 0x1f2933);
+      grid.position.y = -2;
+      scene.add(grid);
+
+      window.addEventListener('resize', onResize);
+      animate();
+    }
+
+    function onResize(){
+      if (!renderer || !camera) return;
+      const rect = viewer.getBoundingClientRect();
+      camera.aspect = rect.width / rect.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(rect.width, rect.height);
+    }
+
+    function animate(){
+      requestAnimationFrame(animate);
+      if (renderer && scene && camera){
+        renderer.render(scene, camera);
+      }
+    }
+
+    function setStatus(msg){
+      statusEl.textContent = msg;
+    }
+    function setCodeStatus(msg){
+      codeStatus.textContent = msg;
+    }
+
+    function clearModel(){
+      if (currentGroup){
+        scene.remove(currentGroup);
+        currentGroup.traverse(obj => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) obj.material.dispose && obj.material.dispose();
+        });
+        currentGroup = null;
+      }
+    }
+
+    function addModelToScene(group){
+      clearModel();
+      currentGroup = group;
+      scene.add(group);
+
+      const box = new THREE.Box3().setFromObject(group);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+
+      group.position.sub(center);
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const dist = maxDim * 2.5 || 10;
+      camera.position.set(dist, dist, dist);
+      camera.lookAt(0,0,0);
+
+      metaInfo.textContent = `Size ~ ${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)}`;
+    }
+
+    function makeAPI(){
+      const material = new THREE.MeshStandardMaterial({ color:0x60a5fa, metalness:0.1, roughness:0.35 });
+
+      function box(w,h,d){
+        const g = new THREE.BoxGeometry(w,h,d);
+        const m = material.clone();
+        return new THREE.Mesh(g,m);
+      }
+      function cylinder(r,h){
+        const g = new THREE.CylinderGeometry(r,r,h,32);
+        const m = material.clone();
+        return new THREE.Mesh(g,m);
+      }
+      function sphere(r){
+        const g = new THREE.SphereGeometry(r,32,24);
+        const m = material.clone();
+        return new THREE.Mesh(g,m);
+      }
+      function translate(mesh, x,y,z){
+        mesh.position.add(new THREE.Vector3(x,y,z));
+        return mesh;
+      }
+      function rotate(mesh, x,y,z){
+        mesh.rotation.x += x;
+        mesh.rotation.y += y;
+        mesh.rotation.z += z;
+        return mesh;
+      }
+      function union(meshes){
+        const group = new THREE.Group();
+        (Array.isArray(meshes) ? meshes : [meshes]).forEach(m => group.add(m));
+        return group;
+      }
+      function subtract(a, b){
+        const group = new THREE.Group();
+        const am = a.clone();
+        am.traverse(o => {
+          if (o.material) o.material = o.material.clone();
+        });
+        group.add(am);
+        const bm = b.clone();
+        bm.traverse(o => {
+          if (o.material) o.material = o.material.clone();
+          if (o.material) o.material.transparent = true, o.material.opacity = 0.35, o.material.color.set(0xf97316);
+        });
+        group.add(bm);
+        return group;
+      }
+
+      return {
+        box, cylinder, sphere,
+        translate, rotate,
+        union, subtract,
+        THREE
+      };
+    }
+
+    function evaluateCode(){
+      const src = codeEl.value.trim();
+      if (!src){
+        setStatus('Enter some code first.');
+        return;
+      }
+      setStatus('Building…');
+      setCodeStatus('');
+      try{
+        const api = makeAPI();
+        const fn = new Function('api', `
+          const { box, cylinder, sphere, translate, rotate, union, subtract, THREE } = api;
+          ${src}
+        `);
+        const result = fn(api);
+        if (!result){
+          setStatus('Your script didn\'t return a mesh or group.');
+          return;
+        }
+        const group = result instanceof THREE.Group ? result : new THREE.Group().add(result);
+        addModelToScene(group);
+        setStatus('Model rendered. You can export STL.');
+      }catch(e){
+        console.error(e);
+        setCodeStatus(e.message || String(e));
+        setStatus('Failed to build model.');
+      }
+    }
+
+    function exportSTL(){
+      if (!currentGroup){
+        setStatus('Nothing to export. Render a model first.');
+        return;
+      }
+      try{
+        const exporter = new THREE.STLExporter();
+        const data = exporter.parse(currentGroup);
+        const blob = new Blob([data], { type:'application/sla' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'model.stl';
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(a.href);
+        a.remove();
+        setStatus('STL downloaded.');
+      }catch(e){
+        console.error(e);
+        setStatus('STL export failed.');
+      }
+    }
+
+    function loadExample(){
+      const example = `// Example: rounded box with four posts
+const base = box(6, 0.6, 4);
+translate(base, 0, -0.3, 0);
+
+const post = cylinder(0.25, 1.4);
+translate(post, 2.4, 0.4, 1.4);
+
+const post2 = post.clone();
+translate(post2, -4.8, 0, 0);
+
+const post3 = post.clone();
+translate(post3, 0, 0, -2.8);
+
+const post4 = post.clone();
+translate(post4, -4.8, 0, -2.8);
+
+const posts = union([post, post2, post3, post4]);
+
+// simple hollow using subtract (visual only)
+const inner = box(4.8, 0.8, 2.8);
+translate(inner, 0, 0.2, 0);
+
+const shell = subtract(union([base, posts]), inner);
+
+shell; // last expression is returned`;
+      codeEl.value = example;
+      setCodeStatus('Example loaded. Click “Render model”.');
+    }
+
+    runBtn.addEventListener('click', evaluateCode);
+    exampleBtn.addEventListener('click', loadExample);
+    clearBtn.addEventListener('click', () => {
+      codeEl.value = '';
+      setCodeStatus('');
+      setStatus('Cleared. Enter new code.');
+      clearModel();
+      metaInfo.textContent = 'No model yet';
+    });
+    stlBtn.addEventListener('click', exportSTL);
+    resetCamBtn.addEventListener('click', () => {
+      if (!currentGroup) return;
+      addModelToScene(currentGroup);
+      setStatus('Camera reset.');
+    });
+
+    codeEl.placeholder = `// Example:
+// const b = box(4, 1, 2);
+// const c = cylinder(0.6, 2);
+// translate(c, 0, 1, 0);
+// union([b, c]);
+`;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initThree();
+      loadExample();
+    });
+  </script>
+</body>
+</html>
+
