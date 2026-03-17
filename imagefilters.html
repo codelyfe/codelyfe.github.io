@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Filters Studio</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.2),transparent 60%),
+                  radial-gradient(1000px 600px at -10% -10%,rgba(167,139,250,.22),transparent 55%),
+                  #020617;
+      color: #e5e7eb;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #020617;
+      border-radius: 20px;
+      border: 1px solid #1f2937;
+      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      padding: 20px 20px 18px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: 26px;
+      letter-spacing: .04em;
+    }
+    .sub {
+      margin: 0;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .file-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .file-input {
+      position: relative;
+    }
+    .file-input input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .file-input button {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: radial-gradient(circle at 0 0,rgba(59,130,246,.35),transparent 60%);
+      color: #e5e7eb;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .file-input button span {
+      font-weight: 600;
+      letter-spacing: .03em;
+    }
+    .file-input button:hover {
+      border-color: #60a5fa;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      font-size: 12px;
+      color: #9ca3af;
+      background: radial-gradient(circle at 0 0,rgba(96,165,250,.2),transparent 60%);
+    }
+    .pill strong {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+    .layout {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .preview-shell {
+      background: radial-gradient(circle at 10% 0,rgba(248,250,252,.06),transparent 50%),
+                  #020617;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      padding: 12px 12px 10px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      min-height: 360px;
+    }
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .preview-inner {
+      border-radius: 14px;
+      border: 1px dashed #374151;
+      background: #020617;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      image-rendering: auto;
+      border-radius: 12px;
+    }
+    .preview-placeholder {
+      text-align: center;
+      padding: 30px 20px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .preview-placeholder code {
+      background: #020617;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+    }
+    .preview-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .preview-meta span {
+      white-space: nowrap;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .btn {
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn.primary {
+      background: linear-gradient(90deg,#60a5fa,#22c55e);
+      color: #0b1120;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    .btn:hover {
+      border-color: #60a5fa;
+    }
+    .btn.primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .controls-shell {
+      background: radial-gradient(circle at 100% 0,rgba(37,99,235,.2),transparent 60%),
+                  #020617;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      padding: 12px 12px 10px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      max-height: 640px;
+    }
+    .controls-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .controls-scroll {
+      overflow: auto;
+      padding-right: 2px;
+      margin-right: -4px;
+    }
+    .group {
+      margin-bottom: 8px;
+      padding: 6px 6px 4px;
+      border-radius: 10px;
+      background: rgba(15,23,42,.6);
+      border: 1px solid rgba(31,41,55,.6);
+    }
+    .group-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+    .control-row {
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(0,1.2fr);
+      gap: 6px 10px;
+      align-items: center;
+      padding: 3px 0;
+      font-size: 12px;
+    }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      color: #d1d5db;
+    }
+    .control-label span.value {
+      font-variant-numeric: tabular-nums;
+      color: #9ca3af;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: #60a5fa;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 3px 0;
+      color: #d1d5db;
+    }
+    .checkbox-row input {
+      width: 14px;
+      height: 14px;
+    }
+    .hint {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 3px;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header style="position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);background:linear-gradient(180deg,rgba(2,6,23,.9),rgba(2,6,23,.6));border-bottom:1px solid rgba(148,163,184,.35);margin:-24px -24px 16px -24px;padding:0 24px;">
+    <div style="max-width:1240px;margin:0 auto;padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div style="display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:.06em;">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;color:#e5f0ff;text-decoration:none;">
+          <span aria-hidden="true" style="width:32px;height:32px;border-radius:10px;background:conic-gradient(from 180deg,#0ea5e9,#14b8a6,#a78bfa,#0ea5e9);box-shadow:inset 0 0 0 2px #ffffff40,0 8px 18px rgba(15,23,42,.8);"></span>
+          <span>CODELYFE</span>
+        </a>
+      </div>
+      <a href="index.html" style="border:1px solid #94a3b83f;background:linear-gradient(180deg,rgba(15,23,42,.95),rgba(15,23,42,.7));color:#e5f0ff;padding:9px 14px;border-radius:12px;font:600 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;text-decoration:none;box-shadow:0 10px 24px rgba(15,23,42,.65);">Home</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <h1>Image Filters Studio</h1>
+      <p class="sub">Upload or paste an image, then fine‑tune it with 30+ advanced controls. Export the final result as a new image.</p>
+
+      <div class="topbar">
+        <div class="file-controls">
+          <div class="file-input">
+            <button type="button">
+              <span>Upload image</span>
+            </button>
+            <input id="fileInput" type="file" accept="image/*" />
+          </div>
+          <button class="btn" id="pasteHintBtn" type="button">Paste image (Ctrl+V)</button>
+          <span class="pill" id="fileInfo">No image loaded</span>
+        </div>
+        <span class="pill"><strong>Tip</strong> Hold <code>Shift</code> for finer slider steps</span>
+      </div>
+
+      <div class="layout">
+        <section class="preview-shell">
+          <div class="preview-top">
+            <span>Preview</span>
+            <span id="sizeInfo">—</span>
+          </div>
+          <div class="preview-inner" id="previewArea">
+            <div class="preview-placeholder">
+              Drop an image here, upload, or paste with <code>Ctrl+V</code>.
+            </div>
+            <canvas id="canvas" hidden></canvas>
+          </div>
+          <div class="preview-meta">
+            <span id="zoomInfo">Zoom: 100%</span>
+            <span id="exportInfo">Ready</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn primary" id="exportPngBtn" type="button">Download PNG</button>
+            <button class="btn" id="exportJpegBtn" type="button">Download JPEG</button>
+            <button class="btn" id="resetAllBtn" type="button">Reset all</button>
+          </div>
+        </section>
+
+        <aside class="controls-shell">
+          <div class="controls-header">
+            <span>Adjustments</span>
+            <button class="btn" id="quickLooksBtn" type="button">Apply quick look</button>
+          </div>
+          <div class="controls-scroll" id="controlsPanel">
+            <!-- controls populated by JS -->
+          </div>
+          <div class="footer">
+            <span id="profileInfo">Profile: Custom</span>
+            <span id="dirtyInfo">No pending edits</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top:24px;text-align:center;font-size:13px;color:#9ca3af;">
+    Created by <a href="https://codelyfe.github.io" target="_blank" rel="noopener" style="color:#93c5fd;">Codelyfe.github.io</a>
+  </footer>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const previewArea = document.getElementById('previewArea');
+    const fileInfo = document.getElementById('fileInfo');
+    const sizeInfo = document.getElementById('sizeInfo');
+    const zoomInfo = document.getElementById('zoomInfo');
+    const exportInfo = document.getElementById('exportInfo');
+    const controlsPanel = document.getElementById('controlsPanel');
+    const profileInfo = document.getElementById('profileInfo');
+    const dirtyInfo = document.getElementById('dirtyInfo');
+    const exportPngBtn = document.getElementById('exportPngBtn');
+    const exportJpegBtn = document.getElementById('exportJpegBtn');
+    const resetAllBtn = document.getElementById('resetAllBtn');
+    const quickLooksBtn = document.getElementById('quickLooksBtn');
+    const pasteHintBtn = document.getElementById('pasteHintBtn');
+
+    let sourceImage = null;
+    let baseWidth = 0;
+    let baseHeight = 0;
+    let currentProfile = 'Custom';
+    let isDirty = false;
+
+    const settings = {
+      // tone & color
+      exposure: 0,
+      brightness: 0,
+      contrast: 0,
+      highlights: 0,
+      shadows: 0,
+      blacks: 0,
+      whites: 0,
+      saturation: 0,
+      vibrance: 0,
+      temperature: 0,
+      tint: 0,
+      hue: 0,
+      sepia: 0,
+      grayscale: 0,
+      fade: 0,
+      // detail
+      sharpness: 0,
+      clarity: 0,
+      texture: 0,
+      noise: 0,
+      blur: 0,
+      // effects
+      vignetteAmount: 0,
+      vignetteFeather: 50,
+      grain: 0,
+      pixelate: 0,
+      invert: 0,
+      opacity: 100,
+      // geometry
+      rotate: 0,
+      scale: 100,
+      flipH: false,
+      flipV: false,
+      aspectLock: true,
+      rounded: 0,
+      shadow: 0,
+    };
+
+    const groups = [
+      {
+        title: 'Tone & Color',
+        controls: [
+          { id: 'exposure', label: 'Exposure', min: -2, max: 2, step: 0.01, type: 'range' },
+          { id: 'brightness', label: 'Brightness', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'contrast', label: 'Contrast', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'highlights', label: 'Highlights', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'shadows', label: 'Shadows', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'blacks', label: 'Blacks', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'whites', label: 'Whites', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'saturation', label: 'Saturation', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'vibrance', label: 'Vibrance', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'temperature', label: 'Temperature', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'tint', label: 'Tint (G/M)', min: -100, max: 100, step: 1, type: 'range' },
+          { id: 'hue', label: 'Hue Shift', min: -180, max: 180, step: 1, type: 'range' },
+          { id: 'sepia', label: 'Sepia', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'grayscale', label: 'Monochrome', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'fade', label: 'Fade Blacks', min: 0, max: 100, step: 1, type: 'range' },
+        ]
+      },
+      {
+        title: 'Detail & Texture',
+        controls: [
+          { id: 'sharpness', label: 'Sharpness', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'clarity', label: 'Clarity', min: -50, max: 50, step: 1, type: 'range' },
+          { id: 'texture', label: 'Texture', min: -50, max: 50, step: 1, type: 'range' },
+          { id: 'noise', label: 'Digital Noise', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'blur', label: 'Gaussian Blur', min: 0, max: 30, step: 0.5, type: 'range' },
+        ]
+      },
+      {
+        title: 'Creative Effects',
+        controls: [
+          { id: 'vignetteAmount', label: 'Vignette', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'vignetteFeather', label: 'Vignette Feather', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'grain', label: 'Film Grain', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'pixelate', label: 'Pixelate', min: 0, max: 40, step: 1, type: 'range' },
+          { id: 'invert', label: 'Invert', min: 0, max: 100, step: 1, type: 'range' },
+          { id: 'opacity', label: 'Opacity', min: 10, max: 100, step: 1, type: 'range' },
+          { id: 'rounded', label: 'Rounded Corners', min: 0, max: 80, step: 1, type: 'range' },
+          { id: 'shadow', label: 'Soft Shadow', min: 0, max: 40, step: 1, type: 'range' },
+        ]
+      },
+      {
+        title: 'Geometry',
+        controls: [
+          { id: 'rotate', label: 'Rotate', min: -180, max: 180, step: 1, type: 'range' },
+          { id: 'scale', label: 'Zoom', min: 20, max: 200, step: 1, type: 'range' },
+          { id: 'flipH', label: 'Flip Horizontal', type: 'checkbox' },
+          { id: 'flipV', label: 'Flip Vertical', type: 'checkbox' },
+          { id: 'aspectLock', label: 'Lock Aspect Ratio', type: 'checkbox', default: true },
+        ]
+      }
+    ];
+
+    function buildUI() {
+      controlsPanel.innerHTML = '';
+      groups.forEach(group => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'group';
+        const title = document.createElement('div');
+        title.className = 'group-title';
+        title.textContent = group.title;
+        groupEl.appendChild(title);
+
+        group.controls.forEach(ctrl => {
+          if (ctrl.type === 'checkbox') {
+            const row = document.createElement('div');
+            row.className = 'checkbox-row';
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = ctrl.id;
+            input.checked = ctrl.default ?? Boolean(settings[ctrl.id]);
+            settings[ctrl.id] = input.checked;
+            const label = document.createElement('label');
+            label.htmlFor = ctrl.id;
+            label.textContent = ctrl.label;
+            row.appendChild(input);
+            row.appendChild(label);
+            groupEl.appendChild(row);
+            input.addEventListener('change', () => {
+              settings[ctrl.id] = input.checked;
+              markDirty();
+              applyEdits();
+            });
+          } else {
+            const row = document.createElement('div');
+            row.className = 'control-row';
+            const label = document.createElement('div');
+            label.className = 'control-label';
+            label.textContent = ctrl.label;
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'value';
+            valueSpan.id = ctrl.id + '-val';
+            valueSpan.textContent = '0';
+            label.appendChild(valueSpan);
+
+            const inputWrap = document.createElement('div');
+            const input = document.createElement('input');
+            input.type = 'range';
+            input.id = ctrl.id;
+            input.min = ctrl.min;
+            input.max = ctrl.max;
+            input.step = ctrl.step;
+            input.value = settings[ctrl.id];
+            inputWrap.appendChild(input);
+
+            row.appendChild(label);
+            row.appendChild(inputWrap);
+            groupEl.appendChild(row);
+
+            input.addEventListener('input', () => {
+              const v = Number(input.value);
+              settings[ctrl.id] = v;
+              valueSpan.textContent = ctrl.id === 'scale' || ctrl.id === 'opacity'
+                ? v.toFixed(0) + '%'
+                : v.toFixed( (String(ctrl.step || 1).indexOf('.') >= 0) ? 2 : 0 );
+              markDirty();
+              applyEdits();
+            });
+
+            // initialize label text
+            valueSpan.textContent = input.value;
+          }
+        });
+
+        controlsPanel.appendChild(groupEl);
+      });
+    }
+
+    function markDirty() {
+      isDirty = true;
+      dirtyInfo.textContent = 'Edits applied';
+      profileInfo.textContent = 'Profile: ' + currentProfile;
+    }
+
+    function resetSettings() {
+      Object.assign(settings, {
+        exposure: 0, brightness: 0, contrast: 0, highlights: 0, shadows: 0, blacks: 0, whites: 0,
+        saturation: 0, vibrance: 0, temperature: 0, tint: 0, hue: 0, sepia: 0, grayscale: 0, fade: 0,
+        sharpness: 0, clarity: 0, texture: 0, noise: 0, blur: 0,
+        vignetteAmount: 0, vignetteFeather: 50, grain: 0, pixelate: 0, invert: 0, opacity: 100,
+        rotate: 0, scale: 100, flipH: false, flipV: false, aspectLock: true,
+        rounded: 0, shadow: 0,
+      });
+      currentProfile = 'Custom';
+      isDirty = false;
+      dirtyInfo.textContent = 'No pending edits';
+      profileInfo.textContent = 'Profile: Custom';
+      buildUI();
+      applyEdits();
+    }
+
+    function loadImageFromBlob(blob, name = 'image', typeLabel = null) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          sourceImage = img;
+          baseWidth = img.naturalWidth || img.width;
+          baseHeight = img.naturalHeight || img.height;
+          canvas.width = baseWidth;
+          canvas.height = baseHeight;
+          canvas.hidden = false;
+          previewArea.querySelector('.preview-placeholder')?.remove();
+
+          const niceSize = formatBytes(blob.size || 0);
+          sizeInfo.textContent = baseWidth + '×' + baseHeight;
+          fileInfo.textContent = name + ' • ' + (typeLabel || blob.type || 'image') + ' • ' + niceSize;
+          zoomInfo.textContent = 'Zoom: 100%';
+          exportInfo.textContent = 'Ready';
+
+          resetSettings();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(blob);
+    }
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      loadImageFromBlob(file, file.name, file.type || 'image');
+    });
+
+    document.addEventListener('paste', e => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.indexOf('image/') !== 0) continue;
+        e.preventDefault();
+        const blob = item.getAsFile();
+        if (blob) loadImageFromBlob(blob, 'pasted-image', blob.type);
+        break;
+      }
+    });
+
+    pasteHintBtn.addEventListener('click', () => {
+      pasteHintBtn.textContent = 'Press Ctrl+V with an image copied';
+      setTimeout(() => {
+        pasteHintBtn.textContent = 'Paste image (Ctrl+V)';
+      }, 2400);
+    });
+
+    previewArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      previewArea.style.borderColor = '#60a5fa';
+    });
+    previewArea.addEventListener('dragleave', () => {
+      previewArea.style.borderColor = '#374151';
+    });
+    previewArea.addEventListener('drop', e => {
+      e.preventDefault();
+      previewArea.style.borderColor = '#374151';
+      const file = Array.from(e.dataTransfer.files || []).find(f => f.type.startsWith('image/'));
+      if (file) loadImageFromBlob(file, file.name, file.type || 'image');
+    });
+
+    function buildFilterString() {
+      const {
+        exposure, brightness, contrast, saturation, vibrance,
+        temperature, tint, hue, sepia, grayscale, fade, blur,
+        invert, opacity
+      } = settings;
+
+      // map exposure to brightness multiplier
+      let exposureMul = Math.pow(2, exposure);
+      let brightMul = 1 + brightness / 100;
+      let finalBrightness = exposureMul * brightMul;
+
+      let finalContrast = 1 + contrast / 100;
+      let finalSaturation = 1 + (saturation + vibrance * 0.7) / 100;
+
+      const tempShift = temperature / 4;
+      const hueShift = hue + tempShift * 0.4;
+
+      const filters = [
+        `brightness(${finalBrightness.toFixed(3)})`,
+        `contrast(${finalContrast.toFixed(3)})`,
+        `saturate(${finalSaturation.toFixed(3)})`,
+        grayscale ? `grayscale(${(grayscale/100).toFixed(2)})` : '',
+        sepia ? `sepia(${(sepia/100).toFixed(2)})` : '',
+        invert ? `invert(${(invert/100).toFixed(2)})` : '',
+        `opacity(${(opacity/100).toFixed(2)})`,
+        hueShift ? `hue-rotate(${hueShift.toFixed(1)}deg)` : '',
+        blur ? `blur(${blur.toFixed(2)}px)` : ''
+      ].filter(Boolean);
+      return filters.join(' ');
+    }
+
+    function applyEdits() {
+      if (!sourceImage) return;
+
+      const scaleFactor = settings.scale / 100;
+      const rotateRad = settings.rotate * Math.PI / 180;
+      const flipX = settings.flipH ? -1 : 1;
+      const flipY = settings.flipV ? -1 : 1;
+
+      const cos = Math.abs(Math.cos(rotateRad));
+      const sin = Math.abs(Math.sin(rotateRad));
+      const w = baseWidth * scaleFactor;
+      const h = baseHeight * scaleFactor;
+      const bbWidth = w * cos + h * sin;
+      const bbHeight = w * sin + h * cos;
+
+      canvas.width = bbWidth;
+      canvas.height = bbHeight;
+
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(rotateRad);
+      ctx.scale(flipX * scaleFactor, flipY * scaleFactor);
+
+      ctx.filter = buildFilterString();
+      ctx.drawImage(sourceImage, -baseWidth / 2, -baseHeight / 2);
+      ctx.restore();
+
+      applyOverlays();
+      updateMeta();
+    }
+
+    function applyOverlays() {
+      const { vignetteAmount, vignetteFeather, grain, shadow, fade, texture, clarity, noise } = settings;
+
+      if (fade > 0) {
+        const alpha = fade / 200;
+        ctx.fillStyle = `rgba(15,23,42,${alpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      if (shadow > 0) {
+        const blur = shadow * 1.2;
+        const offset = shadow * 0.6;
+        ctx.save();
+        ctx.globalAlpha = 0.55;
+        ctx.filter = `blur(${blur.toFixed(1)}px)`;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(offset, offset, canvas.width - offset*2, canvas.height - offset*2);
+        ctx.restore();
+      }
+
+      if (vignetteAmount > 0) {
+        const maxRadius = Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height) / 2;
+        const inner = maxRadius * (1 - (vignetteFeather / 120));
+        const outer = maxRadius;
+        const g = ctx.createRadialGradient(
+          canvas.width / 2, canvas.height / 2, inner,
+          canvas.width / 2, canvas.height / 2, outer
+        );
+        const strength = Math.min(0.9, vignetteAmount / 120);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(1, `rgba(0,0,0,${strength})`);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      if (texture !== 0 || clarity !== 0 || noise > 0 || grain > 0) {
+        const grainAmount = (grain + noise) / 2;
+        if (grainAmount > 0) {
+          const density = Math.min(1.4, grainAmount / 35);
+          const count = Math.floor(canvas.width * canvas.height * 0.0015 * density);
+          const strength = 0.45 + (clarity > 0 ? clarity / 200 : 0);
+          ctx.save();
+          ctx.globalAlpha = strength;
+          for (let i = 0; i < count; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const v = 180 + Math.random() * 75;
+            const c = v | 0;
+            ctx.fillStyle = `rgba(${c},${c},${c},0.55)`;
+            ctx.fillRect(x, y, 1, 1);
+          }
+          ctx.restore();
+        }
+      }
+
+      if (settings.pixelate > 0) {
+        const level = settings.pixelate;
+        const scale = Math.max(4, level);
+        const w = Math.max(4, canvas.width / scale);
+        const h = Math.max(4, canvas.height / scale);
+        const tmp = document.createElement('canvas');
+        tmp.width = w;
+        tmp.height = h;
+        const tctx = tmp.getContext('2d');
+        tctx.imageSmoothingEnabled = false;
+        tctx.drawImage(canvas, 0, 0, w, h);
+        ctx.imageSmoothingEnabled = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(tmp, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+        ctx.imageSmoothingEnabled = true;
+      }
+
+      if (settings.rounded > 0) {
+        const r = settings.rounded;
+        const { width: w, height: h } = canvas;
+        const tmp = document.createElement('canvas');
+        tmp.width = w;
+        tmp.height = h;
+        const tctx = tmp.getContext('2d');
+        tctx.drawImage(canvas, 0, 0);
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.save();
+        roundRectPath(ctx, 0, 0, w, h, r);
+        ctx.clip();
+        ctx.drawImage(tmp, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    function roundRectPath(context, x, y, w, h, r) {
+      r = Math.min(r, w / 2, h / 2);
+      context.beginPath();
+      context.moveTo(x + r, y);
+      context.lineTo(x + w - r, y);
+      context.quadraticCurveTo(x + w, y, x + w, y + r);
+      context.lineTo(x + w, y + h - r);
+      context.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      context.lineTo(x + r, y + h);
+      context.quadraticCurveTo(x, y + h, x, y + h - r);
+      context.lineTo(x, y + r);
+      context.quadraticCurveTo(x, y, x + r, y);
+      context.closePath();
+    }
+
+    function updateMeta() {
+      if (!sourceImage) return;
+      const zoom = settings.scale.toFixed(0);
+      zoomInfo.textContent = 'Zoom: ' + zoom + '%';
+      exportInfo.textContent = 'Canvas: ' + canvas.width + '×' + canvas.height;
+    }
+
+    function exportImage(type) {
+      if (!sourceImage) return;
+      const quality = type === 'image/jpeg' ? 0.94 : 1.0;
+      exportInfo.textContent = 'Rendering…';
+      requestAnimationFrame(() => {
+        try {
+          const url = canvas.toDataURL(type, quality);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = type === 'image/jpeg' ? 'image-edited.jpg' : 'image-edited.png';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          exportInfo.textContent = 'Exported ' + (type === 'image/jpeg' ? 'JPEG' : 'PNG');
+        } catch (e) {
+          console.error(e);
+          exportInfo.textContent = 'Export failed';
+        }
+      });
+    }
+
+    exportPngBtn.addEventListener('click', () => exportImage('image/png'));
+    exportJpegBtn.addEventListener('click', () => exportImage('image/jpeg'));
+    resetAllBtn.addEventListener('click', resetSettings);
+
+    const looks = [
+      { name: 'Cinematic Teal & Orange', apply: () => {
+        resetSettings();
+        settings.contrast = 28;
+        settings.saturation = 16;
+        settings.temperature = -18;
+        settings.tint = 12;
+        settings.vignetteAmount = 30;
+        settings.vignetteFeather = 70;
+        settings.clarity = 20;
+      }},
+      { name: 'Matte Film', apply: () => {
+        resetSettings();
+        settings.fade = 38;
+        settings.contrast = -18;
+        settings.saturation = -10;
+        settings.grain = 35;
+        settings.vignetteAmount = 24;
+        settings.temperature = 6;
+      }},
+      { name: 'High Contrast B&W', apply: () => {
+        resetSettings();
+        settings.grayscale = 100;
+        settings.contrast = 35;
+        settings.shadows = -10;
+        settings.highlights = 14;
+        settings.clarity = 25;
+      }},
+      { name: 'Soft Portrait', apply: () => {
+        resetSettings();
+        settings.exposure = 0.2;
+        settings.brightness = 12;
+        settings.contrast = -6;
+        settings.saturation = 10;
+        settings.blur = 3;
+        settings.texture = -18;
+        settings.vignetteAmount = 18;
+      }},
+      { name: 'Neon Night', apply: () => {
+        resetSettings();
+        settings.exposure = -0.3;
+        settings.contrast = 30;
+        settings.saturation = 40;
+        settings.temperature = -26;
+        settings.hue = 18;
+        settings.vibrance = 25;
+        settings.shadows = 18;
+      }},
+    ];
+
+    let lookIndex = 0;
+    quickLooksBtn.addEventListener('click', () => {
+      if (!sourceImage) return;
+      const look = looks[lookIndex % looks.length];
+      lookIndex++;
+      look.apply();
+      currentProfile = look.name;
+      profileInfo.textContent = 'Profile: ' + currentProfile;
+      dirtyInfo.textContent = 'Preset applied';
+      buildUI();
+      applyEdits();
+    });
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes <= 0) return '0 B';
+      const units = ['B','KB','MB','GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      const v = bytes / Math.pow(1024, i);
+      return v.toFixed(1) + ' ' + units[i];
+    }
+
+    buildUI();
+  </script>
+</body>
+</html>
+
