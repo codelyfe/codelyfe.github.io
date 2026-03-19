@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IP Lookup Scanner — Codelyfe</title>
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <style>
+    :root{
+      --panel:#0f172a;
+      --text:#e5f0ff;
+      --muted:#9db3d1;
+      --brand:#0ea5e9;
+      --brand-2:#14b8a6;
+      --accent:#a78bfa;
+      --ring:0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
+      --glass:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+    }
+    @media (prefers-color-scheme: light){
+      :root{--bg:#f7fbff;--panel:#fff;--text:#0b1220;--muted:#44566c;--glass:linear-gradient(180deg,#fff,#fff7)}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--text);
+      background:radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.22),transparent 60%),radial-gradient(1000px 600px at -10% -10%,rgba(167,139,250,.22),transparent 55%),var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{
+      position:sticky;top:0;z-index:10;
+      backdrop-filter:saturate(120%) blur(6px);
+      background:linear-gradient(180deg,rgba(2,8,23,.55),rgba(2,8,23,.15));
+      border-bottom:1px solid rgba(148,163,184,.15);
+    }
+    .bar{max-width:900px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:10px}
+    .logo{width:32px;height:32px;border-radius:10px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand))}
+    .btn{
+      border:1px solid #94a3b83f;
+      background:var(--glass);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font:600 14px/1 system-ui,sans-serif;
+      transition:transform .2s;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn.primary{background:linear-gradient(135deg,#238636,#2ea043);border-color:transparent;color:#fff}
+    main{max-width:900px;margin:32px auto;padding:0 18px}
+    h1{font-weight:800;font-size:clamp(26px,4vw,34px);margin:0 0 8px}
+    .subtitle{color:var(--muted);font-size:15px;margin-bottom:20px}
+    .card{background:var(--panel);border-radius:16px;padding:24px;border:1px solid #94a3b82f;margin-bottom:20px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+    .field{flex:1;min-width:200px}
+    label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
+    input[type="text"]{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #94a3b83f;
+      background:#0c1222;
+      color:var(--text);
+      font-size:16px;
+    }
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px}
+    .box{
+      background:#0c1222;
+      border:1px solid #94a3b83f;
+      border-radius:12px;
+      padding:14px;
+    }
+    .box .label{font-size:11px;text-transform:uppercase;opacity:.8;margin-bottom:6px;color:var(--muted)}
+    .box .value{font-size:14px;word-break:break-word}
+    pre{
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#0c1222;
+      border:1px solid #94a3b83f;
+      border-radius:12px;
+      padding:14px;
+      overflow:auto;
+      font-size:12px;
+      margin-top:16px;
+    }
+    .error{color:#f87171;font-size:14px;margin-top:12px}
+    footer{padding:24px 18px;color:var(--muted);text-align:center;border-top:1px solid #94a3b826}
+    footer a{color:#93c5fd}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            CODELYFE
+          </a>
+        </div>
+        <a class="btn" href="index.html">Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>IP Lookup Scanner</h1>
+      <p class="subtitle">Validate an IP and fetch RDAP, geolocation, and abuse reputation.</p>
+
+      <div class="card">
+        <div class="row">
+          <div class="field">
+            <label for="ipInput">IPv4 or IPv6 address</label>
+            <input id="ipInput" type="text" placeholder="e.g. 8.8.8.8 or 2001:4860:4860::8888" />
+          </div>
+          <button id="scanBtn" class="btn primary">Scan IP</button>
+        </div>
+        <div id="error" class="error"></div>
+      </div>
+
+      <div id="results" class="card" style="display:none;">
+        <h2 style="margin:0 0 12px;font-size:18px;">Results</h2>
+        <div class="grid" id="summaryGrid"></div>
+        <h3 style="margin:20px 0 8px;font-size:14px;">Full response</h3>
+        <pre id="rawOutput"></pre>
+      </div>
+    </main>
+
+    <footer>
+      Created by <a href="https://codelyfe.github.io" target="_blank" rel="noopener">Codelyfe.github.io</a>
+    </footer>
+  </div>
+
+  <script>
+    const ipInput = document.getElementById('ipInput');
+    const scanBtn = document.getElementById('scanBtn');
+    const errorEl = document.getElementById('error');
+    const resultsEl = document.getElementById('results');
+    const summaryGrid = document.getElementById('summaryGrid');
+    const rawOutput = document.getElementById('rawOutput');
+
+    function isValidIP(ip){
+      const ipv4 = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+      const ipv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::1|::|([0-9a-fA-F]{1,4}:){1,7}:|:((:[0-9a-fA-F]{1,4}){1,7}))$/;
+      return ipv4.test(ip) || ipv6.test(ip);
+    }
+
+    function isIPv4(ip){ return /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/.test(ip); }
+
+    function ipv4ToInt(ip){
+      const parts = ip.split('.').map(Number);
+      return (parts[0]<<24)|(parts[1]<<16)|(parts[2]<<8)|parts[3];
+    }
+
+    function ipInCIDRv4(ip, cidr){
+      const [range, bits] = cidr.split('/');
+      const prefix = parseInt(bits, 10);
+      const mask = prefix === 0 ? 0 : (-1 << (32 - prefix)) >>> 0;
+      const network = ipv4ToInt(range) & mask;
+      return (ipv4ToInt(ip) & mask) === network;
+    }
+
+    function ipInCIDRv6(ip, cidr){
+      const [range, bits] = cidr.split('/');
+      const prefix = parseInt(bits, 10);
+      const ipNorm = normalizeIPv6(ip);
+      const rangeNorm = normalizeIPv6(range);
+      const ipBig = ipv6ToBigInt(ipNorm);
+      const rangeBig = ipv6ToBigInt(rangeNorm);
+      const mask = prefix >= 128 ? 0xffffffffffffffffn : (0xffffffffffffffffn << BigInt(128 - prefix)) & 0xffffffffffffffffffffffffffffffffn;
+      return (ipBig & mask) === (rangeBig & mask);
+    }
+
+    function normalizeIPv6(ip){
+      if (ip.includes('.')) {
+        const parts = ip.split(':');
+        const last = parts.pop();
+        const v4 = last.split('.').map(n => ('0'+parseInt(n,10).toString(16)).slice(-2)).join('');
+        parts.push(v4.slice(0,4), v4.slice(4));
+        return parts.join(':');
+      }
+      const segments = ip.split(':');
+      const full = [];
+      let expand = false;
+      for (let i = 0; i < segments.length; i++) {
+        if (segments[i] === '' && !expand) { expand = true; full.push('zero'); continue; }
+        if (segments[i] === '') continue;
+        full.push(segments[i].padStart(4, '0'));
+      }
+      let joined = full.join(':');
+      if (joined.includes('zero')) {
+        const before = joined.split('zero')[0].replace(/:$/, '');
+        const after = joined.split('zero')[1].replace(/^:/, '');
+        const need = 8 - (before.split(':').filter(Boolean).length + after.split(':').filter(Boolean).length);
+        joined = before + ':' + Array(need).fill('0000').join(':') + (after ? ':' + after : '');
+      }
+      return joined;
+    }
+
+    function ipv6ToBigInt(normalized){
+      const parts = normalized.split(':');
+      let n = 0n;
+      for (const p of parts) {
+        n = (n << 16n) | BigInt(parseInt(p, 16));
+      }
+      return n;
+    }
+
+    function findRdapServer(ip, bootstrap){
+      const services = bootstrap.services || [];
+      const isV4 = isIPv4(ip);
+      for (const entry of services) {
+        const cidrs = entry[0];
+        const urls = entry[1];
+        const baseUrl = Array.isArray(urls) ? (urls.find(u => u.startsWith('https://')) || urls[0]) : urls;
+        for (const cidr of cidrs) {
+          if (isV4 && cidr.includes('.')) {
+            if (ipInCIDRv4(ip, cidr)) return (baseUrl || '').replace(/\/$/, '');
+          } else if (!isV4 && cidr.includes(':')) {
+            if (ipInCIDRv6(ip, cidr)) return (baseUrl || '').replace(/\/$/, '');
+          }
+        }
+      }
+      return null;
+    }
+
+    async function fetchRdap(ip){
+      const isV4 = isIPv4(ip);
+      const bootstrapUrl = isV4 ? 'https://data.iana.org/rdap/ipv4.json' : 'https://data.iana.org/rdap/ipv6.json';
+      const bootRes = await fetch(bootstrapUrl);
+      if (!bootRes.ok) return null;
+      const bootstrap = await bootRes.json();
+      const base = findRdapServer(ip, bootstrap);
+      if (!base) return null;
+      const rdapRes = await fetch(`${base.replace(/\/$/, '')}/ip/${ip}`);
+      if (!rdapRes.ok) return null;
+      return rdapRes.json();
+    }
+
+    function rdapToSummary(rdap){
+      if (!rdap) return {};
+      const network = rdap.ldhName || (rdap.cidr0_cidrs && rdap.cidr0_cidrs[0]) || null;
+      let asn = rdap.asn || null;
+      if (!asn && rdap.entities) {
+        const asnEnt = rdap.entities.find(e => (e.roles && e.roles.includes('registrant')) || e.handle && String(e.handle).startsWith('AS'));
+        if (asnEnt && asnEnt.handle) asn = asnEnt.handle;
+      }
+      let org = rdap.name || null;
+      if (!org && rdap.entities && rdap.entities[0]) {
+        const vcard = rdap.entities[0].vcardArray;
+        if (Array.isArray(vcard) && vcard[1]) {
+          const fn = vcard[1].find(r => r[0] === 'fn');
+          if (fn) org = fn[3];
+        }
+      }
+      return { network, asn, org, rdap };
+    }
+
+    async function fetchGeo(ip){
+      try {
+        const res = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
+        if (!res.ok) return null;
+        return res.json();
+      } catch (_) {
+        try {
+          const r = await fetch(`https://get.geojs.io/v1/ip/geo/${encodeURIComponent(ip)}.json`);
+          if (!r.ok) return null;
+          const g = await r.json();
+          return {
+            country_name: g.country || null,
+            city: g.city || null,
+            org: g.organization || null,
+            region: g.region || null
+          };
+        } catch (_) { return null; }
+      }
+    }
+
+    function box(label, value){
+      return `<div class="box"><div class="label">${label}</div><div class="value">${value != null && value !== '' ? value : '—'}</div></div>`;
+    }
+
+    async function scanIP(){
+      const ip = ipInput.value.trim();
+      errorEl.textContent = '';
+      resultsEl.style.display = 'none';
+      summaryGrid.innerHTML = '';
+      rawOutput.textContent = '';
+
+      if (!ip){
+        errorEl.textContent = 'Enter an IP address.';
+        return;
+      }
+      if (!isValidIP(ip)){
+        errorEl.textContent = 'That does not look like a valid IPv4 or IPv6 address.';
+        return;
+      }
+
+      scanBtn.disabled = true;
+      scanBtn.textContent = 'Scanning…';
+
+      try {
+        const version = isIPv4(ip) ? 4 : 6;
+        const [rdap, geo] = await Promise.all([fetchRdap(ip), fetchGeo(ip)]);
+        const rSummary = rdapToSummary(rdap);
+
+        const data = {
+          ip,
+          version,
+          network: rSummary.network,
+          asn: rSummary.asn,
+          org: rSummary.org || (geo && geo.org),
+          country: (geo && geo.country_name) || null,
+          city: (geo && geo.city) || null,
+          isp: (geo && geo.org) || null,
+          abuseConfidenceScore: null,
+          totalReports: null,
+          rdap: rdap || null,
+          geo: geo || null
+        };
+
+        summaryGrid.innerHTML = [
+          box('IP', data.ip),
+          box('Type', 'IPv' + data.version),
+          box('Network / CIDR', data.network),
+          box('ASN', data.asn),
+          box('Organization', data.org),
+          box('Country', data.country),
+          box('City', data.city),
+          box('ISP', data.isp),
+          box('Abuse score', data.abuseConfidenceScore),
+          box('Total reports', data.totalReports)
+        ].join('');
+
+        rawOutput.textContent = JSON.stringify(data, null, 2);
+        resultsEl.style.display = 'block';
+      } catch (err) {
+        errorEl.textContent = err.message || 'Lookup failed.';
+      } finally {
+        scanBtn.disabled = false;
+        scanBtn.textContent = 'Scan IP';
+      }
+    }
+
+    scanBtn.addEventListener('click', scanIP);
+    ipInput.addEventListener('keydown', e => { if (e.key === 'Enter') scanIP(); });
+  </script>
+</body>
+</html>

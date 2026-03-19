@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Web Surface Scanner — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <style>
+    :root{
+      --bg:#020617;--panel:#020617;--panel-soft:#020617;--text:#e5f0ff;--muted:#9ca3af;
+      --brand:#0ea5e9;--brand-2:#14b8a6;--accent:#a78bfa;
+      --ring:0 0 0 3px color-mix(in srgb,var(--brand) 35%,transparent);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f3f6ff;--panel:#ffffff;--panel-soft:#eef2ff;--text:#020617;--muted:#4b5563;
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.24),transparent 60%),
+        radial-gradient(900px 600px at -10% -10%,rgba(167,139,250,.26),transparent 55%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{
+      position:sticky;top:0;z-index:10;
+      backdrop-filter:saturate(120%) blur(6px);
+      background:linear-gradient(180deg,rgba(2,8,23,.95),rgba(2,8,23,.7));
+      border-bottom:1px solid rgba(148,163,184,.35);
+    }
+    .bar{
+      max-width:1000px;margin:0 auto;padding:12px 18px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:.06em}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:10px}
+    .logo{
+      width:32px;height:32px;border-radius:10px;
+      background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand));
+      box-shadow:inset 0 0 0 2px #ffffff40,0 8px 18px rgba(15,23,42,.9);
+    }
+    .btn{
+      border-radius:12px;
+      border:1px solid #94a3b83f;
+      background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.78));
+      color:var(--text);
+      padding:8px 13px;
+      font:600 13px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(15,23,42,.75);
+      display:inline-flex;align-items:center;gap:6px;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    main{
+      max-width:1000px;margin:18px auto;padding:0 18px 22px;
+    }
+    h1{
+      margin:0 0 4px;
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:.05em;
+    }
+    .subtitle{
+      margin:0 0 14px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .subtitle strong{color:#f97316}
+    .shell{
+      background:rgba(15,23,42,.94);
+      border-radius:18px;
+      border:1px solid rgba(148,163,184,.4);
+      box-shadow:0 22px 60px rgba(15,23,42,.9);
+      padding:14px 14px 12px;
+    }
+    @media (prefers-color-scheme: light){
+      .shell{
+        background:linear-gradient(180deg,#ffffff,#eef2ff);
+        border-color:rgba(148,163,184,.35);
+      }
+    }
+    .form-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .form-row label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+    .url-wrap{
+      flex:1 1 260px;
+      min-width:0;
+    }
+    input[type="url"]{
+      width:100%;
+      padding:9px 11px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.55);
+      background:#020617;
+      color:#e5e7eb;
+      font-size:13px;
+    }
+    @media (prefers-color-scheme: light){
+      input[type="url"]{background:#ffffff;color:#020617;}
+    }
+    select{
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.55);
+      background:#020617;
+      color:#e5e7eb;
+      padding:7px 10px;
+      font-size:12px;
+    }
+    .pill{
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.4);
+      color:var(--muted);
+      font-size:11px;
+      background:rgba(15,23,42,.9);
+      white-space:nowrap;
+    }
+    .small-note{
+      margin-top:4px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .small-note strong{color:#f97316}
+    .cols{
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width:880px){
+      .cols{grid-template-columns:minmax(0,1fr);}
+    }
+    .panel{
+      border-radius:12px;
+      border:1px solid rgba(148,163,184,.38);
+      background:rgba(15,23,42,.9);
+      padding:10px;
+      min-height:0;
+    }
+    @media (prefers-color-scheme: light){
+      .panel{background:#0206170a;}
+    }
+    .panel h2{
+      margin:0 0 6px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+    .scopes{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:6px;
+    }
+    .chip{
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.4);
+      font-size:11px;
+      color:var(--muted);
+    }
+    .list{
+      max-height:210px;
+      overflow:auto;
+      font-size:11px;
+      line-height:1.4;
+      color:#9ca3af;
+    }
+    .list code{
+      font-family:ui-monospace,Menlo,Consolas,monospace;
+      font-size:11px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:11px;
+    }
+    thead tr{
+      background:rgba(15,23,42,.95);
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    th,td{
+      padding:4px 6px;
+      border-bottom:1px solid rgba(30,64,175,.3);
+      white-space:nowrap;
+    }
+    th{
+      text-align:left;
+      font-weight:600;
+      color:#9ca3af;
+    }
+    td.path{max-width:260px;overflow:hidden;text-overflow:ellipsis;}
+    td.path code{white-space:nowrap;}
+    .ok{color:#22c55e;}
+    .warn{color:#eab308;}
+    .err{color:#f97316;}
+    .bad{color:#f97373;}
+    .status-line{
+      margin-top:6px;
+      font-size:11px;
+      color:var(--muted);
+      min-height:1.2em;
+    }
+    .platform-box{
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.35);
+      background:rgba(15,23,42,.7);
+    }
+    .platform-title{
+      margin:0 0 4px;
+      font-size:11px;
+      font-weight:600;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.1em;
+    }
+    .platform-result{
+      font-size:12px;
+      color:var(--text);
+      line-height:1.4;
+    }
+    .platform-result .cms{
+      display:inline-block;
+      margin:2px 6px 2px 0;
+      padding:3px 8px;
+      border-radius:999px;
+      background:rgba(34,197,94,.2);
+      color:#22c55e;
+      font-weight:600;
+    }
+    .platform-result .cms-detail{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    footer{
+      padding:18px;
+      color:var(--muted);
+      text-align:center;
+      border-top:1px solid rgba(148,163,184,.26);
+      background:linear-gradient(0deg,#02081733,transparent);
+      font-size:13px;
+    }
+    footer a{color:#93c5fd}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <a href="index.html">
+            <span class="logo" aria-hidden="true"></span>
+            <span>CODELYFE</span>
+          </a>
+        </div>
+        <a class="btn" href="index.html">Home</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Web Surface Scanner</h1>
+      <p class="subtitle">Probe a site for exposed config files and interesting paths. <strong>Only scan sites you own or have explicit permission to test.</strong></p>
+
+      <div class="shell">
+        <div class="form-row">
+          <div class="url-wrap">
+            <label for="baseUrl">Target URL</label>
+            <input id="baseUrl" type="url" placeholder="https://example.com" />
+            <div class="small-note">Probes sensitive paths and CMS signatures (WordPress, Drupal, Joomla, etc.) to detect platform and exposed files.</div>
+          </div>
+          <div>
+            <label for="profileSel">Profile</label><br>
+            <select id="profileSel">
+              <option value="minimal">Minimal (fast)</option>
+              <option value="standard" selected>Standard (balanced)</option>
+              <option value="aggressive">Aggressive (more paths)</option>
+            </select>
+          </div>
+          <button class="btn" type="button" id="scanBtn">Start scan</button>
+        </div>
+
+        <div class="cols">
+          <section class="panel">
+            <h2>What it looks for</h2>
+            <div class="scopes">
+              <span class="chip">Environment &amp; secrets</span>
+              <span class="chip">VCS metadata</span>
+              <span class="chip">Backups &amp; exports</span>
+              <span class="chip">Config &amp; logs</span>
+            </div>
+            <div class="list" id="profileInfo"></div>
+          </section>
+
+          <section class="panel" aria-label="Results">
+            <h2>Results</h2>
+            <div style="border-radius:10px;border:1px solid rgba(30,64,175,.55);max-height:230px;overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Path</th>
+                    <th>Status</th>
+                    <th>Bytes</th>
+                    <th>Risk</th>
+                    <th>Platform</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsBody">
+                  <tr><td colspan="5" style="padding:6px 8px;color:#9ca3af;">No requests yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-line" id="statusLine">Idle.</div>
+            <div class="platform-box" id="platformBox" aria-live="polite">
+              <h3 class="platform-title">Detected platform</h3>
+              <div id="platformResult" class="platform-result">—</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      Created by <a href="https://codelyfe.github.io" target="_blank" rel="noopener">Codelyfe.github.io</a>
+    </footer>
+  </div>
+
+  <script>
+    const baseUrlInput = document.getElementById('baseUrl');
+    const profileSel = document.getElementById('profileSel');
+    const scanBtn = document.getElementById('scanBtn');
+    const resultsBody = document.getElementById('resultsBody');
+    const statusLine = document.getElementById('statusLine');
+    const profileInfo = document.getElementById('profileInfo');
+    const platformResult = document.getElementById('platformResult');
+
+    const profiles = {
+      minimal: {
+        label: 'Minimal',
+        description: 'Quick check for the most common high-risk files.',
+        paths: [
+          '/.env',
+          '/.git/config',
+          '/.git/HEAD',
+          '/.htaccess',
+          '/.DS_Store',
+          '/backup.zip',
+          '/db.sql',
+          '/config.php'
+        ]
+      },
+      standard: {
+        label: 'Standard',
+        description: 'Balanced scan of typical secrets, backups, and misconfigurations.',
+        paths: [
+          '/.env',
+          '/.env.local',
+          '/.env.production',
+          '/.git/config',
+          '/.git/HEAD',
+          '/.svn/entries',
+          '/.hg/hgrc',
+          '/.htaccess',
+          '/.htpasswd',
+          '/.DS_Store',
+          '/composer.lock',
+          '/package-lock.json',
+          '/yarn.lock',
+          '/phpinfo.php',
+          '/server-status',
+          '/config.php',
+          '/wp-config.php',
+          '/web.config',
+          '/nginx.conf',
+          '/backup.zip',
+          '/backup.tar',
+          '/backup.tar.gz',
+          '/db.sql',
+          '/dump.sql',
+          '/database.sqlite',
+          '/adminer.php',
+          '/.well-known/security.txt'
+        ]
+      },
+      aggressive: {
+        label: 'Aggressive',
+        description: 'Broader surface check. May be slower and noisier.',
+        paths: [
+          '/.env',
+          '/.env.local',
+          '/.env.production',
+          '/.env.dev',
+          '/.env.test',
+          '/.git/config',
+          '/.git/HEAD',
+          '/.git/index',
+          '/.svn/entries',
+          '/.hg/hgrc',
+          '/.hg/store/data',
+          '/.htaccess',
+          '/.htpasswd',
+          '/.DS_Store',
+          '/config.php',
+          '/local.config.php',
+          '/settings.php',
+          '/web.config',
+          '/nginx.conf',
+          '/httpd.conf',
+          '/phpinfo.php',
+          '/server-status',
+          '/wp-config.php',
+          '/wp-admin/install.php',
+          '/wp-json/',
+          '/composer.json',
+          '/composer.lock',
+          '/package.json',
+          '/package-lock.json',
+          '/yarn.lock',
+          '/pnpm-lock.yaml',
+          '/env.json',
+          '/config.json',
+          '/keys.json',
+          '/secrets.json',
+          '/backup.zip',
+          '/backup.tar',
+          '/backup.tar.gz',
+          '/backup.sql',
+          '/db.sql',
+          '/dump.sql',
+          '/database.sqlite',
+          '/adminer.php',
+          '/phpmyadmin/',
+          '/.well-known/security.txt',
+          '/.well-known/openid-configuration'
+        ]
+      }
+    };
+
+    const CMS_SIGNATURES = {
+      WordPress: [
+        '/wp-admin/',
+        '/wp-includes/',
+        '/wp-content/',
+        '/wp-login.php',
+        '/wp-json/',
+        '/xmlrpc.php',
+        '/readme.html',
+        '/license.txt',
+        '/wp-config.php',
+        '/wp-cron.php',
+        '/wp-load.php',
+        '/wp-signup.php'
+      ],
+      Drupal: [
+        '/core/',
+        '/core/misc/drupal.js',
+        '/sites/default/',
+        '/user/login',
+        '/node/',
+        '/admin/',
+        '/CHANGELOG.txt',
+        '/sites/default/settings.php',
+        '/update.php',
+        '/cron.php',
+        '/install.php'
+      ],
+      Joomla: [
+        '/administrator/',
+        '/components/',
+        '/modules/',
+        '/plugins/',
+        '/templates/',
+        '/configuration.php',
+        '/README.txt',
+        '/joomla.xml',
+        '/web.config.txt',
+        '/htaccess.txt'
+      ],
+      Magento: [
+        '/magento_version',
+        '/skin/frontend/',
+        '/js/',
+        '/media/',
+        '/app/etc/local.xml',
+        '/downloader/',
+        '/api.php',
+        '/index.php/setup/'
+      ],
+      Ghost: [
+        '/ghost/',
+        '/ghost/signin/',
+        '/assets/',
+        '/content/images/',
+        '/rss/'
+      ],
+      Laravel: [
+        '/vendor/',
+        '/storage/logs/',
+        '/.env',
+        '/artisan',
+        '/public/index.php'
+      ],
+      'Django / Python': [
+        '/admin/',
+        '/static/',
+        '/media/',
+        '/__debug__/',
+        '/wsgi.py',
+        '/manage.py'
+      ],
+      'Ruby on Rails': [
+        '/assets/',
+        '/public/',
+        '/config/database.yml',
+        '/Gemfile',
+        '/Gemfile.lock'
+      ]
+    };
+
+    function getCmsPaths(){
+      return Object.entries(CMS_SIGNATURES).flatMap(([name, paths]) =>
+        paths.map(p => ({ path: p, cms: name }))
+      );
+    }
+
+    function pathToCms(path){
+      const normalized = path.replace(/\/+$/, '') || '/';
+      for (const [cms, paths] of Object.entries(CMS_SIGNATURES)){
+        if (paths.some(p => normalized === p.replace(/\/+$/, '') || normalized.startsWith(p.replace(/\/+$/, '') + '/')))
+          return cms;
+      }
+      return null;
+    }
+
+    function renderProfileInfo(){
+      const p = profiles[profileSel.value] || profiles.standard;
+      const unique = Array.from(new Set(p.paths));
+      profileInfo.innerHTML = `
+        <div style="margin-bottom:6px;font-size:12px;color:${getComputedStyle(document.body).getPropertyValue('--muted')};">
+          <strong>${p.label}</strong> profile • ${p.description}
+        </div>
+        <div>
+          ${unique.map(path => `<div><code>${path}</code></div>`).join('')}
+        </div>
+      `;
+    }
+
+    profileSel.addEventListener('change', renderProfileInfo);
+    renderProfileInfo();
+
+    function normalizeBase(url){
+      try{
+        const u = new URL(url);
+        u.hash = '';
+        u.search = '';
+        return u.origin;
+      }catch{
+        return null;
+      }
+    }
+
+    async function scan(){
+      const raw = (baseUrlInput.value || '').trim();
+      const base = normalizeBase(raw);
+      if (!base){
+        statusLine.textContent = 'Enter a valid https:// URL.';
+        return;
+      }
+      const profile = profiles[profileSel.value] || profiles.standard;
+      const securityPaths = Array.from(new Set(profile.paths));
+      const cmsEntries = getCmsPaths();
+      const cmsPathSet = new Set(cmsEntries.map(e => e.path));
+      const securityOnly = securityPaths.filter(p => !cmsPathSet.has(p));
+      const targets = [...securityOnly, ...cmsEntries.map(e => e.path)];
+      const pathToCmsMap = new Map(cmsEntries.map(e => [e.path, e.cms]));
+
+      resultsBody.innerHTML = '<tr><td colspan="5" style="padding:6px 8px;color:#9ca3af;">Scanning…</td></tr>';
+      platformResult.textContent = '—';
+      statusLine.textContent = `Scanning ${targets.length} paths (security + CMS) on ${base}.`;
+      scanBtn.disabled = true;
+
+      const rows = [];
+      let tested = 0;
+
+      for (const path of targets){
+        const cmsTag = pathToCmsMap.get(path) || pathToCms(path);
+        const full = base.replace(/\/+$/,'') + path;
+        let status = 'error';
+        let code = '—';
+        let bytes = '—';
+        let risk = '';
+        try{
+          const res = await fetch(full, { method:'GET', mode:'cors' }).catch(() => null);
+          if (!res){
+            status = 'network';
+            code = '—';
+            risk = '';
+          }else{
+            code = res.status;
+            if (res.ok){
+              status = 'ok';
+              const cl = res.headers.get('content-length');
+              if (cl) bytes = cl;
+              else{
+                try{
+                  const text = await res.clone().text();
+                  bytes = text.length;
+                }catch{
+                  bytes = 'unknown';
+                }
+              }
+              risk = classifyRisk(path, res);
+            }else if (res.status === 401 || res.status === 403){
+              status = 'protected';
+              risk = '';
+            }else if (res.status === 404){
+              status = 'missing';
+              risk = '';
+            }else{
+              status = 'other';
+              risk = '';
+            }
+          }
+        }catch{
+          status = 'error';
+          code = '—';
+        }
+        rows.push({ path, full, status, code, bytes, risk, cms: cmsTag || undefined });
+        tested++;
+        renderRows(rows);
+        statusLine.textContent = `Scanned ${tested}/${targets.length} paths on ${base}.`;
+      }
+
+      scanBtn.disabled = false;
+      const okCount = rows.filter(r => r.status === 'ok').length;
+      statusLine.textContent = `Done. ${okCount} paths responded 2xx.`;
+      updatePlatformResult(rows);
+    }
+
+    function updatePlatformResult(rows){
+      const okByCms = {};
+      for (const r of rows){
+        if (r.status === 'ok' && r.cms){
+          if (!okByCms[r.cms]) okByCms[r.cms] = [];
+          okByCms[r.cms].push(r.path);
+        }
+      }
+      const detected = Object.keys(okByCms);
+      if (detected.length === 0){
+        platformResult.textContent = 'No CMS signatures detected (or CORS blocked responses).';
+        return;
+      }
+      platformResult.innerHTML = detected.map(cms =>
+        `<span class="cms">${escapeHtml(cms)}</span>`
+      ).join('') + (
+        detected.length ? '<div class="cms-detail">' + detected.map(cms =>
+          `<strong>${escapeHtml(cms)}</strong>: ${okByCms[cms].slice(0, 5).map(p => escapeHtml(p)).join(', ')}${okByCms[cms].length > 5 ? '…' : ''}`
+        ).join(' • ') + '</div>' : ''
+      );
+    }
+
+    function escapeHtml(s){
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function classifyRisk(path, res){
+      const lower = path.toLowerCase();
+      if (lower.includes('.env') || lower.includes('secret') || lower.includes('key')) return 'High';
+      if (lower.includes('.git') || lower.includes('.svn') || lower.includes('.hg')) return 'High';
+      if (lower.endsWith('.sql') || lower.includes('backup') || lower.includes('dump')) return 'High';
+      if (lower.endsWith('.zip') || lower.endsWith('.tar') || lower.endsWith('.gz')) return 'Medium';
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('text/plain') || ct.includes('application/json')) return 'Medium';
+      return 'Low';
+    }
+
+    function renderRows(rows){
+      if (!rows.length){
+        resultsBody.innerHTML = '<tr><td colspan="5" style="padding:6px 8px;color:#9ca3af;">No requests yet.</td></tr>';
+        return;
+      }
+      resultsBody.innerHTML = rows.map(r => {
+        const cls =
+          r.status === 'ok' ? 'ok' :
+          r.status === 'protected' ? 'warn' :
+          r.status === 'missing' ? '' :
+          'err';
+        const riskCls =
+          r.risk === 'High' ? 'bad' :
+          r.risk === 'Medium' ? 'warn' :
+          r.risk === 'Low' ? 'ok' : '';
+        const bytes = typeof r.bytes === 'number' ? r.bytes.toLocaleString() : r.bytes;
+        const code = r.code === '—' ? '—' : String(r.code);
+        const platform = r.cms ? escapeHtml(r.cms) : '—';
+        return `<tr>
+          <td class="path"><code>${escapeHtml(r.path)}</code></td>
+          <td class="${cls}">${r.status}${code !== '—' ? ' (' + code + ')' : ''}</td>
+          <td>${bytes}</td>
+          <td class="${riskCls}">${r.risk || '—'}</td>
+          <td>${platform}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    scanBtn.addEventListener('click', scan);
+  </script>
+</body>
+</html>
+
