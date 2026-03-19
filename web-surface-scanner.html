@@ -307,9 +307,16 @@
               <span>Use CORS proxy</span>
             </label>
           </div>
+          <div id="proxySelectWrap" style="display:none;">
+            <label for="proxySelect">Proxy</label><br>
+            <select id="proxySelect">
+              <option value="allorigins" selected>AllOrigins</option>
+              <option value="corsproxy">corsproxy.io</option>
+            </select>
+          </div>
           <button class="btn" type="button" id="scanBtn">Start scan</button>
         </div>
-        <div class="small-note" style="margin-top:4px;margin-bottom:0;">Cross-origin scans are blocked by the browser unless <strong>Use CORS proxy</strong> is enabled (requests go via a public proxy).</div>
+        <div class="small-note" style="margin-top:4px;margin-bottom:0;">Cross-origin scans need <strong>Use CORS proxy</strong>. If one proxy returns 403, try the other.</div>
 
         <div class="cols">
           <section class="panel">
@@ -360,8 +367,13 @@
     const baseUrlInput = document.getElementById('baseUrl');
     const profileSel = document.getElementById('profileSel');
     const useCorsProxyEl = document.getElementById('useCorsProxy');
+    const proxySelectWrap = document.getElementById('proxySelectWrap');
+    const proxySelect = document.getElementById('proxySelect');
     const scanBtn = document.getElementById('scanBtn');
-    const CORS_PROXY = 'https://corsproxy.io/?';
+    const CORS_PROXIES = {
+      allorigins: 'https://api.allorigins.win/raw?url=',
+      corsproxy: 'https://corsproxy.io/?'
+    };
     const resultsBody = document.getElementById('resultsBody');
     const statusLine = document.getElementById('statusLine');
     const profileInfo = document.getElementById('profileInfo');
@@ -580,6 +592,10 @@
 
     profileSel.addEventListener('change', renderProfileInfo);
     renderProfileInfo();
+    useCorsProxyEl.addEventListener('change', function(){
+      proxySelectWrap.style.display = useCorsProxyEl.checked ? 'block' : 'none';
+    });
+    if (useCorsProxyEl.checked) proxySelectWrap.style.display = 'block';
 
     function normalizeBase(url){
       try{
@@ -616,10 +632,11 @@
       let tested = 0;
 
       const useProxy = useCorsProxyEl && useCorsProxyEl.checked;
+      const proxyBase = CORS_PROXIES[proxySelect.value] || CORS_PROXIES.allorigins;
       for (const path of targets){
         const cmsTag = pathToCmsMap.get(path) || pathToCms(path);
         const full = base.replace(/\/+$/,'') + path;
-        const fetchUrl = useProxy ? (CORS_PROXY + encodeURIComponent(full)) : full;
+        const fetchUrl = useProxy ? (proxyBase + encodeURIComponent(full)) : full;
         let status = 'error';
         let code = '—';
         let bytes = '—';
