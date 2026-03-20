@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Advanced Calculator — Codelyfe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --panel:#0f172a;--text:#e5f0ff;--muted:#9db3d1;--brand:#0ea5e9;--brand-2:#14b8a6;--accent:#a78bfa;
+      --ring:0 0 0 3px color-mix(in srgb,var(--brand) 35%,transparent);
+      --glass:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+      --key:#1e293b;--key-op:#0f766e;--key-fn:#3730a3;--key-eq:#15803d;--disp:#020617;
+    }
+    @media (prefers-color-scheme: light){
+      :root{--bg:#f7fbff;--panel:#fff;--text:#0b1220;--muted:#44566c;--glass:linear-gradient(180deg,#fff,#fff7);
+        --key:#e2e8f0;--key-op:#99f6e4;--key-fn:#c7d2fe;--key-eq:#bbf7d0;--disp:#f8fafc;}
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{font:15px/1.5 Inter,system-ui,sans-serif;color:var(--text);
+      background:radial-gradient(1200px 600px at 80% -20%,rgba(78,205,255,.22),transparent 60%),
+        radial-gradient(1000px 600px at -10% -10%,rgba(167,139,250,.22),transparent 55%),var(--bg);
+      overflow-x:hidden;}
+    a{color:var(--brand);text-decoration:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--ring)}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(120%) blur(6px);
+      background:linear-gradient(180deg,rgba(2,8,23,.55),rgba(2,8,23,.15));border-bottom:1px solid rgba(148,163,184,.15)}
+    .bar{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+    .brand a{color:var(--text);display:flex;align-items:center;gap:10px}
+    .logo{width:32px;height:32px;border-radius:10px;background:conic-gradient(from 180deg,var(--brand),var(--brand-2),var(--accent),var(--brand))}
+    .btn{border:1px solid #94a3b83f;background:var(--glass);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font:600 14px/1 Inter,sans-serif}
+    .btn:hover{transform:translateY(-1px)}
+    main{max-width:1100px;margin:24px auto;padding:0 18px 32px}
+    h1{font-weight:800;font-size:clamp(24px,4vw,32px);margin:0 0 6px}
+    .subtitle{color:var(--muted);font-size:14px;margin-bottom:18px}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .tabs button{
+      padding:8px 16px;border-radius:999px;border:1px solid #94a3b84f;background:var(--glass);color:var(--text);
+      font:600 13px Inter,sans-serif;cursor:pointer;
+    }
+    .tabs button[aria-selected="true"]{background:linear-gradient(135deg,var(--brand),var(--brand-2));border-color:transparent;color:#fff}
+    .card{background:var(--panel);border-radius:18px;padding:18px;border:1px solid #94a3b82f;margin-bottom:16px}
+    .display-wrap{background:var(--disp);border-radius:14px;padding:12px 14px;border:1px solid #94a3b84f;margin-bottom:12px}
+    .expr-line{font:13px JetBrains Mono,monospace;color:var(--muted);min-height:1.4em;word-break:break-all;text-align:right}
+    .main-line{font:clamp(22px,5vw,34px) JetBrains Mono,monospace;font-weight:600;text-align:right;word-break:break-all;color:var(--text)}
+    .err-line{font:12px Inter,sans-serif;color:#f87171;margin-top:6px;min-height:1.2em}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;font-size:12px;color:var(--muted)}
+    .toolbar label{display:flex;align-items:center;gap:6px;cursor:pointer;margin:0;font-weight:500}
+    .toolbar select{padding:6px 10px;border-radius:8px;border:1px solid #94a3b84f;background:var(--disp);color:var(--text);font:13px Inter,sans-serif}
+    .keypad{display:grid;gap:6px}
+    .keypad.sci{grid-template-columns:repeat(8,minmax(0,1fr))}
+    .keypad.prog{grid-template-columns:repeat(6,minmax(0,1fr))}
+    @media (max-width:900px){.keypad.sci{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    @media (max-width:520px){.keypad.sci{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    .key{
+      min-height:42px;padding:8px 4px;border-radius:10px;border:1px solid #94a3b84f;background:var(--key);
+      color:var(--text);font:600 13px/1.1 Inter,sans-serif;cursor:pointer;user-select:none;
+    }
+    .key:hover{filter:brightness(1.08)}
+    .key:active{transform:scale(.97)}
+    .key.op{background:var(--key-op);border-color:transparent;color:#042f2e}
+    @media (prefers-color-scheme: dark){.key.op{color:#ccfbf1}}
+    .key.fn{background:var(--key-fn);border-color:transparent;color:#e0e7ff}
+    @media (prefers-color-scheme: light){.key.fn{color:#1e1b4b}}
+    .key.eq{background:var(--key-eq);border-color:transparent;color:#14532d;font-size:15px}
+    @media (prefers-color-scheme: dark){.key.eq{color:#dcfce7}}
+    .key.wide{grid-column:span 2}
+    .layout{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}}
+    .side h3{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .history{max-height:220px;overflow:auto;font:12px JetBrains Mono,monospace;border:1px solid #94a3b84f;border-radius:10px;padding:8px;background:var(--disp)}
+    .history div{padding:6px 8px;border-radius:6px;cursor:pointer;margin-bottom:4px;color:var(--muted)}
+    .history div:hover{background:rgba(14,165,233,.15);color:var(--text)}
+    .mem-badge{font:11px JetBrains Mono,monospace;color:var(--accent)}
+    footer{padding:22px 18px;color:var(--muted);text-align:center;border-top:1px solid #94a3b826;font-size:13px}
+    footer a{color:#93c5fd}
+    .hidden{display:none!important}
+    .unit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .unit-grid input,.unit-grid select{width:100%;padding:10px;border-radius:10px;border:1px solid #94a3b84f;background:var(--disp);color:var(--text);font:14px JetBrains Mono,monospace}
+    .unit-grid label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header><div class="bar">
+      <div class="brand"><a href="index.html"><span class="logo" aria-hidden="true"></span>CODELYFE</a></div>
+      <a class="btn" href="index.html">Home</a>
+    </div></header>
+    <main>
+      <h1>Advanced Calculator</h1>
+      <p class="subtitle">Scientific expressions, programmer (bases &amp; bitwise), memory, history, and unit conversion — all in the browser.</p>
+
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tabSci" aria-selected="true" aria-controls="panelSci">Scientific</button>
+        <button type="button" role="tab" id="tabProg" aria-selected="false" aria-controls="panelProg">Programmer</button>
+        <button type="button" role="tab" id="tabUnit" aria-selected="false" aria-controls="panelUnit">Units</button>
+      </div>
+
+      <div class="layout">
+        <div>
+          <section id="panelSci" class="card" role="tabpanel" aria-labelledby="tabSci">
+            <div class="toolbar">
+              <label><input type="radio" name="angle" value="deg" checked /> Deg</label>
+              <label><input type="radio" name="angle" value="rad" /> Rad</label>
+              <span class="mem-badge" id="memSci">M = 0</span>
+              <button type="button" class="btn" id="copySci" style="margin-left:auto;padding:6px 12px;font-size:12px">Copy result</button>
+            </div>
+            <div class="display-wrap">
+              <div class="expr-line" id="exprSci" aria-label="Expression"></div>
+              <div class="main-line" id="dispSci" aria-live="polite">0</div>
+              <div class="err-line" id="errSci"></div>
+            </div>
+            <div class="keypad sci" id="keysSci"></div>
+          </section>
+
+          <section id="panelProg" class="card hidden" role="tabpanel" aria-labelledby="tabProg">
+            <div class="toolbar">
+              <label>Base <select id="progBase"><option value="10" selected>Decimal</option><option value="16">Hex</option><option value="8">Octal</option><option value="2">Binary</option></select></label>
+              <span class="mem-badge" id="memProg">M = 0</span>
+              <button type="button" class="btn" id="copyProg" style="margin-left:auto;padding:6px 12px;font-size:12px">Copy</button>
+            </div>
+            <div class="display-wrap">
+              <div class="expr-line" id="exprProg"></div>
+              <div class="main-line" id="dispProg">0</div>
+              <div class="err-line" id="errProg"></div>
+            </div>
+            <div class="keypad prog" id="keysProg"></div>
+          </section>
+
+          <section id="panelUnit" class="card hidden" role="tabpanel" aria-labelledby="tabUnit">
+            <div class="unit-grid">
+              <div>
+                <label for="uVal">Value</label>
+                <input type="text" id="uVal" inputmode="decimal" placeholder="1" value="1" />
+              </div>
+              <div>
+                <label for="uCat">Category</label>
+                <select id="uCat"></select>
+              </div>
+              <div>
+                <label for="uFrom">From</label>
+                <select id="uFrom"></select>
+              </div>
+              <div>
+                <label for="uTo">To</label>
+                <select id="uTo"></select>
+              </div>
+            </div>
+            <p style="margin:14px 0 0;font:18px JetBrains Mono,monospace" id="uOut">—</p>
+          </section>
+        </div>
+        <aside class="side">
+          <div class="card" style="padding:14px">
+            <h3>History</h3>
+            <div class="history" id="history"></div>
+            <button type="button" class="btn" id="clearHist" style="width:100%;margin-top:10px;font-size:12px">Clear history</button>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <footer>Created by <a href="https://codelyfe.github.io" target="_blank" rel="noopener">Codelyfe.github.io</a></footer>
+  </div>
+
+  <script>
+(function(){
+  const DEG = Math.PI / 180;
+  function isDeg(){ return document.querySelector('input[name="angle"]:checked').value === 'deg'; }
+  function trig(fn, x){ return fn(isDeg() ? x * DEG : x); }
+  function atrig(fn, x){ const r = fn(x); return isDeg() ? r / DEG : r; }
+
+  function factorial(n){
+    if (n < 0 || n !== Math.floor(n) || n > 170) throw new Error('Invalid factorial');
+    let p = 1;
+    for (let i = 2; i <= n; i++) p *= i;
+    return p;
+  }
+
+  const FUNCS = {
+    sin: x => trig(Math.sin, x), cos: x => trig(Math.cos, x), tan: x => trig(Math.tan, x),
+    asin: x => atrig(Math.asin, x), acos: x => atrig(Math.acos, x), atan: x => atrig(Math.atan, x),
+    sinh: Math.sinh || (x => (Math.exp(x)-Math.exp(-x))/2),
+    cosh: Math.cosh || (x => (Math.exp(x)+Math.exp(-x))/2),
+    tanh: Math.tanh || (x => (Math.exp(2*x)-1)/(Math.exp(2*x)+1)),
+    log: Math.log10 || (x => Math.log(x) / Math.LN10), ln: Math.log, sqrt: Math.sqrt, cbrt: Math.cbrt || (x => Math.pow(x, 1/3)),
+    abs: Math.abs, floor: Math.floor, ceil: Math.ceil, round: Math.round, exp: Math.exp,
+    deg: x => x * DEG, rad: x => x
+  };
+
+  function tokenize(str){
+    const s = str.replace(/\s+/g, '').replace(/π/g, 'pi').replace(/×/g, '*').replace(/÷/g, '/');
+    const tokens = [];
+    let i = 0;
+    const ident = () => {
+      let j = i;
+      while (j < s.length && /[a-zA-Z_]/.test(s[j])) j++;
+      const id = s.slice(i, j);
+      i = j;
+      return id;
+    };
+    while (i < s.length){
+      const c = s[i];
+      if (c === ' '){ i++; continue; }
+      if (/[0-9.]/.test(c)){
+        let j = i;
+        while (j < s.length && /[0-9.eE+-]/.test(s[j])) j++;
+        const chunk = s.slice(i, j);
+        if (!/^-?\d*\.?\d+(e[+-]?\d+)?$/i.test(chunk.replace(/^\+/, ''))) throw new Error('Bad number');
+        tokens.push({ type: 'num', v: parseFloat(chunk) });
+        i = j;
+        continue;
+      }
+      if (/[a-zA-Z_]/.test(c)){
+        const id = ident();
+        if (id === 'pi') tokens.push({ type: 'num', v: Math.PI });
+        else if (id === 'e') tokens.push({ type: 'num', v: Math.E });
+        else tokens.push({ type: 'id', v: id });
+        continue;
+      }
+      if ('+-*/%^()!,|&^~<>'.includes(c) || (c === '<' && s[i+1] === '<') || (c === '>' && s[i+1] === '>')){
+        if (c === '<' && s[i+1] === '<'){ tokens.push({ type: 'op', v: '<<' }); i += 2; continue; }
+        if (c === '>' && s[i+1] === '>'){ tokens.push({ type: 'op', v: '>>' }); i += 2; continue; }
+        tokens.push({ type: 'op', v: c });
+        i++;
+        continue;
+      }
+      throw new Error('Invalid character: ' + c);
+    }
+    return tokens;
+  }
+
+  function toRpn(tokens, opts){
+    opts = opts || {};
+    const xorCaret = !!opts.xorCaret;
+    const out = [];
+    const stack = [];
+    const prec = xorCaret
+      ? { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '|': 1, '^': 2, '&': 3, '<<': 4, '>>': 4, 'u+': 6, 'u-': 6, '~': 6 }
+      : { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 4, '<<': 2, '>>': 2, '&': 1, '|': 1, 'u+': 3, 'u-': 3, '~': 3 };
+    const right = xorCaret ? {} : { '^': true };
+    let expectUnary = true;
+    for (let k = 0; k < tokens.length; k++){
+      const t = tokens[k];
+      if (t.type === 'num'){
+        out.push(t);
+        expectUnary = false;
+        continue;
+      }
+      if (t.type === 'id'){
+        if (FUNCS[t.v] === undefined) throw new Error('Unknown: ' + t.v);
+        stack.push(t);
+        expectUnary = false;
+        continue;
+      }
+      if (t.type === 'op'){
+        if (t.v === '('){ stack.push(t); expectUnary = true; continue; }
+        if (t.v === ')'){
+          while (stack.length && stack[stack.length-1].v !== '(') out.push(stack.pop());
+          if (!stack.length) throw new Error('Paren');
+          stack.pop();
+          if (stack.length && stack[stack.length-1].type === 'id') out.push(stack.pop());
+          expectUnary = false;
+          continue;
+        }
+        if (t.v === ','){ while (stack.length && stack[stack.length-1].v !== '(') out.push(stack.pop()); continue; }
+        if ((t.v === '+' || t.v === '-') && expectUnary){
+          stack.push({ type: 'op', v: t.v === '+' ? 'u+' : 'u-' });
+          continue;
+        }
+        if (t.v === '~' && expectUnary){
+          stack.push({ type: 'op', v: '~' });
+          continue;
+        }
+        while (stack.length){
+          const top = stack[stack.length-1];
+          if (top.type !== 'op' && top.type !== 'id') break;
+          if (top.v === '(') break;
+          const p1 = prec[t.v] || 0;
+          const p2 = prec[top.v] || 0;
+          if (p2 > p1 || (p2 === p1 && !right[t.v])) out.push(stack.pop());
+          else break;
+        }
+        stack.push(t);
+        expectUnary = true;
+        continue;
+      }
+    }
+    while (stack.length) out.push(stack.pop());
+    return out;
+  }
+
+  function evalRpn(rpn, opts){
+    opts = opts || {};
+    const xorCaret = !!opts.xorCaret;
+    const st = [];
+    const apply2 = (op, b, a) => {
+      switch (op){
+        case '+': return a + b; case '-': return a - b; case '*': return a * b; case '/': return a / b;
+        case '%': return a % b;
+        case '^': return xorCaret ? (Math.trunc(a) ^ Math.trunc(b)) : Math.pow(a, b);
+        case '<<': return Math.trunc(a) << Math.trunc(b); case '>>': return Math.trunc(a) >> Math.trunc(b);
+        case '&': return Math.trunc(a) & Math.trunc(b); case '|': return Math.trunc(a) | Math.trunc(b);
+        default: throw new Error('op');
+      }
+    };
+    for (const t of rpn){
+      if (t.type === 'num'){ st.push(t.v); continue; }
+      if (t.type === 'id'){
+        const fn = FUNCS[t.v];
+        if (!fn) throw new Error('Bad fn');
+        const arg = st.pop();
+        if (arg === undefined) throw new Error('Arg');
+        st.push(fn(arg));
+        continue;
+      }
+      if (t.type === 'op'){
+        if (t.v === 'u+'){ st.push(+st.pop()); continue; }
+        if (t.v === 'u-'){ st.push(-st.pop()); continue; }
+        if (t.v === '~'){ st.push(~Math.trunc(st.pop())); continue; }
+        if (t.v === '!'){
+          st.push(factorial(Math.trunc(st.pop())));
+          continue;
+        }
+        const b = st.pop(), a = st.pop();
+        st.push(apply2(t.v, b, a));
+      }
+    }
+    if (st.length !== 1) throw new Error('Expr');
+    return st[0];
+  }
+
+  function evaluate(expr, opts){
+    opts = opts || {};
+    if (!expr.trim()) return 0;
+    const toks = tokenize(expr);
+    const withFact = [];
+    for (let i = 0; i < toks.length; i++){
+      withFact.push(toks[i]);
+      if (i + 1 < toks.length && toks[i].type === 'num' && toks[i+1].type === 'op' && toks[i+1].v === '!'){
+        withFact.push({ type: 'op', v: '!' });
+        i++;
+      }
+    }
+    const rpn = toRpn(withFact, opts);
+    return evalRpn(rpn, opts);
+  }
+
+  function progExprToDecimalString(expr, base){
+    if (base === 10) return expr;
+    const re = base === 16 ? /[0-9A-Fa-f]+/g : base === 8 ? /[0-7]+/g : /[01]+/g;
+    return expr.replace(re, m => {
+      const n = parseInt(m, base);
+      if (!Number.isFinite(n)) throw new Error('Bad digit');
+      return String(n);
+    });
+  }
+
+  let exprSci = '';
+  let dispSci = '0';
+  let memory = 0;
+  const exprEl = document.getElementById('exprSci');
+  const dispEl = document.getElementById('dispSci');
+  const errEl = document.getElementById('errSci');
+  const histEl = document.getElementById('history');
+
+  function pushHistory(line){
+    const d = document.createElement('div');
+    d.textContent = line;
+    d.addEventListener('click', () => { exprSci = line.split('=')[0].trim(); updateSci(); });
+    histEl.insertBefore(d, histEl.firstChild);
+    while (histEl.children.length > 50) histEl.removeChild(histEl.lastChild);
+  }
+
+  function updateMem(){
+    document.getElementById('memSci').textContent = 'M = ' + String(memory);
+    document.getElementById('memProg').textContent = 'M = ' + String(memory);
+  }
+
+  function updateSci(){
+    exprEl.textContent = exprSci;
+    dispEl.textContent = dispSci;
+    errEl.textContent = '';
+  }
+
+  function sciAppend(s){
+    errEl.textContent = '';
+    if (dispSci === '0' && /[0-9.]/.test(s) && exprSci === '') exprSci = '';
+    if (dispSci === 'Error'){ exprSci = ''; dispSci = '0'; }
+    exprSci += s;
+    updateSci();
+  }
+
+  function sciEquals(){
+    errEl.textContent = '';
+    try{
+      const v = evaluate(exprSci);
+      if (!Number.isFinite(v)) throw new Error('Not finite');
+      const rounded = Math.abs(v) > 1e15 || (Math.abs(v) < 1e-6 && v !== 0) ? v.toExponential(12) : String(+v.toPrecision(14));
+      pushHistory(exprSci + ' = ' + rounded);
+      dispSci = rounded;
+      exprSci = rounded;
+      updateSci();
+    } catch (e){
+      errEl.textContent = e.message || 'Error';
+      dispSci = 'Error';
+      updateSci();
+    }
+  }
+
+  const sciKeys = [
+    ['MC','MR','M+','M-','MS','⌫'],
+    ['2nd','(',')',',','n!','='],
+    ['sin','cos','tan','log','ln','^'],
+    ['asin','acos','atan','√','∛','%'],
+    ['7','8','9','/','%','π'],
+    ['4','5','6','*','e','deg('],
+    ['1','2','3','-','rad(','abs('],
+    ['0','.','+','floor(','ceil(','exp(']
+  ];
+
+  const keyMap = {
+    '2nd': () => {},
+    '⌫': () => { exprSci = exprSci.slice(0, -1); if (!exprSci) dispSci = '0'; updateSci(); },
+    'MC': () => { memory = 0; updateMem(); },
+    'MR': () => { exprSci = String(memory); dispSci = exprSci; updateSci(); },
+    'M+': () => { try { memory += evaluate(exprSci); updateMem(); } catch(_){} },
+    'M-': () => { try { memory -= evaluate(exprSci); updateMem(); } catch(_){} },
+    'MS': () => { try { memory = evaluate(exprSci); updateMem(); } catch(_){} },
+    'n!': () => sciAppend('!'),
+    '=': sciEquals,
+    'sin': () => sciAppend('sin('), 'cos': () => sciAppend('cos('), 'tan': () => sciAppend('tan('),
+    'asin': () => sciAppend('asin('), 'acos': () => sciAppend('acos('), 'atan': () => sciAppend('atan('),
+    'log': () => sciAppend('log('), 'ln': () => sciAppend('ln('), '√': () => sciAppend('sqrt('), '∛': () => sciAppend('cbrt('),
+    'π': () => sciAppend('pi'), 'e': () => sciAppend('e'),
+    'deg(': () => sciAppend('deg('), 'rad(': () => sciAppend('rad('),
+    'abs(': () => sciAppend('abs('), 'floor(': () => sciAppend('floor('), 'ceil(': () => sciAppend('ceil('), 'exp(': () => sciAppend('exp(')
+  };
+
+  const keysSci = document.getElementById('keysSci');
+  sciKeys.forEach(row => {
+    row.forEach(label => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'key';
+      b.textContent = label;
+      if ('0123456789.'.includes(label)) b.addEventListener('click', () => sciAppend(label));
+      else if ('+-*/^%(),'.includes(label)) b.addEventListener('click', () => sciAppend(label));
+      else if (label === '=') b.classList.add('eq');
+      else if (['sin','cos','tan','log','ln','asin','acos','atan','√','∛','deg(','rad(','abs(','floor(','ceil(','exp('].includes(label)) b.classList.add('fn');
+      else if ('/*+-^%'.includes(label)) b.classList.add('op');
+      const act = keyMap[label];
+      if (act && label !== '2nd') b.addEventListener('click', act);
+      if (label === '2nd') b.addEventListener('click', () => { b.dataset.on = b.dataset.on ? '' : '1'; b.style.opacity = b.dataset.on ? '1' : '.6'; });
+      keysSci.appendChild(b);
+    });
+  });
+
+  document.getElementById('copySci').addEventListener('click', () => {
+    navigator.clipboard.writeText(dispEl.textContent).catch(() => {});
+  });
+
+  document.querySelectorAll('input[name="angle"]').forEach(r => r.addEventListener('change', () => {}));
+
+  let progExpr = '';
+  let progBase = 10;
+  const dispProg = document.getElementById('dispProg');
+  const exprProg = document.getElementById('exprProg');
+  const errProg = document.getElementById('errProg');
+
+  function parseProgInt(str, base){
+    const t = str.replace(/\s+/g, '');
+    if (!t) return 0;
+    return parseInt(t, base);
+  }
+
+  function formatProgInt(n, base){
+    const x = Math.trunc(n);
+    if (base === 10) return String(x);
+    const u = x >>> 0;
+    if (base === 16) return u.toString(16).toUpperCase();
+    if (base === 8) return u.toString(8);
+    if (base === 2) return u.toString(2);
+    return String(x);
+  }
+
+  function updateProg(){
+    exprProg.textContent = progBase !== 10 ? 'base ' + progBase : '';
+    dispProg.textContent = progExpr || '0';
+    errProg.textContent = '';
+  }
+
+  document.getElementById('progBase').addEventListener('change', e => {
+    const nb = +e.target.value;
+    try{
+      if (progExpr) progExpr = formatProgInt(parseProgInt(progExpr, progBase), nb);
+    } catch(_){ progExpr = ''; }
+    progBase = nb;
+    updateProg();
+  });
+
+  const progKeys = [
+    ['A','B','C','<<','>>','⌫'],
+    ['D','E','F','AND','OR','XOR'],
+    ['7','8','9','+','-','CLR'],
+    ['4','5','6','*','/','%'],
+    ['1','2','3','~','=',''],
+    ['0','F↔D','','','','']
+  ];
+
+  function progDigit(d){
+    if (progBase === 2 && !/[01]/.test(d)) return;
+    if (progBase === 8 && !/[0-7]/.test(d)) return;
+    if (progBase === 10 && !/[0-9]/.test(d)) return;
+    if (progBase === 16 && !/[0-9A-Fa-f]/.test(d)) return;
+    progExpr += d.toUpperCase();
+    updateProg();
+  }
+
+  const keysProg = document.getElementById('keysProg');
+  progKeys.forEach(row => {
+    row.forEach(label => {
+      if (!label) return;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'key';
+      b.textContent = label;
+      if (/^[0-9A-F]$/.test(label)) b.addEventListener('click', () => progDigit(label));
+      if (label === '⌫') b.addEventListener('click', () => { progExpr = progExpr.slice(0,-1); updateProg(); });
+      if (label === 'CLR') b.addEventListener('click', () => { progExpr = ''; updateProg(); });
+      if (label === 'F↔D') b.addEventListener('click', () => {
+        const sel = document.getElementById('progBase');
+        sel.value = progBase === 16 ? '10' : '16';
+        sel.dispatchEvent(new Event('change'));
+      });
+      if (label === '=') {
+        b.classList.add('eq');
+        b.addEventListener('click', () => {
+          try{
+            const raw = progExpr.trim();
+            const decStr = progExprToDecimalString(raw, progBase);
+            const v = evaluate(decStr, { xorCaret: true });
+            if (!Number.isFinite(v)) throw new Error('Not finite');
+            const outFmt = formatProgInt(Math.trunc(v), progBase);
+            pushHistory('prog: ' + raw + ' = ' + v + ' → ' + outFmt);
+            progExpr = outFmt;
+            updateProg();
+          } catch(e){ errProg.textContent = e.message || 'Error'; }
+        });
+      }
+      if (['AND','OR','XOR','<<','>>','+','-','*','/','%','~'].includes(label)){
+        b.classList.add('op');
+        b.addEventListener('click', () => {
+          const map = { AND:'&', OR:'|', XOR:'^' };
+          progExpr += (map[label] || label);
+          updateProg();
+        });
+      }
+      keysProg.appendChild(b);
+    });
+  });
+
+  document.getElementById('copyProg').addEventListener('click', () => {
+    navigator.clipboard.writeText(dispProg.textContent).catch(() => {});
+  });
+
+  const tabs = [['tabSci','panelSci'],['tabProg','panelProg'],['tabUnit','panelUnit']];
+  tabs.forEach(([tid, pid]) => {
+    document.getElementById(tid).addEventListener('click', () => {
+      tabs.forEach(([t, p]) => {
+        document.getElementById(t).setAttribute('aria-selected', t === tid ? 'true' : 'false');
+        document.getElementById(p).classList.toggle('hidden', p !== pid);
+      });
+    });
+  });
+
+  document.getElementById('clearHist').addEventListener('click', () => { histEl.innerHTML = ''; });
+
+  const UNITS = {
+    length: { m:1, km:1000, cm:0.01, mm:0.001, mi:1609.344, yd:0.9144, ft:0.3048, in:0.0254 },
+    mass: { kg:1, g:0.001, mg:1e-6, lb:0.45359237, oz:0.028349523125 },
+    temperature: { C: 1, F: 1, K: 1 },
+    data: { B:1, KB:1024, MB:1048576, GB:1073741824, TB:1099511627776 },
+    time: { s:1, min:60, h:3600, d:86400, wk:604800 }
+  };
+
+  function convertTemp(v, from, to){
+    let c = v;
+    if (from === 'F') c = (v - 32) * 5/9;
+    else if (from === 'K') c = v - 273.15;
+    else if (from !== 'C') return NaN;
+    if (to === 'C') return c;
+    if (to === 'F') return c * 9/5 + 32;
+    if (to === 'K') return c + 273.15;
+    return c;
+  }
+
+  const uCat = document.getElementById('uCat');
+  const uFrom = document.getElementById('uFrom');
+  const uTo = document.getElementById('uTo');
+  const uVal = document.getElementById('uVal');
+  const uOut = document.getElementById('uOut');
+
+  Object.keys(UNITS).forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+    uCat.appendChild(o);
+  });
+
+  function fillUnitSelects(){
+    const cat = uCat.value;
+    uFrom.innerHTML = '';
+    uTo.innerHTML = '';
+    const u = UNITS[cat];
+    Object.keys(u).forEach(k => {
+      uFrom.appendChild(new Option(k, k));
+      uTo.appendChild(new Option(k, k));
+    });
+    if (uTo.options.length > 1) uTo.selectedIndex = 1;
+  }
+
+  uCat.addEventListener('change', fillUnitSelects);
+  fillUnitSelects();
+
+  function runUnit(){
+    const cat = uCat.value;
+    const v = parseFloat(uVal.value);
+    if (Number.isNaN(v)){ uOut.textContent = '—'; return; }
+    const f = uFrom.value, t = uTo.value;
+    if (cat === 'temperature'){
+      uOut.textContent = String(convertTemp(v, f, t).toPrecision(12));
+      return;
+    }
+    const table = UNITS[cat];
+    const base = v * table[f];
+    uOut.textContent = String(base / table[t]);
+  }
+  [uVal, uFrom, uTo, uCat].forEach(el => {
+    el.addEventListener('input', runUnit);
+    el.addEventListener('change', runUnit);
+  });
+  runUnit();
+
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('panelSci').classList.contains('hidden')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (/^[0-9.]$/.test(e.key)){ e.preventDefault(); sciAppend(e.key); return; }
+    if ('+-*/^%()'.includes(e.key)){ e.preventDefault(); sciAppend(e.key); return; }
+    if (e.key === 'Enter' || e.key === '='){ e.preventDefault(); sciEquals(); return; }
+    if (e.key === 'Backspace'){ e.preventDefault(); keyMap['⌫'](); return; }
+    if (e.key === 'Escape'){ e.preventDefault(); exprSci = ''; dispSci = '0'; errEl.textContent = ''; updateSci(); }
+  });
+
+  updateSci();
+  updateProg();
+  updateMem();
+})();
+  </script>
+</body>
+</html>

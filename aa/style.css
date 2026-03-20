@@ -1,0 +1,296 @@
+body {
+    margin: 0;
+    padding-top: 90px;
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #222;
+}
+
+#app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    box-sizing: border-box;
+}
+
+#header-left {
+    display: flex;
+    align-items: center;
+}
+
+#app-logo {
+    height: 40px;
+    width: auto;
+    margin-right: 12px;
+}
+
+#app-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+#discord-icon {
+    width: 44px;
+    height: 44px;
+    opacity: 0.85;
+    transition: 0.2s ease;
+}
+
+#discord-icon:hover {
+    opacity: 1;
+    transform: scale(1.08);
+}
+
+#header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.main-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+#server-info {
+    margin: 10px auto 20px;
+    width: 90%;
+    padding: 20px;
+    border: 2px solid #000;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+#server-info-left {
+    margin-left: 15px;
+}
+
+#server-info-right {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#server-select {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+#current-server {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#last-update {
+    font-size: 13px;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+#cargo-timer {
+    width: 90%;
+    padding: 20px;
+    border-radius: 12px;
+    border: 3px solid transparent;
+    background: #fff;
+    text-align: center;
+    transition: border-color 0.3s ease;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.timer-blue { border-color: #007bff !important; }
+.timer-red { border-color: #dc3545 !important; }
+.timer-green { border-color: #28a745 !important; }
+
+#progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    margin: 10px 0 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+#progress {
+    height: 100%;
+    width: 0;
+    background: #0d6efd;
+    transition: width 0.3s ease;
+}
+
+#progress.yellow { background: #ffc107; }
+#progress.red { background: #dc3545; }
+
+.progress-label {
+    position: absolute;
+    top: 2px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.remaining-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#dep-label { left: 10px; }
+#arr-label { right: 10px; }
+
+.timer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 15px;
+}
+
+.timer-table th {
+    background: #f8f9fa;
+    padding: 8px 0;
+    border-bottom: 2px solid #ddd;
+    font-size: 16px;
+}
+
+.timer-table td {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+
+#map-container {
+    width: 90%;
+    border-radius: 12px;
+    border: 2px solid #000;
+    background: #fff;
+    overflow: hidden;
+    margin: 20px auto 50px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#map-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 10px auto;
+    overflow: hidden;
+    max-height: 0;
+    padding: 0;
+    transition: max-height 0.5s ease, padding 0.5s ease;
+}
+
+#map-wrapper.show {
+    max-height: 600px;
+    padding: 20px 0;
+}
+
+#mapCanvas {
+    max-width: 945px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+#toggle-map {
+    display: block;
+    margin: 0 auto 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#mapFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #ccc;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 0;
+    z-index: 9999;
+}
+
+#mapFooter a {
+    color: #4da6ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#mapFooter a:hover {
+    text-decoration: underline;
+    color: #82c3ff;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 80px;
+    }
+
+    #app-header {
+        height: auto;
+        min-height: 64px;
+        padding: 10px 14px;
+    }
+
+    #app-title {
+        font-size: 16px;
+    }
+
+    #discord-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    #server-info {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    #server-info-left,
+    #server-info-right {
+        margin: 0;
+    }
+
+    #cargo-timer,
+    #map-container {
+        width: 100%;
+        padding: 14px;
+    }
+
+    .timer-table th,
+    .timer-table td {
+        font-size: 14px;
+    }
+
+    .progress-label {
+        font-size: 12px;
+    }
+}
